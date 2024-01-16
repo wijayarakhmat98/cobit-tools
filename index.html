@@ -102,8 +102,6 @@
 							Jc.push(j);
 							break;
 						}
-				console.log(di, c.i);
-				console.log(structuredClone(Jc));
 				return Jc;
 			}
 
@@ -129,8 +127,6 @@
 					while (f.length < F_col)
 						f.push(null);
 				});
-
-				console.log(B.map((b) => (b == null) ? null : b.name));
 			});
 		}
 
@@ -140,10 +136,6 @@
 
 		const row = Math.max.apply(Math, C.map((c) => c.i)) + 1;
 		const col = Math.max.apply(Math, C.map((c) => c.j)) + 1;
-
-		console.log(structuredClone(C));
-		console.log(structuredClone(row));
-		console.log(structuredClone(col));
 
 	</script>
 </head>
@@ -169,8 +161,61 @@
 			p.style['grid-column-start'] = c.j + 1;
 			p.style['grid-column-end'] = c.j + 2;
 			p.style['background-color'] = 'cyan';
-			show_graph.append(p);
+			show_graph.appendChild(p);
 		});
+
+		C.forEach((c) => {c.children.forEach((b) => {
+			const p = {
+				'l': Math.min(c.j, b.j) + 1,
+				'r': Math.max(c.j, b.j) + 2,
+				't': Math.min(c.i, b.i) + 1,
+				'b': Math.max(c.i, b.i) + 2
+			};
+			let d = document.createElement('div');
+			d.style['grid-row-start'] = p.t;
+			d.style['grid-row-end'] = p.b;
+			d.style['grid-column-start'] = p.l;
+			d.style['grid-column-end'] = p.r;
+			d.style['z-index'] = -10;
+			show_graph.appendChild(d);
+			const m = {
+				'w': p.r - p.l,
+				'h': p.b - p.t
+			};
+			const a = (() => {
+				const r = d.getBoundingClientRect();
+				const w = r.width / m.w;
+				const h = r.height / m.h;
+				if (w < h) return {'w': 1, 'h': h / w};
+				if (w > h) return {'w': w / h, 'h': 1};
+				return {'w': 1, 'h': 1};
+			})();
+			let s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+			s.style['width'] = 0;
+			s.style['height'] = 0;
+			s.style['min-width'] = '100%';
+			s.style['min-height'] = '100%';
+			s.setAttribute('viewBox', `0 0 ${m.w * a.w} ${m.h * a.h}`);
+			let l = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+			l.setAttribute('fill', 'none');
+			l.setAttribute('stroke', 'black');
+			l.setAttribute('stroke-width', '0.05');
+			if (c.j == b.j)
+				l.setAttribute('points', `${0.5 * a.w} ${(m.h - 0.5) * a.h} ${0.5 * a.w} ${0.5 * a.h}`);
+			else
+				if (c.branch.includes(b))
+					if (c.j < b.j)
+						l.setAttribute('points', `${0.5 * a.w} ${(m.h - 0.5) * a.h} ${(m.w - 0.5) * a.w} ${(m.h - 0.5) * a.h} ${(m.w - 0.5) * a.w} ${0.5 * a.h}`);
+					else
+						l.setAttribute('points', `${(m.w - 0.5) * a.w} ${(m.h - 0.5) * a.h} ${0.5 * a.w} ${(m.h - 0.5) * a.h} ${0.5 * a.w} ${0.5 * a.h}`);
+				else
+					if (c.j < b.j)
+						l.setAttribute('points', `${0.5 * a.w} ${(m.h - 0.5) * a.h} ${0.5 * a.w} ${0.5 * a.h} ${(m.w - 0.5) * a.w} ${0.5 * a.h}`);
+					else
+						l.setAttribute('points', `${(m.w - 0.5) * a.w} ${(m.h - 0.5) * a.h} ${(m.w - 0.5) * a.w} ${0.5 * a.h} ${0.5 * a.w} ${0.5 * a.h}`);
+			s.appendChild(l);
+			d.appendChild(s);
+		})})
 
 	</script>
 </body>
