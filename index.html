@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+	<script>
+
+		const graph = [
+			{'name': 'A', 'parent': []        , 'time':  1 },
+			{'name': 'B', 'parent': ['A']     , 'time':  2 },
+			{'name': 'C', 'parent': ['B']     , 'time':  3 },
+			{'name': 'D', 'parent': ['C']     , 'time':  4 },
+			{'name': 'E', 'parent': ['C']     , 'time':  5 },
+			{'name': 'F', 'parent': ['D']     , 'time':  6 },
+			{'name': 'G', 'parent': ['E']     , 'time':  7 },
+			{'name': 'H', 'parent': ['F']     , 'time':  8 },
+			{'name': 'I', 'parent': ['G']     , 'time':  9 },
+			{'name': 'J', 'parent': ['G']     , 'time': 10 },
+			{'name': 'K', 'parent': ['G']     , 'time': 11 },
+			{'name': 'L', 'parent': ['H']     , 'time': 12 },
+			{'name': 'M', 'parent': ['H']     , 'time': 13 },
+			{'name': 'N', 'parent': ['J']     , 'time': 14 },
+			{'name': 'O', 'parent': ['N']     , 'time': 15 },
+			{'name': 'P', 'parent': ['I', 'M'], 'time': 16 },
+			{'name': 'Q', 'parent': ['L', 'O'], 'time': 17 },
+			{'name': 'R', 'parent': ['P', 'Q'], 'time': 18 },
+			{'name': 'S', 'parent': ['R', 'K'], 'time': 19 },
+			{'name': 'T', 'parent': ['S']     , 'time': 20 },
+			{'name': 'U', 'parent': ['T']     , 'time': 21 },
+		];
+
+		let C = graph.map((g) => ({
+			'name': g.name,
+			'timestamp': g.time,
+			'i': undefined,
+			'j': undefined,
+			'parents': g.parent,
+			'children': [],
+			'merge': [],
+			'branch': [],
+			'explored': false
+		}));
+		C.forEach((c) => {
+			parent = c.parents;
+			c.parents = C.filter((d) => parent.includes(d.name));
+		});
+		C.forEach((c) => {
+			c.children = C.filter((d) => d.parents.includes(c));
+			c.branch = c.children.filter((d) => d.parents[0] == c);
+			c.merge = c.children.filter((d) => d.parents[0] != c);
+		});
+		C.sort((c, d) => (c.timestamp < d.timestamp) ? 1 : -1);
+
+		{
+			function dfs(c) {
+				if (!c.explored) {
+					c.explored = true;
+					c.children.forEach((d) => dfs(d));
+					c.i = i;
+					i += 1;
+				}
+			}
+			let i = 0;
+			C.forEach((c) => dfs(c));
+		}
+
+		C.sort((c, d) => (c.i > d.i) ? 1 : -1);
+
+		{
+			let B = [];
+			C.forEach((c) => {
+				D_ = [];
+				if (c.branch.length > 0) {
+					d = c.branch[0];
+					D_.push(d);
+					B[B.findIndex((e) => e == d)] = c;
+				} else {
+					B.push(c);
+				}
+				nD_ = c.branch.filter((d) => !D_.includes(d));
+				nD_.forEach((d_) => {
+					let index = B.findIndex((e) => e == d_);
+					if (index > -1)
+						B.splice(index, 1);
+				});
+				c.j = B.findIndex((d) => d == c);
+			});
+		}
+
+		const row = Math.max.apply(Math, C.map((c) => c.i)) + 1;
+		const col = Math.max.apply(Math, C.map((c) => c.j)) + 1;
+
+		console.log(structuredClone(C));
+		console.log(structuredClone(row));
+		console.log(structuredClone(col));
+
+	</script>
+</head>
+<body>
+	<div id="show graph"></div>
+
+	<script>
+
+		let show_graph = document.getElementById('show graph');
+		show_graph.innerHTML = '';
+
+		show_graph.style['display'] = 'grid';
+		show_graph.style['grid-template-rows'] = `repeat(${row}, 1fr)`;
+		show_graph.style['grid-template-columns'] = `repeat(${col}, 1fr)`;
+
+		C.forEach((c) => {
+			let p = document.createElement('p');
+			let t = document.createTextNode(c.name);
+			p.appendChild(t);
+			p.style['text-align'] = 'center';
+			p.style['grid-row-start'] = c.i + 1;
+			p.style['grid-row-end'] = c.i + 2;
+			p.style['grid-column-start'] = c.j + 1;
+			p.style['grid-column-end'] = c.j + 2;
+			p.style['background-color'] = 'cyan';
+			show_graph.append(p);
+		});
+
+	</script>
+</body>
+</html>
