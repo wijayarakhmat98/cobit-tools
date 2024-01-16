@@ -27,7 +27,7 @@
 			{'name': 'R', 'parent': ['P', 'Q'], 'time': 18 },
 			{'name': 'S', 'parent': ['R', 'K'], 'time': 19 },
 			{'name': 'T', 'parent': ['S']     , 'time': 20 },
-			{'name': 'U', 'parent': ['T']     , 'time': 21 },
+			{'name': 'U', 'parent': ['T']     , 'time': 21 }
 		];
 
 		let C = graph.map((g) => ({
@@ -67,7 +67,7 @@
 
 		C.sort((c, d) => (c.i > d.i) ? 1 : -1);
 
-		{
+		function curved() {
 			let B = [];
 			C.forEach((c) => {
 				D_ = [];
@@ -87,6 +87,56 @@
 				c.j = B.findIndex((d) => d == c);
 			});
 		}
+
+		function straight() {
+			let F = [];
+
+			function J(c) {
+				if (c.merge.length == 0)
+					return [];
+				let Jc = [];
+				let di = Math.min.apply(Math, c.merge.map((m) => m.i));
+				for (let j = 0; j < F[0].length; ++j)
+					for (let i = c.i - 1; i > di; --i)
+						if (F[i][j] != null) {
+							Jc.push(j);
+							break;
+						}
+				console.log(di, c.i);
+				console.log(structuredClone(Jc));
+				return Jc;
+			}
+
+			let B = [];
+			C.forEach((c) => {
+				let  Jc = J(c);
+				let nJc = c.branch.filter((d) => !Jc.includes(d.j));
+				let  D_ = [];
+				if (nJc.length > 0) {
+					d = nJc[0];
+					D_.push(d);
+					B[B.findIndex((e) => e == d)] = c;
+				} else {
+					B.push(c);
+				}
+				let nD_ = c.branch.filter((d) => !D_.includes(d));
+				nD_.forEach((d_) => B[d_.j] = null);
+				c.j = B.findIndex((d) => d == c);
+
+				F.push(B.map((b) => (b == null) ? null : b.name));
+				F_col = Math.max.apply(Math, F.map((f) => f.length));
+				F.forEach((f) => {
+					while (f.length < F_col)
+						f.push(null);
+				});
+
+				console.log(B.map((b) => (b == null) ? null : b.name));
+			});
+		}
+
+
+		// curved();
+		straight();
 
 		const row = Math.max.apply(Math, C.map((c) => c.i)) + 1;
 		const col = Math.max.apply(Math, C.map((c) => c.j)) + 1;
