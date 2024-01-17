@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>COBIT Tools</title>
+	<script>
+
+		const mst_df1 = [
+			{'id': 1, 'dimension': 'Growth/Acquisition'},
+			{'id': 2, 'dimension': 'Innovation/Differentiation'},
+			{'id': 3, 'dimension': 'Cost Leadership'},
+			{'id': 4, 'dimension': 'Client Service/Stability'}
+		];
+
+		const trs_df1_lo = 1;
+		const trs_df1_hi = 5;
+		const trs_df1_ra = trs_df1_hi - trs_df1_lo + 1;
+
+		const trs_df1_baseline = [
+			{'id': 1, 'value': 3,},
+			{'id': 2, 'value': 3,},
+			{'id': 3, 'value': 3,},
+			{'id': 4, 'value': 3,}
+		];
+
+		let commit = [
+			{
+				'id': 0,
+				'parent': null,
+				'merge': [],
+				'change': trs_df1_baseline.map((d) => ({
+					'id': d.id, 'new': true, 'value': d.value, 'comment': 'Baseline'
+				})),
+				'author': 'System',
+				'description': 'Initial commit',
+				'timestamp': 0
+			}
+		];
+
+		function grid_place(o, r, c, h, w) {
+			o.style['grid-row-start'] = r;
+			o.style['grid-row-end'] = r + h;
+			o.style['grid-column-start'] = c;
+			o.style['grid-column-end'] = c + w;
+		}
+
+		function checkout(commit, view) {
+			view.innerHTML = '';
+			view.style['display'] = 'grid';
+			view.style['grid-template-rows'] = `repeat(${1 + mst_df1.length}, auto)`;
+			view.style['grid-template-columns'] = `repeat(${5 + trs_df1_ra}, auto)`;
+			{
+				const col = 1;
+				{
+					let p = document.createElement('p');
+					const t = document.createTextNode('Dimensions');
+					grid_place(p, 1, col, 1, 1);
+					p.appendChild(t);
+					view.appendChild(p);
+				}
+				mst_df1.forEach((d) => {
+					let p = document.createElement('p');
+					const t = document.createTextNode(d.dimension);
+					grid_place(p, d.id + 1, col, 1, 1);
+					p.appendChild(t);
+					view.appendChild(p);
+				});
+			}
+			{
+				const col = 2;
+				{
+					let p = document.createElement('p');
+					const t = document.createTextNode('Change');
+					grid_place(p, 1, col, 1, trs_df1_ra + 1);
+					p.appendChild(t);
+					view.appendChild(p);
+				}
+				mst_df1.forEach((d) => {
+					for (let v = trs_df1_lo; v <= trs_df1_hi; ++v) {
+						let p = document.createElement('p');
+						let L = document.createElement('label');
+						let I = document.createElement('input');
+						const t = document.createTextNode(v);
+						grid_place(p, d.id + 1, col + v - trs_df1_lo, 1, 1);
+						I.setAttribute('type', 'radio');
+						I.setAttribute('name', `df1 ${d.id} value`);
+						L.appendChild(I);
+						L.appendChild(t);
+						p.appendChild(L);
+						view.appendChild(p);
+					}
+				});
+				mst_df1.forEach((d) => {
+					let p = document.createElement('p');
+					let I = document.createElement('textarea');
+					grid_place(p, d.id + 1, col + trs_df1_ra, 1, 1);
+					I.setAttribute('rows', 1);
+					I.setAttribute('cols', 10);
+					I.setAttribute('name', `df1 ${d.id} comment`);
+					p.appendChild(I);
+					view.appendChild(p);
+				});
+			}
+			{
+				const col = 8;
+				{
+					let p = document.createElement('p');
+					const t = document.createTextNode('Unchanged');
+					grid_place(p, 1, col, 1, 2);
+					p.appendChild(t);
+					view.appendChild(p);
+				}
+				commit.change.forEach((d) => {
+					let p = document.createElement('p');
+					let L = document.createElement('label');
+					let I = document.createElement('input');
+					const t= document.createTextNode(d.value);
+					grid_place(p, d.id + 1, col, 1, 1);
+					I.setAttribute('type', 'radio');
+					I.setAttribute('name', `df1 ${d.id} value`);
+					I.setAttribute('checked', '');
+					L.appendChild(I);
+					L.appendChild(t);
+					p.appendChild(L);
+					view.appendChild(p);
+				});
+				commit.change.forEach((d) => {
+					let p = document.createElement('p');
+					let I = document.createElement('textarea');
+					let t = document.createTextNode(d.comment);
+					grid_place(p, d.id + 1, col + 1, 1, 1);
+					I.setAttribute('rows', 1);
+					I.setAttribute('cols', 10);
+					I.setAttribute('disabled', '');
+					I.appendChild(t);
+					p.appendChild(I);
+					view.appendChild(p);
+				});
+			}
+			{
+				const col = 10;
+				{
+					let p = document.createElement('p');
+					const t = document.createTextNode('Baseline');
+					grid_place(p, 1, col, 1, 1);
+					p.appendChild(t);
+					view.appendChild(p);
+				}
+				trs_df1_baseline.forEach((d) => {
+					let p = document.createElement('p');
+					const t = document.createTextNode(d.value);
+					grid_place(p, d.id + 1, col, 1, 1);
+					p.appendChild(t);
+					view.appendChild(p);
+				});
+			}
+		}
+
+		function main() {
+			let view_input = document.getElementById('view input');
+			checkout(commit[0], view_input);
+			// console.log(structuredClone(commit[0]));
+		}
+
+	</script>
+</head>
+<body>
+	<section id="view graph"></section>
+	<section id="view input"></section>
+	<script>main();</script>
+</body>
+</html>
