@@ -9,21 +9,25 @@
 			white-space: nowrap;
 		}
 
-		.reduced {
+		[id="view input"] details p {
+			white-space: wrap;
+		}
+
+		[id="view input"] .reduced {
 			margin-top: -0.5rem;
 		}
 
-		.reduced textarea {
+		[id="view input"] .reduced textarea {
 			resize: vertical;
 		}
 	</style>
 	<script>
 
 		const mst_df1 = [
-			{'id': 1, 'dimension': 'Growth/Acquisition'},
-			{'id': 2, 'dimension': 'Innovation/Differentiation'},
-			{'id': 3, 'dimension': 'Cost Leadership'},
-			{'id': 4, 'dimension': 'Client Service/Stability'}
+			{'id': 1, 'dimension': 'Growth/Acquisition', 'explanation': 'The enterprise has a focus on growing (revenues).'},
+			{'id': 2, 'dimension': 'Innovation/Differentiation', 'explanation': 'The enterprise has a focus on offering different and/or innovative products and services to their clients.'},
+			{'id': 3, 'dimension': 'Cost Leadership', 'explanation': 'The enterprise has a focus on short-term cost minimization.'},
+			{'id': 4, 'dimension': 'Client Service/Stability', 'explanation': 'The enterprise has a focus on providing stable and client-oriented service.'}
 		];
 
 		const trs_df1_dm = mst_df1.length;
@@ -75,11 +79,19 @@
 					view.appendChild(p);
 				}
 				mst_df1.forEach((d) => {
-					let p = document.createElement('p');
-					const t = document.createTextNode(d.dimension);
-					grid_place(p, d.id * 2, col, 1, 1);
-					p.appendChild(t);
-					view.appendChild(p);
+					let p1 = document.createElement('p');
+					let e = document.createElement('details');
+					let s = document.createElement('summary');
+					let p2 = document.createElement('p');
+					const t1 = document.createTextNode(d.dimension);
+					const t2 = document.createTextNode(d.explanation);
+					grid_place(p1, d.id * 2, col, 2, 1);
+					s.appendChild(t1);
+					p2.appendChild(t2);
+					e.appendChild(s);
+					e.appendChild(p2);
+					p1.appendChild(e);
+					view.appendChild(p1);
 				});
 			}
 			{
