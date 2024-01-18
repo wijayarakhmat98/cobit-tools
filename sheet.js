@@ -17,20 +17,6 @@ const trs_df1_baseline = [
 	{'id': 4, 'value': 3,}
 ];
 
-let history = [
-	{
-		'id': 0,
-		'parent': null,
-		'merge': [],
-		'change': trs_df1_baseline.map((d) => ({
-			'id': d.id, 'inherit': false, 'value': d.value, 'comment': 'Baseline'
-		})),
-		'author': 'System',
-		'description': 'Initial commit',
-		'timestamp': 0
-	}
-];
-
 function grid_place(o, r, c, h, w) {
 	o.style['grid-row-start'] = r;
 	o.style['grid-row-end'] = r + h;
@@ -38,7 +24,9 @@ function grid_place(o, r, c, h, w) {
 	o.style['grid-column-end'] = c + w;
 }
 
-function checkout(commit, view) {
+function checkout(history, commit, view, graph) {
+
+	chart_graph(history, graph);
 
 	view.innerHTML = '';
 	view.style['display'] = 'grid';
@@ -309,9 +297,7 @@ function checkout(commit, view) {
 
 				history.push(new_commit);
 
-				console.log(structuredClone(history));
-
-				checkout(new_commit, view);
+				checkout(history, new_commit, view, graph);
 
 			};
 			I.appendChild(t);

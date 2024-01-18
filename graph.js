@@ -1,11 +1,11 @@
 function chart_graph(graph, view) {
 
 		let C = graph.map((g) => ({
-			'name': g.name,
-			'timestamp': g.time,
+			'name': g.id,
+			'timestamp': g.timestamp,
 			'i': undefined,
 			'j': undefined,
-			'parents': g.parent,
+			'parents': ((g.parent == null) ? [] : [g.parent]),
 			'children': [],
 			'merge': [],
 			'branch': [],
@@ -13,8 +13,7 @@ function chart_graph(graph, view) {
 		}));
 
 		C.forEach((c) => {
-			parent = c.parents;
-			c.parents = C.filter((d) => parent.includes(d.name));
+			c.parents = c.parents.map((d) => C[C.findIndex((e) => e.name == d.id)]);
 		});
 
 		C.forEach((c) => {
