@@ -4,6 +4,11 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Document</title>
+	<style>
+		p {
+			margin: 1rem;
+		}
+	</style>
 	<script>
 
 		const graph = [
@@ -134,8 +139,16 @@
 		// curved();
 		straight();
 
+		C.forEach((c) => {
+			let tmp = c.i;
+			c.i = c.j;
+			c.j = tmp;
+		});
+
 		const row = Math.max.apply(Math, C.map((c) => c.i)) + 1;
 		const col = Math.max.apply(Math, C.map((c) => c.j)) + 1;
+
+		C.forEach((c) => {c.j = col - c.j - 1; c.i = row - c.i - 1;});
 
 	</script>
 </head>
@@ -200,22 +213,22 @@
 			l.setAttribute('fill', 'none');
 			l.setAttribute('stroke', 'black');
 			l.setAttribute('stroke-width', '0.05');
-			if (c.j == b.j)
-				l.setAttribute('points', `${0.5 * a.w} ${(m.h - 0.5) * a.h} ${0.5 * a.w} ${0.5 * a.h}`);
+			if (c.i == b.i)
+				l.setAttribute('points', `${0.5 * a.w} ${0.5 * a.h} ${(m.w - 0.5) * a.w} ${0.5 * a.h}`);
 			else
 				if (c.branch.includes(b))
-					if (c.j < b.j)
-						l.setAttribute('points', `${0.5 * a.w} ${(m.h - 0.5) * a.h} ${(m.w - 0.5) * a.w} ${(m.h - 0.5) * a.h} ${(m.w - 0.5) * a.w} ${0.5 * a.h}`);
+					if (c.i < b.i)
+						l.setAttribute('points', `${0.5 * a.w} ${0.5 * a.h} ${0.5 * a.w} ${(m.h - 0.5) * a.h} ${(m.w - 0.5) * a.w} ${(m.h - 0.5) * a.h}`);
 					else
-						l.setAttribute('points', `${(m.w - 0.5) * a.w} ${(m.h - 0.5) * a.h} ${0.5 * a.w} ${(m.h - 0.5) * a.h} ${0.5 * a.w} ${0.5 * a.h}`);
-				else
-					if (c.j < b.j)
 						l.setAttribute('points', `${0.5 * a.w} ${(m.h - 0.5) * a.h} ${0.5 * a.w} ${0.5 * a.h} ${(m.w - 0.5) * a.w} ${0.5 * a.h}`);
+				else
+					if (c.i < b.i)
+						l.setAttribute('points', `${0.5 * a.w} ${0.5 * a.h} ${(m.w - 0.5) * a.h} ${0.5 * a.h} ${(m.w - 0.5) * a.h} ${(m.h - 0.5) * a.h}`);
 					else
-						l.setAttribute('points', `${(m.w - 0.5) * a.w} ${(m.h - 0.5) * a.h} ${(m.w - 0.5) * a.w} ${0.5 * a.h} ${0.5 * a.w} ${0.5 * a.h}`);
+						l.setAttribute('points', `${0.5 * a.w} ${(m.h - 0.5) * a.h} ${(m.w - 0.5) * a.w} ${(m.h - 0.5) * a.h} ${(m.w - 0.5) * a.w} ${0.5 * a.h}`);
 			s.appendChild(l);
 			d.appendChild(s);
-		})})
+		})});
 
 	</script>
 </body>
