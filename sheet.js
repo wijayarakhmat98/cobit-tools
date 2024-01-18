@@ -46,7 +46,7 @@ function checkout(history, commit, edit, merge, view, graph) {
 		let col = 1;
 		col = dimension_view(view, col);
 		merge.forEach((m) => {
-			col = snapshot_view(view, col, 'Merging commit', history, m, -m.id, true);
+			col = snapshot_view(view, col, 'Merging commit', history, m, -m.id - 1, true);
 		});
 		col = change_view(view, col, (merge.length > 0) ? 'Resolution' : 'Change');
 		col = snapshot_view(view, col, 'Editing commit', history, commit, 'old', true);
@@ -133,22 +133,7 @@ function change_view(view, col, header) {
 }
 
 function snapshot_view(view, col, header, history, commit, value, active) {
-	const snapshot = mst_df1.map((d) => {
-		for (let p = commit, v = null;; p = p.parent) {
-			const i = p.change.findIndex((e) => e.id == d.id);
-			if (i == -1)
-				continue;
-			const c = p.change[i];
-			return {
-				'id': c.id,
-				'value': c.value,
-				'comment': c.comment,
-				'commit': p.id,
-				'author': p.author,
-				'description': p.description
-			}
-		}
-	});
+	const snapshot = build_snapshot(commit);
 	{
 		{
 			let p = document.createElement('p');
@@ -345,41 +330,7 @@ function commit_view(view, history, commit, merge, graph) {
 		const t = document.createTextNode('Commit');
 		grid_place(p, row + 2, 1, 1, 1);
 		I.setAttribute('type', 'button');
-		I.onclick = () => {
-
-			const change = mst_df1.reduce((change, d) => {
-				const v = document.querySelector(
-					`input[name="df1 ${d.id} value"]:checked`
-				).value;
-				if (v != 'old') {
-					const C = document.querySelector(
-						`textarea[name="df1 ${d.id} comment"]`
-					).value;
-					change.push({
-						'id': d.id, 'inherit': false, 'value': v, 'comment': C
-					});
-				}
-				return change;
-			}, []);
-
-			const author = document.querySelector('textarea[name="author"]').value;
-			const description = document.querySelector('textarea[name="description"]').value;
-
-			const new_commit = {
-				'id': history.length,
-				'parent': commit,
-				'merge': merge,
-				'change': change,
-				'author': author,
-				'description': description,
-				'timestamp': Date.now()
-			};
-
-			history.push(new_commit);
-
-			checkout(history, new_commit, false, [], view, graph);
-
-		};
+		I.onclick = () => { save(history, commit, merge, view, graph); };
 		I.appendChild(t);
 		p.appendChild(I);
 		view.appendChild(p);
@@ -417,4 +368,78 @@ function edit_view(view, history, commit, graph) {
 	I.appendChild(t);
 	p.appendChild(I);
 	view.appendChild(p);
+}
+
+function build_snapshot(commit) {
+	return mst_df1.map((d) => {
+		for (let p = commit;;) {
+			const i = p.change.findIndex((e) => e.id == d.id);
+			if (i == -1) {
+				p = p.parent;
+				continue;
+			}
+			const c = p.change[i];
+			if (c.inherit) {
+				p = c.from;
+				continue;
+			}
+			return {
+				'id': c.id,
+				'value': c.value,
+				'comment': c.comment,
+				'commit': p.id,
+				'author': p.author,
+				'description': p.description
+			}
+		}
+	});
+}
+
+function save(history, commit, merge, view, graph) {
+	const change = mst_df1.reduce((change, d) => {
+		const v = document.querySelector(
+			`input[name="df1 ${d.id} value"]:checked`
+		).value;
+		if (v == 'old')
+			return change;
+		if (v < 0) {
+
+			const id = -v - 1;
+			const m = merge[merge.findIndex((m) => m.id == id)];
+			change.push({
+				'id': d.id, 'inherit': true, 'from': m
+			});
+
+		}
+		else {
+
+			const C = document.querySelector(
+				`textarea[name="df1 ${d.id} comment"]`
+			).value;
+			change.push({
+				'id': d.id, 'inherit': false, 'value': v, 'comment': C
+			});
+
+		}
+		return change;
+	}, []);
+
+	const author = document.querySelector('textarea[name="author"]').value;
+	const description = document.querySelector('textarea[name="description"]').value;
+
+	const new_commit = {
+		'id': history.length,
+		'parent': commit,
+		'merge': merge,
+		'change': change,
+		'author': author,
+		'description': description,
+		'timestamp': Date.now()
+	};
+
+	history.push(new_commit);
+
+	console.log(structuredClone(history));
+
+	checkout(history, new_commit, false, [], view, graph);
 }

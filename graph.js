@@ -6,6 +6,7 @@ function chart_graph(graph, view, input, edit, commit) {
 
 function prepare(graph) {
 	let C = graph.map((g) => ({
+		'graph': g,
 		'name': g.id,
 		'timestamp': g.timestamp,
 		'i': undefined,
@@ -23,9 +24,14 @@ function prepare(graph) {
 
 	C.forEach((c) => {
 		c.children = C.filter((d) => d.parents.includes(c));
-		c.branch = c.children.filter((d) => d.parents[0] == c);
+		c.branch = c.children.filter((d) => d.parents[0] == c)
+			.sort((a, b) =>
+				(a.graph.merge.length < b.graph.merge.length) ? 1 : ((a.graph.merge.length > b.graph.merge.length) ? -1 : 0)
+			);
 		c.merge = c.children.filter((d) => d.parents[0] != c);
 	});
+
+	console.log(structuredClone(C));
 
 	return C;
 }
