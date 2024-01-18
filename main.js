@@ -17,6 +17,6 @@ function main() {
 	let view_graph = document.getElementById('view graph');
 	let view_input = document.getElementById('view input');
 
-	checkout(history, history[0], view_input, view_graph);
+	checkout(history, history[0], false, [], view_input, view_graph);
 
 }
