@@ -4,9 +4,19 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>COBIT Tools</title>
+	<script defer src="graph.js"></script>
 	<script defer src="sheet.js"></script>
 	<script defer src="main.js"></script>
 	<style>
+		[id="view graph"] {
+			margin-right: auto;
+			margin-left: auto;
+		}
+
+		[id="view graph"] p {
+			margin: 0.5rem;
+		}
+
 		[id="view input"] p {
 			white-space: nowrap;
 		}
@@ -25,7 +35,7 @@
 	</style>
 </head>
 <body>
-	<section id="view graph"></section>
+	<div id="view graph"></div>
 	<form id="view input"></form>
 	<script type="module">main();</script>
 </body>
