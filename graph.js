@@ -1,7 +1,7 @@
-function chart_graph(graph, view, input, edit) {
+function chart_graph(graph, view, input, edit, commit) {
 	let C = prepare(graph);
 	place(C);
-	draw(C, view, graph, edit, input);
+	draw(C, view, graph, edit, commit, input);
 }
 
 function prepare(graph) {
@@ -10,7 +10,7 @@ function prepare(graph) {
 		'timestamp': g.timestamp,
 		'i': undefined,
 		'j': undefined,
-		'parents': ((g.parent == null) ? [] : [g.parent]),
+		'parents': ((g.parent == null) ? [] : [g.parent]).concat(g.merge),
 		'children': [],
 		'merge': [],
 		'branch': [],
@@ -46,21 +46,23 @@ function place(C) {
 	C.forEach((c) => {c.j = col - c.j - 1; c.i = row - c.i - 1;});
 }
 
-function draw(C, view, graph, edit, input) {
+function draw(C, view, graph, edit, commit, input) {
 	const row = Math.max.apply(Math, C.map((c) => c.i)) + 1;
 	const col = Math.max.apply(Math, C.map((c) => c.j)) + 1;
 
 	view.innerHTML = '';
 	view.style['width'] = 'fit-content';
 	view.style['display'] = 'grid';
-	view.style['grid-template-rows'] = `repeat(${row}, 1fr)`;
+	view.style['grid-template-rows'] = `repeat(${(edit) ? row : row + 1}, 1fr)`;
 	view.style['grid-template-columns'] = `repeat(${col}, 1fr)`;
 
 	draw_box(C, view, graph, edit, input);
 	draw_line(C, view);
+	if (!edit)
+		draw_merge(C, commit, view);
 }
 
-function J(c) {
+function J(c, F) {
 	if (c.merge.length == 0)
 		return [];
 	let Jc = [];
@@ -97,7 +99,7 @@ function place_j(C) {
 	let B = [];
 
 	C.forEach((c) => {
-		let  Jc = J(c);
+		let  Jc = J(c, F);
 		let nJc = c.branch.filter((d) => !Jc.includes(d.j));
 		let  D_ = [];
 		if (nJc.length > 0) {
@@ -194,4 +196,25 @@ function draw_line(C, view) {
 		s.appendChild(l);
 		d.appendChild(s);
 	})});
+}
+
+function draw_merge(C, commit, view) {
+	const row = Math.max.apply(Math, C.map((c) => c.i)) + 2;
+	C.forEach((c) => {
+		if (c.name == commit.id)
+			return;
+		let p = document.createElement('p');
+		let I = document.createElement('input');
+		p.style['text-align'] = 'center';
+		p.style['margin'] = 0;
+		p.style['grid-row-start'] = row;
+		p.style['grid-row-end'] = row + 1;
+		p.style['grid-column-start'] = c.j + 1;
+		p.style['grid-column-end'] = c.j + 2;
+		I.setAttribute('type', 'checkbox');
+		I.setAttribute('name', 'merge');
+		I.setAttribute('value', c.name);
+		p.appendChild(I);
+		view.appendChild(p);
+	});
 }

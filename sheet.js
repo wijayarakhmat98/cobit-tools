@@ -26,7 +26,7 @@ function grid_place(o, r, c, h, w) {
 
 function checkout(history, commit, edit, merge, view, graph) {
 
-	chart_graph(history, graph, view, edit);
+	chart_graph(history, graph, view, edit, commit);
 
 	view.style['width'] = 'fit-content';
 	view.innerHTML = '';
@@ -48,10 +48,10 @@ function checkout(history, commit, edit, merge, view, graph) {
 		merge.forEach((m) => {
 			col = snapshot_view(view, col, 'Merging commit', history, m, -m.id, true);
 		});
-		col = change_view(view, col);
+		col = change_view(view, col, (merge.length > 0) ? 'Resolution' : 'Change');
 		col = snapshot_view(view, col, 'Editing commit', history, commit, 'old', true);
 		baseline_view(view, col);
-		commit_view(view, history, commit, graph);
+		commit_view(view, history, commit, merge, graph);
 
 	}
 	else {
@@ -95,10 +95,10 @@ function dimension_view(view, col) {
 	return col + 1;
 }
 
-function change_view(view, col) {
+function change_view(view, col, header) {
 	{
 		let p = document.createElement('p');
-		const t = document.createTextNode('Change');
+		const t = document.createTextNode(header);
 		grid_place(p, 1, col, 1, trs_df1_ra + 1);
 		p.appendChild(t);
 		view.appendChild(p);
@@ -301,7 +301,7 @@ function baseline_view(view, col) {
 	return col + 1;
 }
 
-function commit_view(view, history, commit, graph) {
+function commit_view(view, history, commit, merge, graph) {
 	const row = 3 + trs_df1_dm * 2;
 	{
 		let p = document.createElement('p');
@@ -368,7 +368,7 @@ function commit_view(view, history, commit, graph) {
 			const new_commit = {
 				'id': history.length,
 				'parent': commit,
-				'merge': [],
+				'merge': merge,
 				'change': change,
 				'author': author,
 				'description': description,
@@ -408,7 +408,11 @@ function edit_view(view, history, commit, graph) {
 	grid_place(p, row + 2, 1, 1, 1);
 	I.setAttribute('type', 'button');
 	I.onclick = () => {
-		checkout(history, commit, true, [], view, graph);
+		const merge = [...document.querySelectorAll('input[name=merge]:checked')]
+			.sort((a, b) => (a < b) ? 1 : -1)
+			.map((f) => f.value)
+			.map((v) => history[history.findIndex((c) => c.id == v)]);
+		checkout(history, commit, true, merge, view, graph);
 	};
 	I.appendChild(t);
 	p.appendChild(I);
