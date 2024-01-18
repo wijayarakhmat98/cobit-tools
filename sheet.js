@@ -28,16 +28,17 @@ function checkout(history, commit, edit, merge, view, graph) {
 
 	chart_graph(history, graph, view);
 
+	view.style['width'] = 'fit-content';
 	view.innerHTML = '';
 	view.style['display'] = 'grid';
 	view.style['overflow-x'] = 'auto';
 
 	if (edit) {
 
-		let tem_col = '12fr';
-		merge.forEach(() => tem_col += ' 2fr 6fr 5fr 3fr');
-		tem_col += `repeat(${trs_df1_ra}, 2fr) 6fr`;
-		tem_col += ' 2fr 6fr 5fr 3fr';
+		let tem_col = 'auto';
+		merge.forEach(() => tem_col += ' auto auto auto auto');
+		tem_col += `repeat(${trs_df1_ra}, auto) auto`;
+		tem_col += ' auto auto auto auto';
 
 		view.style['grid-template-rows'] = `repeat(${4 + trs_df1_dm * 2}, auto)`;
 		view.style['grid-template-columns'] = tem_col;
@@ -56,7 +57,7 @@ function checkout(history, commit, edit, merge, view, graph) {
 	else {
 
 		view.style['grid-template-rows'] = `repeat(${5 + trs_df1_dm * 2}, auto)`;
-		view.style['grid-template-columns'] = `12fr 2fr 6fr 5fr 3fr 2fr`;
+		view.style['grid-template-columns'] = `auto auto auto auto auto auto`;
 
 		let col = 1;
 		col = dimension_view(view, col);
@@ -123,8 +124,7 @@ function change_view(view, col) {
 		let I = document.createElement('textarea');
 		grid_place(p, d.id * 2 + 1, col + trs_df1_ra, 1, 1);
 		I.setAttribute('rows', 1);
-		I.style['width'] = 'calc(100% - 1rem)';
-		I.style['min-width'] = '6rem';
+		I.style['width'] = '6rem';
 		I.setAttribute('name', `df1 ${d.id} comment`);
 		p.appendChild(I);
 		view.appendChild(p);
@@ -169,8 +169,7 @@ function snapshot_view(view, col, header, history, commit, value, active) {
 			D.style['grid-template-columns'] = 'auto auto';
 			p1.style['white-space'] = 'pre';
 			I.setAttribute('rows', 1);
-			I.style['width'] = 'calc(100% - 1rem)';
-			I.style['min-width'] = '4rem';
+			I.style['width'] = '4rem';
 			I.setAttribute('disabled', '');
 			p1.appendChild(t1);
 			I.appendChild(t2);
@@ -228,8 +227,7 @@ function snapshot_view(view, col, header, history, commit, value, active) {
 		const t = document.createTextNode(d.comment);
 		grid_place(p, d.id * 2 + 1, col + 1, 1, 1);
 		I.setAttribute('rows', 1);
-		I.style['width'] = 'calc(100% - 1rem)';
-		I.style['min-width'] = '6rem';
+		I.style['width'] = '6rem';
 		I.setAttribute('disabled', '');
 		I.appendChild(t);
 		p.appendChild(I);
@@ -247,8 +245,7 @@ function snapshot_view(view, col, header, history, commit, value, active) {
 		D.style['grid-template-columns'] = 'auto auto';
 		p1.style['white-space'] = 'pre';
 		I.setAttribute('rows', 1);
-		I.style['width'] = 'calc(100% - 1rem)';
-		I.style['min-width'] = '4rem';
+		I.style['width'] = '4rem';
 		I.setAttribute('disabled', '');
 		p1.appendChild(t1);
 		I.appendChild(t2);
@@ -290,7 +287,6 @@ function baseline_view(view, col) {
 		let p = document.createElement('p');
 		const t = document.createTextNode('Baseline');
 		grid_place(p, 1, col, 1, 1);
-		p.style['overflow-x'] = 'hidden';
 		p.appendChild(t);
 		view.appendChild(p);
 	}
@@ -393,7 +389,7 @@ function commit_view(view, history, commit, graph) {
 	let p = document.createElement('p');
 	let I = document.createElement('button');
 	const t = document.createTextNode('Discard');
-		grid_place(p, row + 2, 2, 1, 1);
+		grid_place(p, row + 2, 2, 1, 6);
 		I.setAttribute('type', 'button');
 		I.onclick = () => {
 			checkout(history, commit, false, [], view, graph);
