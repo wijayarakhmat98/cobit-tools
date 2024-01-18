@@ -26,7 +26,7 @@ function grid_place(o, r, c, h, w) {
 
 function checkout(history, commit, view, graph) {
 
-	chart_graph(history, graph);
+	chart_graph(history, graph, view);
 
 	view.innerHTML = '';
 	view.style['display'] = 'grid';
@@ -119,7 +119,7 @@ function checkout(history, commit, view, graph) {
 		const col = 8;
 		{
 			let p = document.createElement('p');
-			const t = document.createTextNode('Unchanged');
+			const t = document.createTextNode(`Editing commit ${commit.id}`);
 			grid_place(p, 1, col, 1, 3);
 			p.appendChild(t);
 			view.appendChild(p);

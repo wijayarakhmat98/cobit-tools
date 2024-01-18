@@ -1,4 +1,4 @@
-function chart_graph(graph, view) {
+function chart_graph(graph, view, input) {
 
 		let C = graph.map((g) => ({
 			'name': g.id,
@@ -96,16 +96,21 @@ function chart_graph(graph, view) {
 		view.style['grid-template-columns'] = `repeat(${col}, 1fr)`;
 
 		C.forEach((c) => {
-			let p = document.createElement('p');
+			let I = document.createElement('button');
 			let t = document.createTextNode(c.name);
-			p.appendChild(t);
-			p.style['text-align'] = 'center';
-			p.style['grid-row-start'] = c.i + 1;
-			p.style['grid-row-end'] = c.i + 2;
-			p.style['grid-column-start'] = c.j + 1;
-			p.style['grid-column-end'] = c.j + 2;
-			p.style['background-color'] = 'cyan';
-			view.appendChild(p);
+			I.appendChild(t);
+			I.style['text-align'] = 'center';
+			I.style['grid-row-start'] = c.i + 1;
+			I.style['grid-row-end'] = c.i + 2;
+			I.style['grid-column-start'] = c.j + 1;
+			I.style['grid-column-end'] = c.j + 2;
+			I.setAttribute('type', 'button');
+			I.onclick = () => {
+				checkout(graph,
+					graph[graph.findIndex((g) => g.id == c.name)],
+				input, view);
+			};
+			view.appendChild(I);
 		});
 
 		C.forEach((c) => {c.children.forEach((b) => {
