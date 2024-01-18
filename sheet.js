@@ -26,7 +26,7 @@ function grid_place(o, r, c, h, w) {
 
 function checkout(history, commit, edit, merge, view, graph) {
 
-	chart_graph(history, graph, view);
+	chart_graph(history, graph, view, edit);
 
 	view.style['width'] = 'fit-content';
 	view.innerHTML = '';

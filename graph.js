@@ -1,7 +1,7 @@
-function chart_graph(graph, view, input) {
+function chart_graph(graph, view, input, edit) {
 	let C = prepare(graph);
 	place(C);
-	draw(C, view, graph, input);
+	draw(C, view, graph, edit, input);
 }
 
 function prepare(graph) {
@@ -46,7 +46,7 @@ function place(C) {
 	C.forEach((c) => {c.j = col - c.j - 1; c.i = row - c.i - 1;});
 }
 
-function draw(C, view, graph, input) {
+function draw(C, view, graph, edit, input) {
 	const row = Math.max.apply(Math, C.map((c) => c.i)) + 1;
 	const col = Math.max.apply(Math, C.map((c) => c.j)) + 1;
 
@@ -56,7 +56,7 @@ function draw(C, view, graph, input) {
 	view.style['grid-template-rows'] = `repeat(${row}, 1fr)`;
 	view.style['grid-template-columns'] = `repeat(${col}, 1fr)`;
 
-	draw_box(C, view, graph, input);
+	draw_box(C, view, graph, edit, input);
 	draw_line(C, view);
 }
 
@@ -120,7 +120,7 @@ function place_j(C) {
 	});
 }
 
-function draw_box(C, view, graph, input) {
+function draw_box(C, view, graph, edit, input) {
 	C.forEach((c) => {
 		let I = document.createElement('button');
 		let t = document.createTextNode(c.name);
@@ -131,11 +131,12 @@ function draw_box(C, view, graph, input) {
 		I.style['grid-column-start'] = c.j + 1;
 		I.style['grid-column-end'] = c.j + 2;
 		I.setAttribute('type', 'button');
-		I.onclick = () => {
-			checkout(graph,
-				graph[graph.findIndex((g) => g.id == c.name)],
-			false, [], input, view);
-		};
+		if (!edit)
+			I.onclick = () => {
+				checkout(graph,
+					graph[graph.findIndex((g) => g.id == c.name)],
+				false, [], input, view);
+			};
 		view.appendChild(I);
 	});
 }
