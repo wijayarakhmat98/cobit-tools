@@ -42,13 +42,13 @@
 			{'id': 4, 'value': 3,}
 		];
 
-		let commit = [
+		let history = [
 			{
 				'id': 0,
 				'parent': null,
 				'merge': [],
 				'change': trs_df1_baseline.map((d) => ({
-					'id': d.id, 'new': true, 'value': d.value, 'comment': 'Baseline'
+					'id': d.id, 'inherit': false, 'value': d.value, 'comment': 'Baseline'
 				})),
 				'author': 'System',
 				'description': 'Initial commit',
@@ -68,7 +68,7 @@
 			view.style['display'] = 'grid';
 			view.style['overflow-x'] = 'auto';
 			view.style['grid-template-rows'] = `repeat(${4 + trs_df1_dm * 2}, auto)`;
-			view.style['grid-template-columns'] = `12fr repeat(${trs_df1_ra}, 2fr) 6fr 2fr 6fr 3fr 5fr 2fr`;
+			view.style['grid-template-columns'] = `12fr repeat(${trs_df1_ra}, 2fr) 6fr 2fr 6fr 5fr 3fr 2fr`;
 			{
 				const col = 1;
 				{
@@ -112,6 +112,7 @@
 						grid_place(p, d.id * 2, col + v - trs_df1_lo, 1, 1);
 						I.setAttribute('type', 'radio');
 						I.setAttribute('name', `df1 ${d.id} value`);
+						I.setAttribute('value', v);
 						L.appendChild(I);
 						L.appendChild(t);
 						p.appendChild(L);
@@ -147,6 +148,7 @@
 					grid_place(p, d.id * 2, col, 1, 1);
 					I.setAttribute('type', 'radio');
 					I.setAttribute('name', `df1 ${d.id} value`);
+					I.setAttribute('value', 'old');
 					I.setAttribute('checked', '');
 					L.appendChild(I);
 					L.appendChild(t);
@@ -171,7 +173,7 @@
 					let I = document.createElement('button');
 					const t1 = document.createTextNode('from ');
 					const t2 = document.createTextNode(commit.id);
-					grid_place(p, d.id * 2, col + 2, 1, 1);
+					grid_place(p, d.id * 2, col + 3, 1, 1);
 					I.setAttribute('type', 'button');
 					p.appendChild(t1);
 					I.appendChild(t2);
@@ -185,7 +187,7 @@
 					let I = document.createElement('textarea');
 					const t1 = document.createTextNode('by ');
 					const t2 = document.createTextNode(commit.author);
-					grid_place(D, d.id * 2, col + 3, 1, 1);
+					grid_place(D, d.id * 2, col + 2, 1, 1);
 					D.style['display'] = 'grid';
 					D.style['grid-template-columns'] = 'auto auto';
 					p1.style['white-space'] = 'pre';
@@ -249,6 +251,7 @@
 					p.classList.add('reduced');
 					I.style['width'] = 'calc(100% - 1rem)';
 					I.setAttribute('rows', 2);
+					I.setAttribute('name', 'author');
 					p.appendChild(I);
 					view.appendChild(p);
 				}
@@ -266,6 +269,7 @@
 					p.classList.add('reduced');
 					I.style['width'] = 'calc(100% - 1rem)';
 					I.setAttribute('rows', 4);
+					I.setAttribute('name', 'description');
 					p.appendChild(I);
 					view.appendChild(p);
 				}
@@ -276,7 +280,37 @@
 					grid_place(p, row + 2, 1, 1, 1);
 					I.setAttribute('type', 'button');
 					I.onclick = () => {
-						console.log(structuredClone(commit));
+
+						const change = mst_df1.reduce((change, d) => {
+							const v = document.querySelector(
+								`input[name="df1 ${d.id} value"]:checked`
+							).value;
+							if (v != 'old') {
+								const C = document.querySelector(
+									`textarea[name="df1 ${d.id} comment"]`
+								).value;
+								change.push({
+									'id': d.id, 'inherit': false, 'value': v, 'comment': C
+								});
+							}
+							return change;
+						}, []);
+
+						const author = document.querySelector('textarea[name="author"]').value;
+						const description = document.querySelector('textarea[name="description"]').value;
+
+						history.push({
+							'id': history.length,
+							'parent': commit,
+							'merge': [],
+							'change': change,
+							'author': author,
+							'description': description,
+							'timestamp': Date.now()
+						});
+
+						console.log(structuredClone(history));
+
 					};
 					I.appendChild(t);
 					p.appendChild(I);
@@ -287,15 +321,15 @@
 
 		function main() {
 			let view_input = document.getElementById('view input');
-			checkout(commit[0], view_input);
-			console.log(structuredClone(commit));
+			checkout(history[0], view_input);
+			console.log(structuredClone(history));
 		}
 
 	</script>
 </head>
 <body>
-	<form id="view graph"></form>
-	<section id="view input"></section>
+	<section id="view graph"></section>
+	<form id="view input"></form>
 	<script>main();</script>
 </body>
 </html>
