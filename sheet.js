@@ -1,22 +1,3 @@
-const mst_df1 = [
-	{'id': 1, 'dimension': 'Growth/Acquisition', 'explanation': 'The enterprise has a focus on growing (revenues).'},
-	{'id': 2, 'dimension': 'Innovation/Differentiation', 'explanation': 'The enterprise has a focus on offering different and/or innovative products and services to their clients.'},
-	{'id': 3, 'dimension': 'Cost Leadership', 'explanation': 'The enterprise has a focus on short-term cost minimization.'},
-	{'id': 4, 'dimension': 'Client Service/Stability', 'explanation': 'The enterprise has a focus on providing stable and client-oriented service.'}
-];
-
-const trs_df1_dm = mst_df1.length;
-const trs_df1_lo = 1;
-const trs_df1_hi = 5;
-const trs_df1_ra = trs_df1_hi - trs_df1_lo + 1;
-
-const trs_df1_baseline = [
-	{'id': 1, 'value': 3,},
-	{'id': 2, 'value': 3,},
-	{'id': 3, 'value': 3,},
-	{'id': 4, 'value': 3,}
-];
-
 function grid_place(o, r, c, h, w) {
 	o.style['grid-row-start'] = r;
 	o.style['grid-row-end'] = r + h;
