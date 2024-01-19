@@ -40,8 +40,15 @@ function checkout(history, commit, edit, merge, view, graph) {
 		tem_col += `repeat(${trs_df1_ra}, auto) auto`;
 		tem_col += ' auto auto auto auto';
 
-		view.style['grid-template-rows'] = `repeat(${4 + trs_df1_dm * 2}, auto)`;
+		let width = 1;
+		merge.forEach(() => width += 1);
+		width += trs_df1_ra + 1;
+		width += 4;
+
+		view.style['grid-template-rows'] = `repeat(${5 + trs_df1_dm * 2}, auto)`;
 		view.style['grid-template-columns'] = tem_col;
+
+		horizontal_bar(view, 3, width);
 
 		let col = 1;
 		col = dimension_view(view, col);
@@ -56,8 +63,10 @@ function checkout(history, commit, edit, merge, view, graph) {
 	}
 	else {
 
-		view.style['grid-template-rows'] = `repeat(${5 + trs_df1_dm * 2}, auto)`;
+		view.style['grid-template-rows'] = `repeat(${6 + trs_df1_dm * 2}, auto)`;
 		view.style['grid-template-columns'] = `auto auto auto auto auto auto`;
+
+		horizontal_bar(view, 3, 6);
 
 		let col = 1;
 		col = dimension_view(view, col);
@@ -67,6 +76,15 @@ function checkout(history, commit, edit, merge, view, graph) {
 
 	}
 
+}
+
+function horizontal_bar(view, row, width) {
+	let p = document.createElement('p');
+	const hr = document.createElement('hr');
+	grid_place(p, row, 1, 1, width);
+	p.style['margin'] = 0;
+	p.appendChild(hr);
+	view.appendChild(p);
 }
 
 function dimension_view(view, col) {
@@ -84,7 +102,7 @@ function dimension_view(view, col) {
 		let p2 = document.createElement('p');
 		const t1 = document.createTextNode(d.dimension);
 		const t2 = document.createTextNode(d.explanation);
-		grid_place(p1, d.id * 2 + 1, col, 2, 1);
+		grid_place(p1, d.id * 2 + 2, col, 2, 1);
 		s.appendChild(t1);
 		p2.appendChild(t2);
 		e.appendChild(s);
@@ -108,8 +126,8 @@ function change_view(view, col, header) {
 			let p = document.createElement('p');
 			let L = document.createElement('label');
 			let I = document.createElement('input');
-			const t = document.createTextNode(v);
-			grid_place(p, d.id * 2 + 1, col + v - trs_df1_lo, 1, 1);
+			const t = document.createTextNode(` ${v}`);
+			grid_place(p, d.id * 2 + 2, col + v - trs_df1_lo, 1, 1);
 			I.setAttribute('type', 'radio');
 			I.setAttribute('name', `df1 ${d.id} value`);
 			I.setAttribute('value', v);
@@ -122,7 +140,7 @@ function change_view(view, col, header) {
 	mst_df1.forEach((d) => {
 		let p = document.createElement('p');
 		let I = document.createElement('textarea');
-		grid_place(p, d.id * 2 + 1, col + trs_df1_ra, 1, 1);
+		grid_place(p, d.id * 2 + 2, col + trs_df1_ra, 1, 1);
 		I.setAttribute('rows', 1);
 		I.style['width'] = '6rem';
 		I.setAttribute('name', `df1 ${d.id} comment`);
@@ -193,8 +211,8 @@ function snapshot_view(view, col, header, history, commit, value, active) {
 		let p = document.createElement('p');
 		let L = document.createElement('label');
 		let I = document.createElement('input');
-		const t = document.createTextNode(d.value);
-		grid_place(p, d.id * 2 + 1, col, 1, 1);
+		const t = document.createTextNode(` ${d.value}`);
+		grid_place(p, d.id * 2 + 2, col, 1, 1);
 		I.setAttribute('type', 'radio');
 		I.setAttribute('name', `df1 ${d.id} value`);
 		I.setAttribute('value', value);
@@ -210,7 +228,7 @@ function snapshot_view(view, col, header, history, commit, value, active) {
 		let p = document.createElement('p');
 		let I = document.createElement('textarea');
 		const t = document.createTextNode(d.comment);
-		grid_place(p, d.id * 2 + 1, col + 1, 1, 1);
+		grid_place(p, d.id * 2 + 2, col + 1, 1, 1);
 		I.setAttribute('rows', 1);
 		I.style['width'] = '6rem';
 		I.setAttribute('disabled', '');
@@ -225,7 +243,7 @@ function snapshot_view(view, col, header, history, commit, value, active) {
 		let I = document.createElement('textarea');
 		const t1 = document.createTextNode('by ');
 		const t2 = document.createTextNode(d.author);
-		grid_place(D, d.id * 2 + 1, col + 2, 1, 1);
+		grid_place(D, d.id * 2 + 2, col + 2, 1, 1);
 		D.style['display'] = 'grid';
 		D.style['grid-template-columns'] = 'auto auto';
 		p1.style['white-space'] = 'pre';
@@ -244,7 +262,7 @@ function snapshot_view(view, col, header, history, commit, value, active) {
 		let I = document.createElement('button');
 		const t1 = document.createTextNode('from ');
 		const t2 = document.createTextNode(d.commit);
-		grid_place(p, d.id * 2 + 1, col + 3, 1, 1);
+		grid_place(p, d.id * 2 + 2, col + 3, 1, 1);
 		I.setAttribute('type', 'button');
 		p.appendChild(t1);
 		I.appendChild(t2);
@@ -255,7 +273,7 @@ function snapshot_view(view, col, header, history, commit, value, active) {
 		let p = document.createElement('p');
 		let I = document.createElement('textarea');
 		const t = document.createTextNode(d.description);
-		grid_place(p, d.id * 2 + 1 + 1, col + 1, 1, 3);
+		grid_place(p, d.id * 2 + 2 + 1, col + 1, 1, 3);
 		p.classList.add('reduced');
 		I.setAttribute('rows', 1);
 		I.style['width'] = 'calc(100% - 1rem)';
@@ -278,7 +296,7 @@ function baseline_view(view, col) {
 	trs_df1_baseline.forEach((d) => {
 		let p = document.createElement('p');
 		const t = document.createTextNode(d.value);
-		grid_place(p, d.id * 2 + 1, col, 1, 1);
+		grid_place(p, d.id * 2 + 2, col, 1, 1);
 		p.style['text-align'] = 'center';
 		p.appendChild(t);
 		view.appendChild(p);
@@ -287,7 +305,7 @@ function baseline_view(view, col) {
 }
 
 function commit_view(view, history, commit, merge, graph) {
-	const row = 3 + trs_df1_dm * 2;
+	const row = 4 + trs_df1_dm * 2;
 	{
 		let p = document.createElement('p');
 		const t = document.createTextNode('Author');
@@ -336,10 +354,9 @@ function commit_view(view, history, commit, merge, graph) {
 		view.appendChild(p);
 	}
 	{
-	const row = 3 + trs_df1_dm * 2;
-	let p = document.createElement('p');
-	let I = document.createElement('button');
-	const t = document.createTextNode('Discard');
+		let p = document.createElement('p');
+		let I = document.createElement('button');
+		const t = document.createTextNode('Discard');
 		grid_place(p, row + 2, 2, 1, 6);
 		I.setAttribute('type', 'button');
 		I.onclick = () => {
@@ -352,11 +369,11 @@ function commit_view(view, history, commit, merge, graph) {
 }
 
 function edit_view(view, history, commit, graph) {
-	const row = 3 + trs_df1_dm * 2;
+	const row = 4 + trs_df1_dm * 2;
 	let p = document.createElement('p');
 	let I = document.createElement('button');
 	const t = document.createTextNode('Edit');
-	grid_place(p, row + 2, 1, 1, 1);
+	grid_place(p, row, 1, 1, 1);
 	I.setAttribute('type', 'button');
 	I.onclick = () => {
 		const merge = [...document.querySelectorAll('input[name=merge]:checked')]

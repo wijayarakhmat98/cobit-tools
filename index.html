@@ -8,6 +8,10 @@
 	<script defer src="sheet.js"></script>
 	<script defer src="main.js"></script>
 	<style>
+		button {
+			border: none;
+		}
+
 		[id="view graph"] {
 			margin-right: auto;
 			margin-left: auto;
@@ -46,6 +50,15 @@
 
 		[id="view input"] .reduced textarea {
 			resize: vertical;
+		}
+
+		[id="view input"] textarea:disabled {
+			background-color: rgba(0, 0, 0, 0);
+			border: none;
+		}
+
+		[id="view input"] p label:has(input[type="radio"]) {
+			font-size: 1.2rem;
 		}
 	</style>
 </head>

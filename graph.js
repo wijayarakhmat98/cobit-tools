@@ -31,8 +31,6 @@ function prepare(graph) {
 		c.merge = c.children.filter((d) => d.parents[0] != c);
 	});
 
-	console.log(structuredClone(C));
-
 	return C;
 }
 
