@@ -1,5 +1,4 @@
 function main() {
-
 	let history = [
 		{
 			'id': 0,
@@ -17,4 +16,6 @@ function main() {
 
 	checkout(history, history[0], false, [], view_input, view_graph);
 
-}
+	view_gmo('view gmo', 'df.1.');
+
+};

@@ -6,6 +6,7 @@
 	<title>COBIT Tools</title>
 	<script defer src="graph.js"></script>
 	<script defer src="sheet.js"></script>
+	<script defer src="gmo.js"></script>
 	<script defer src="main.js"></script>
 	<style>
 		button {
@@ -65,6 +66,107 @@
 <body>
 	<div id="view graph"></div>
 	<form id="view input"></form>
+
+	<form style="display: grid; grid-template-columns: 1fr 6fr 2fr 2fr 2fr 2fr 2fr 3fr;">
+
+		<h1><button id="button df.1" type="button" onclick="
+			toggle_details('button df.1', 'details df.1');"
+		>&gt;</button></h1>
+		<h1 style="grid-column-start: 2; grid-column-end: 9;">
+			Design Factor Enterprise Strategies
+		</h1>
+		<p id="details df.1" style="display: none; grid-column-start: 2; grid-column-end: 9;">
+			Stage 2. Determine the initial scope of the governance system.
+			<br><br>
+			Each of the four possible values for the enterprise strategy design factor—growth/acquisition, innovation/differentiation, cost leadership, client services/stability—must be rated between 1 (not important) and 5 (most important).
+		</p>
+
+		<p><button id="button df.1.1" type="button" onclick="
+			toggle_details('button df.1.1', 'details df.1.1');"
+		>&gt;</button></p>
+		<p>Growth/Acquisition</p>
+		<p><label><input onclick="view_gmo('view gmo', 'df.1.');" type="radio" name="df.1.1" value="1">1</label></p>
+		<p><label><input onclick="view_gmo('view gmo', 'df.1.');" type="radio" name="df.1.1" value="2">2</label></p>
+		<p><label><input onclick="view_gmo('view gmo', 'df.1.');" type="radio" name="df.1.1" value="3" checked>3</label></p>
+		<p><label><input onclick="view_gmo('view gmo', 'df.1.');" type="radio" name="df.1.1" value="4">4</label></p>
+		<p><label><input onclick="view_gmo('view gmo', 'df.1.');" type="radio" name="df.1.1" value="5">5</label></p>
+		<p><label>Baseline<input type="radio" name="baseline df.1.1" value="3" checked disabled>3</label></p>
+		<p id="details df.1.1" style="display: none; grid-column-start: 2; grid-column-end: 9;">
+			The enterprise has a focus on growing (revenues).
+		</p>
+
+		<p><button id="button df.1.2" type="button" onclick="
+			toggle_details('button df.1.2', 'details df.1.2');"
+		>&gt;</button></p>
+		<p>Innovation/Differentiation</p>
+		<p><label><input onclick="view_gmo('view gmo', 'df.1.');" type="radio" name="df.1.2" value="1">1</label></p>
+		<p><label><input onclick="view_gmo('view gmo', 'df.1.');" type="radio" name="df.1.2" value="2">2</label></p>
+		<p><label><input onclick="view_gmo('view gmo', 'df.1.');" type="radio" name="df.1.2" value="3">3</label></p>
+		<p><label><input onclick="view_gmo('view gmo', 'df.1.');" type="radio" name="df.1.2" value="4">4</label></p>
+		<p><label><input onclick="view_gmo('view gmo', 'df.1.');" type="radio" name="df.1.2" value="5" checked>5</label></p>
+		<p><label>Baseline<input type="radio" name="baseline df.1.2" value="3" checked disabled>3</label></p>
+		<p id="details df.1.2" style="display: none; grid-column-start: 2; grid-column-end: 9;">
+			The enterprise has a focus on offering different and/or innovative products and services to their clients.
+		</p>
+
+		<p><button id="button df.1.3" type="button" onclick="
+			toggle_details('button df.1.3', 'details df.1.3');"
+		>&gt;</button></p>
+		<p>Cost Leadership</p>
+		<p><label><input onclick="view_gmo('view gmo', 'df.1.');" type="radio" name="df.1.3" value="1" checked>1</label></p>
+		<p><label><input onclick="view_gmo('view gmo', 'df.1.');" type="radio" name="df.1.3" value="2">2</label></p>
+		<p><label><input onclick="view_gmo('view gmo', 'df.1.');" type="radio" name="df.1.3" value="3">3</label></p>
+		<p><label><input onclick="view_gmo('view gmo', 'df.1.');" type="radio" name="df.1.3" value="4">4</label></p>
+		<p><label><input onclick="view_gmo('view gmo', 'df.1.');" type="radio" name="df.1.3" value="5">5</label></p>
+		<p><label>Baseline<input type="radio" name="baseline df.1.3" value="3" checked disabled>3</label></p>
+		<p id="details df.1.3" style="display: none; grid-column-start: 2; grid-column-end: 9;">
+			The enterprise has a focus on short-term cost minimization.
+		</p>
+
+		<p><button id="button df.1.4" type="button" onclick="
+			toggle_details('button df.1.4', 'details df.1.4');"
+		>&gt;</button></p>
+		<p>Client Service/Stability</p>
+		<p><label><input onclick="view_gmo('view gmo', 'df.1.');" type="radio" name="df.1.4" value="1">1</label></p>
+		<p><label><input onclick="view_gmo('view gmo', 'df.1.');" type="radio" name="df.1.4" value="2" checked>2</label></p>
+		<p><label><input onclick="view_gmo('view gmo', 'df.1.');" type="radio" name="df.1.4" value="3">3</label></p>
+		<p><label><input onclick="view_gmo('view gmo', 'df.1.');" type="radio" name="df.1.4" value="4">4</label></p>
+		<p><label><input onclick="view_gmo('view gmo', 'df.1.');" type="radio" name="df.1.4" value="5">5</label></p>
+		<p><label>Baseline<input type="radio" name="baseline df.1.4" value="3" checked disabled>3</label></p>
+		<p id="details df.1.4" style="display: none; grid-column-start: 2; grid-column-end: 9;">
+			The enterprise has a focus on providing stable and client-oriented service.
+		</p>
+
+		<h1><button id="button gmo" type="button" onclick="
+			toggle_details('button gmo', 'details gmo');"
+		>&gt;</button></h1>
+		<h1 style="grid-column-start: 2; grid-column-end: 9;">
+			Governance and Management Objectives
+		</h1>
+		<div id="details gmo" style="display: none; grid-column-start: 2; grid-column-end: 9;">
+			<p>For information and technology to contribute to enterprise goals, a number of governance and management objectives should be achieved. Basic concepts relating to governance and management objectives are:</p>
+			<ul>
+				<li>A governance or management objective always relates to one process (with an identical or similar name) and a series of related components of other types to help achieve the objective.</li>
+				<li>A governance objective relates to a governance process, while a management objective relates to a management process. Boards and executive management are typically accountable for governance processes, while management processes are the domain of senior and middle management.</li>
+			</ul>
+			<p>The governance and management objectives in COBIT are grouped into five domains. The domains have names with verbs that express the key purpose and areas of activity of the objective contained in them:</p>
+			<ul>
+				<li>Governance objectives are grouped in the Evaluate, Direct and Monitor (EDM) domain. In this domain, the governing body evaluates strategic options, directs senior management on the chosen strategic options and monitors the achievement of the strategy.</li>
+				<li>
+					Management objectives are grouped in four domains:
+					<ul>
+						<li><strong>Align, Plan and Organize</strong> (APO) addresses the overall organization, strategy and supporting activities for I&T.</li>
+						<li><strong>Build, Acquire and Implement</strong> (BAI) treats the definition, acquisition and implementation of I&T solutions and their integration in business processes.</li>
+						<li><strong>Deliver, Service and Support</strong> (DSS) addresses the operational delivery and support of I&T services, including security.</li>
+						<li><strong>Monitor, Evaluate and Assess</strong> (MEA) addresses performance monitoring and conformance of I&T with internal performance targets, internal control objectives and external requirements.</li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+
+	</form>
+
+	<div id="view gmo"></div>
 	<script type="module">main();</script>
 </body>
 </html>
