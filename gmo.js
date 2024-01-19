@@ -319,12 +319,12 @@ function draw_gmo(view, r_hat) {
 		let bar = document.createElement('div');
 		bar.innerText = r_hat[i][0];
 		if (r_hat[i][0] > 0) {
-			bar.style['background-color'] = 'cyan';
+			bar.style['background-color'] = 'lightblue';
 			bar.style['grid-column-start'] = 100 + offset;
 			bar.style['grid-column-end'] = 100 + offset + r_hat[i][0];
 			bar.style['text-align'] = 'left';
 		} else if (r_hat[i][0] < 0) {
-			bar.style['background-color'] = 'cyan';
+			bar.style['background-color'] = 'lightblue';
 			bar.style['grid-column-start'] = 100 + offset + r_hat[i][0];
 			bar.style['grid-column-end'] =  100 + offset;
 			bar.style['text-align'] = 'right';

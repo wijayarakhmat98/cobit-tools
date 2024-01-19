@@ -247,9 +247,9 @@ function snapshot_view(view, col, header, commit, snapshot, all_snapshot, value,
 		div2.style['width'] = '100%';
 		div2.style['height'] = '100%';
 		if (d.change == 'new')
-			div2.style['background-color'] = '#f3fff3';
+			div2.style['background-color'] = 'lightgreen';
 		if (d.change == 'inherit')
-			div2.style['background-color'] = '#f7f7f7';
+			div2.style['background-color'] = 'lightgray';
 		div1.append(div2);
 		view.appendChild(div1);
 	});
