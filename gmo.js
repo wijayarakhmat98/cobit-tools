@@ -288,7 +288,7 @@ function draw_gmo(view, r_hat) {
 	view.style['margin-right'] = 'auto';
 	view.style['margin-left'] = 'auto';
 	view.style['display'] = 'grid';
-	view.style['grid-template-columns'] = 'auto auto auto repeat(200, 0.2rem)';
+	view.style['grid-template-columns'] = 'auto auto auto repeat(200, 0.2rem) auto';
 	const offset = 3;
 	for (let i = 0; i < mst_gmo.length; ++i) {
 		let button = document.createElement('button');
@@ -334,6 +334,11 @@ function draw_gmo(view, r_hat) {
 			bar.style['text-align'] = 'center';
 		}
 		view.append(bar);
+		let line = document.createElement('div');
+		line.style['grid-column-start'] = 200 + offset + 1;
+		line.style['grid-column-end'] = 200 + offset + 2;
+		line.style['border-left'] = 'solid black 1px';
+		view.append(line);
 		let details = document.createElement('p');
 		details.id = 'details gmo' + (i + 1);
 		details.innerHTML = mst_gmo[i]['explanation'];
