@@ -208,6 +208,20 @@ function snapshot_view(view, col, header, history, commit, value, active) {
 		}
 	}
 	snapshot.forEach((d) => {
+		let div1 = document.createElement('div');
+		let div2 = document.createElement('div');
+		grid_place(div1, d.id * 2 + 2, col, 2, 4);
+		div1.style['padding'] = '0.5rem';
+		div2.style['width'] = '100%';
+		div2.style['height'] = '100%';
+		if (d.change == 'new')
+			div2.style['background-color'] = '#f3fff3';
+		if (d.change == 'inherit')
+			div2.style['background-color'] = '#f7f7f7';
+		div1.append(div2);
+		view.appendChild(div1);
+	});
+	snapshot.forEach((d) => {
 		let p = document.createElement('p');
 		let L = document.createElement('label');
 		let I = document.createElement('input');
@@ -389,18 +403,34 @@ function edit_view(view, history, commit, graph) {
 
 function build_snapshot(commit) {
 	return mst_df1.map((d) => {
+		let change = 'new';
 		for (let p = commit;;) {
 			const i = p.change.findIndex((e) => e.id == d.id);
 			if (i == -1) {
+				if (change == 'new')
+					change = 'old';
+				if (p.parent == null)
+					return {
+						'change': change,
+						'id': d.id,
+						'value': trs_df1_baseline[trs_df1_baseline.findIndex((e) => e.id == d.id)].value,
+						'comment': 'Baseline',
+						'commit': p.id,
+						'author': p.author,
+						'description': p.description
+					};
 				p = p.parent;
 				continue;
 			}
 			const c = p.change[i];
 			if (c.inherit) {
+				if (change == 'new')
+					change = 'inherit';
 				p = c.from;
 				continue;
 			}
 			return {
+				'change': change,
 				'id': c.id,
 				'value': c.value,
 				'comment': c.comment,

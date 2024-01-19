@@ -5,9 +5,7 @@ function main() {
 			'id': 0,
 			'parent': null,
 			'merge': [],
-			'change': trs_df1_baseline.map((d) => ({
-				'id': d.id, 'inherit': false, 'value': d.value, 'comment': 'Baseline'
-			})),
+			'change': [],
 			'author': 'System',
 			'description': 'Initial commit',
 			'timestamp': 0
