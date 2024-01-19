@@ -36,19 +36,23 @@ function checkout(history, commit, edit, merge, view, graph) {
 	if (edit) {
 
 		let tem_col = 'auto';
-		merge.forEach(() => tem_col += ' auto auto auto auto');
-		tem_col += `repeat(${trs_df1_ra}, auto) auto`;
-		tem_col += ' auto auto auto auto';
+		merge.forEach(() => tem_col = tem_col.concat(' auto auto auto auto'));
+		tem_col = tem_col.concat(` repeat(${trs_df1_ra}, auto) auto`);
+		tem_col = tem_col.concat(' auto auto auto auto');
+		tem_col = tem_col.concat(' auto');
+
+		console.log(structuredClone(tem_col));
 
 		let width = 1;
 		merge.forEach(() => width += 1);
 		width += trs_df1_ra + 1;
 		width += 4;
+		width += 1;
 
-		view.style['grid-template-rows'] = `repeat(${5 + trs_df1_dm * 2}, auto)`;
+		view.style['grid-template-rows'] = `repeat(${4 + (1 + trs_df1_dm) * 3}, auto)`;
 		view.style['grid-template-columns'] = tem_col;
 
-		horizontal_bar(view, 3, width);
+		horizontal_bar(view, 4, width);
 
 		let col = 1;
 		col = dimension_view(view, col);
@@ -63,10 +67,10 @@ function checkout(history, commit, edit, merge, view, graph) {
 	}
 	else {
 
-		view.style['grid-template-rows'] = `repeat(${6 + trs_df1_dm * 2}, auto)`;
+		view.style['grid-template-rows'] = `repeat(${2 + (1 + trs_df1_dm) * 3}, auto)`;
 		view.style['grid-template-columns'] = `auto auto auto auto auto auto`;
 
-		horizontal_bar(view, 3, 6);
+		horizontal_bar(view, 4, 6);
 
 		let col = 1;
 		col = dimension_view(view, col);
@@ -102,7 +106,7 @@ function dimension_view(view, col) {
 		let p2 = document.createElement('p');
 		const t1 = document.createTextNode(d.dimension);
 		const t2 = document.createTextNode(d.explanation);
-		grid_place(p1, d.id * 2 + 2, col, 2, 1);
+		grid_place(p1, d.id * 3 + 3, col, 2, 1);
 		s.appendChild(t1);
 		p2.appendChild(t2);
 		e.appendChild(s);
@@ -127,7 +131,7 @@ function change_view(view, col, header) {
 			let L = document.createElement('label');
 			let I = document.createElement('input');
 			const t = document.createTextNode(` ${v}`);
-			grid_place(p, d.id * 2 + 2, col + v - trs_df1_lo, 1, 1);
+			grid_place(p, d.id * 3 + 3, col + v - trs_df1_lo, 1, 1);
 			I.setAttribute('type', 'radio');
 			I.setAttribute('name', `df1 ${d.id} value`);
 			I.setAttribute('value', v);
@@ -140,7 +144,7 @@ function change_view(view, col, header) {
 	mst_df1.forEach((d) => {
 		let p = document.createElement('p');
 		let I = document.createElement('textarea');
-		grid_place(p, d.id * 2 + 2, col + trs_df1_ra, 1, 1);
+		grid_place(p, d.id * 3 + 3, col + trs_df1_ra, 1, 1);
 		I.setAttribute('rows', 1);
 		I.style['width'] = '6rem';
 		I.setAttribute('name', `df1 ${d.id} comment`);
@@ -188,6 +192,13 @@ function snapshot_view(view, col, header, history, commit, value, active) {
 			const t2 = document.createTextNode(commit.id);
 			grid_place(p, 1, col + 3, 1, 1);
 			I.setAttribute('type', 'button');
+			I.onclick = () => {
+				let details = document.getElementById(`${commit.id} header details`);
+				if (details.style['display'] == 'none')
+					details.style['display'] = 'grid';
+				else
+					details.style['display'] = 'none';
+			};
 			p.appendChild(t1);
 			I.appendChild(t2);
 			p.appendChild(I);
@@ -206,11 +217,25 @@ function snapshot_view(view, col, header, history, commit, value, active) {
 			p.appendChild(I);
 			view.appendChild(p);
 		}
+		{
+			let div = document.createElement('div');
+			let tmp = document.createElement('div');
+			let p = document.createElement('p');
+			grid_place(div, 3, col, 1, 4);
+			div.setAttribute('id', `${commit.id} header details`);
+			div.style['display'] = 'none';
+			div.style['grid-template-columns'] = 'subgrid';
+			tmp.style['background-color'] = 'cyan';
+			grid_place(tmp, 1, 1, 1, 2);
+			tmp.append(p);
+			div.appendChild(tmp);
+			view.appendChild(div);
+		}
 	}
 	snapshot.forEach((d) => {
 		let div1 = document.createElement('div');
 		let div2 = document.createElement('div');
-		grid_place(div1, d.id * 2 + 2, col, 2, 4);
+		grid_place(div1, d.id * 3 + 3, col, 2, 4);
 		div1.style['padding'] = '0.5rem';
 		div2.style['width'] = '100%';
 		div2.style['height'] = '100%';
@@ -226,7 +251,7 @@ function snapshot_view(view, col, header, history, commit, value, active) {
 		let L = document.createElement('label');
 		let I = document.createElement('input');
 		const t = document.createTextNode(` ${d.value}`);
-		grid_place(p, d.id * 2 + 2, col, 1, 1);
+		grid_place(p, d.id * 3 + 3, col, 1, 1);
 		I.setAttribute('type', 'radio');
 		I.setAttribute('name', `df1 ${d.id} value`);
 		I.setAttribute('value', value);
@@ -242,7 +267,7 @@ function snapshot_view(view, col, header, history, commit, value, active) {
 		let p = document.createElement('p');
 		let I = document.createElement('textarea');
 		const t = document.createTextNode(d.comment);
-		grid_place(p, d.id * 2 + 2, col + 1, 1, 1);
+		grid_place(p, d.id * 3 + 3, col + 1, 1, 1);
 		I.setAttribute('rows', 1);
 		I.style['width'] = '6rem';
 		I.setAttribute('disabled', '');
@@ -257,7 +282,7 @@ function snapshot_view(view, col, header, history, commit, value, active) {
 		let I = document.createElement('textarea');
 		const t1 = document.createTextNode('by ');
 		const t2 = document.createTextNode(d.author);
-		grid_place(D, d.id * 2 + 2, col + 2, 1, 1);
+		grid_place(D, d.id * 3 + 3, col + 2, 1, 1);
 		D.style['display'] = 'grid';
 		D.style['grid-template-columns'] = 'auto auto';
 		p1.style['white-space'] = 'pre';
@@ -276,8 +301,15 @@ function snapshot_view(view, col, header, history, commit, value, active) {
 		let I = document.createElement('button');
 		const t1 = document.createTextNode('from ');
 		const t2 = document.createTextNode(d.commit);
-		grid_place(p, d.id * 2 + 2, col + 3, 1, 1);
+		grid_place(p, d.id * 3 + 3, col + 3, 1, 1);
 		I.setAttribute('type', 'button');
+		I.onclick = () => {
+			let details = document.getElementById(`${commit.id} ${d.id} details`);
+			if (details.style['display'] == 'none')
+				details.style['display'] = 'grid';
+			else
+				details.style['display'] = 'none';
+		};
 		p.appendChild(t1);
 		I.appendChild(t2);
 		p.appendChild(I);
@@ -287,7 +319,7 @@ function snapshot_view(view, col, header, history, commit, value, active) {
 		let p = document.createElement('p');
 		let I = document.createElement('textarea');
 		const t = document.createTextNode(d.description);
-		grid_place(p, d.id * 2 + 2 + 1, col + 1, 1, 3);
+		grid_place(p, d.id * 3 + 3 + 1, col + 1, 1, 3);
 		p.classList.add('reduced');
 		I.setAttribute('rows', 1);
 		I.style['width'] = 'calc(100% - 1rem)';
@@ -295,6 +327,20 @@ function snapshot_view(view, col, header, history, commit, value, active) {
 		I.appendChild(t);
 		p.appendChild(I);
 		view.appendChild(p);
+	});
+	snapshot.forEach((d) => {
+		let div = document.createElement('div');
+		let tmp = document.createElement('div');
+		let p = document.createElement('p');
+		grid_place(div, d.id * 3 + 3 + 2, col, 1, 4);
+		div.setAttribute('id', `${commit.id} ${d.id} details`);
+		div.style['display'] = 'none';
+		div.style['grid-template-columns'] = 'subgrid';
+		tmp.style['background-color'] = 'cyan';
+		grid_place(tmp, 1, 1, 1, 2);
+		tmp.append(p);
+		div.appendChild(tmp);
+		view.appendChild(div);
 	});
 	return col + 4;
 }
@@ -310,7 +356,7 @@ function baseline_view(view, col) {
 	trs_df1_baseline.forEach((d) => {
 		let p = document.createElement('p');
 		const t = document.createTextNode(d.value);
-		grid_place(p, d.id * 2 + 2, col, 1, 1);
+		grid_place(p, d.id * 3 + 3, col, 1, 1);
 		p.style['text-align'] = 'center';
 		p.appendChild(t);
 		view.appendChild(p);
@@ -319,7 +365,7 @@ function baseline_view(view, col) {
 }
 
 function commit_view(view, history, commit, merge, graph) {
-	const row = 4 + trs_df1_dm * 2;
+	const row = 3 + (1 + trs_df1_dm) * 3;
 	{
 		let p = document.createElement('p');
 		const t = document.createTextNode('Author');
@@ -383,7 +429,7 @@ function commit_view(view, history, commit, merge, graph) {
 }
 
 function edit_view(view, history, commit, graph) {
-	const row = 4 + trs_df1_dm * 2;
+	const row = 3 + (1 + trs_df1_dm) * 3;
 	let p = document.createElement('p');
 	let I = document.createElement('button');
 	const t = document.createTextNode('Edit');
