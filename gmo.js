@@ -132,15 +132,14 @@ const map_df1 = [
 	[1.0, 1.0, 1.0, 1.0]
 ];
 
-function view_gmo(view_id, name) {
-	let view = document.getElementById(view_id);
-	const x = [
-		[document.querySelector(`input[name="${name}1"]:checked`).value],
-		[document.querySelector(`input[name="${name}2"]:checked`).value],
-		[document.querySelector(`input[name="${name}3"]:checked`).value],
-		[document.querySelector(`input[name="${name}4"]:checked`).value]
-	];
-	const x_base = [[3], [3], [3], [3]];
+function chart_gmo(view, snapshot) {
+	const x = mst_df1.map((d) => {
+		const v = document.querySelector(`input[name="df1 ${d.id} value"]:checked`).value;
+		if (v == 'old' || v < 0)
+			return [snapshot[v][d.id - 1].value];
+		return [v];
+	});
+	const x_base = trs_df1_baseline.map((d) => [d.value]);
 	r_hat = calculate_gmo(x, x_base);
 	draw_gmo(view, r_hat);
 }
@@ -168,8 +167,11 @@ function calculate_gmo(x, x_base) {
 
 function draw_gmo(view, r_hat) {
 	view.innerHTML = '';
+	view.style['width'] = 'fit-content';
+	view.style['margin-right'] = 'auto';
+	view.style['margin-left'] = 'auto';
 	view.style['display'] = 'grid';
-	view.style['grid-template-columns'] = 'auto auto repeat(200, 1fr)';
+	view.style['grid-template-columns'] = 'auto auto repeat(200, 0.2rem)';
 	for (let i = 0; i < master_gmo.length; ++i) {
 		let button = document.createElement('button');
 		button.id = 'button gmo' + (i + 1);
@@ -183,6 +185,7 @@ function draw_gmo(view, r_hat) {
 		name.innerText = master_gmo[i];
 		name.style['grid-column-start'] = 2;
 		name.style['grid-column-end'] = 3;
+		name.style['white-space'] = 'nowrap';
 		name.style['padding-right'] = '1rem';
 		name.style['padding-left'] = '1rem';
 		name.style['border-right'] = 'solid black 1px';

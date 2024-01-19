@@ -24,14 +24,16 @@ function grid_place(o, r, c, h, w) {
 	o.style['grid-column-end'] = c + w;
 }
 
-function checkout(history, commit, edit, merge, view, graph) {
+function checkout(history, commit, edit, merge, view, graph, gmo) {
 
-	chart_graph(history, graph, view, edit, commit);
+	chart_graph(history, graph, view, edit, commit, gmo);
 
 	view.style['width'] = 'fit-content';
 	view.innerHTML = '';
 	view.style['display'] = 'grid';
 	view.style['overflow-x'] = 'auto';
+
+	let snapshot = {};
 
 	if (edit) {
 
@@ -40,8 +42,6 @@ function checkout(history, commit, edit, merge, view, graph) {
 		tem_col = tem_col.concat(` repeat(${trs_df1_ra}, auto) auto`);
 		tem_col = tem_col.concat(' auto auto auto auto');
 		tem_col = tem_col.concat(' auto');
-
-		console.log(structuredClone(tem_col));
 
 		let width = 1;
 		merge.forEach(() => width += 1);
@@ -54,15 +54,18 @@ function checkout(history, commit, edit, merge, view, graph) {
 
 		horizontal_bar(view, 4, width);
 
+		snapshot['old'] = build_snapshot(commit);
+		merge.forEach((m) => { snapshot[`${-m.id - 1}`] = build_snapshot(m); });
+
 		let col = 1;
 		col = dimension_view(view, col);
 		merge.forEach((m) => {
-			col = snapshot_view(view, col, 'Merging commit', history, m, -m.id - 1, true);
+			col = snapshot_view(view, col, 'Merging commit', commit, snapshot[`${-m.id - 1}`], snapshot, -m.id - 1, true, gmo);
 		});
-		col = change_view(view, col, (merge.length > 0) ? 'Resolution' : 'Change');
-		col = snapshot_view(view, col, 'Editing commit', history, commit, 'old', true);
+		col = change_view(view, col, (merge.length > 0) ? 'Resolution' : 'Change', gmo, snapshot);
+		col = snapshot_view(view, col, 'Editing commit', commit, snapshot['old'], snapshot, 'old', true, gmo);
 		baseline_view(view, col);
-		commit_view(view, history, commit, merge, graph);
+		commit_view(view, history, commit, merge, graph, gmo);
 
 	}
 	else {
@@ -72,13 +75,17 @@ function checkout(history, commit, edit, merge, view, graph) {
 
 		horizontal_bar(view, 4, 6);
 
+		snapshot['old'] = build_snapshot(commit);
+
 		let col = 1;
 		col = dimension_view(view, col);
-		col = snapshot_view(view, col, 'Viewing commit', history, commit, 'old', false);
+		col = snapshot_view(view, col, 'Viewing commit', commit, snapshot['old'], snapshot, 'old', false, gmo);
 		baseline_view(view, col);
-		edit_view(view, history, commit, graph);
+		edit_view(view, history, commit, graph, gmo);
 
 	}
+
+	chart_gmo(gmo, snapshot);
 
 }
 
@@ -117,7 +124,7 @@ function dimension_view(view, col) {
 	return col + 1;
 }
 
-function change_view(view, col, header) {
+function change_view(view, col, header, view_gmo, all_snapshot) {
 	{
 		let p = document.createElement('p');
 		const t = document.createTextNode(header);
@@ -135,6 +142,7 @@ function change_view(view, col, header) {
 			I.setAttribute('type', 'radio');
 			I.setAttribute('name', `df1 ${d.id} value`);
 			I.setAttribute('value', v);
+			I.onclick = () => { chart_gmo(view_gmo, all_snapshot); };
 			L.appendChild(I);
 			L.appendChild(t);
 			p.appendChild(L);
@@ -154,8 +162,7 @@ function change_view(view, col, header) {
 	return col + trs_df1_ra + 1;
 }
 
-function snapshot_view(view, col, header, history, commit, value, active) {
-	const snapshot = build_snapshot(commit);
+function snapshot_view(view, col, header, commit, snapshot, all_snapshot, value, active, view_gmo) {
 	{
 		{
 			let p = document.createElement('p');
@@ -258,6 +265,8 @@ function snapshot_view(view, col, header, history, commit, value, active) {
 		I.setAttribute('checked', '');
 		if (!active)
 			I.setAttribute('disabled', '');
+		else
+			I.onclick = () => { chart_gmo(view_gmo, all_snapshot); }
 		L.appendChild(I);
 		L.appendChild(t);
 		p.appendChild(L);
@@ -364,7 +373,7 @@ function baseline_view(view, col) {
 	return col + 1;
 }
 
-function commit_view(view, history, commit, merge, graph) {
+function commit_view(view, history, commit, merge, graph, gmo) {
 	const row = 3 + (1 + trs_df1_dm) * 3;
 	{
 		let p = document.createElement('p');
@@ -408,7 +417,7 @@ function commit_view(view, history, commit, merge, graph) {
 		const t = document.createTextNode('Commit');
 		grid_place(p, row + 2, 1, 1, 1);
 		I.setAttribute('type', 'button');
-		I.onclick = () => { save(history, commit, merge, view, graph); };
+		I.onclick = () => { save(history, commit, merge, view, graph, gmo); };
 		I.appendChild(t);
 		p.appendChild(I);
 		view.appendChild(p);
@@ -420,7 +429,7 @@ function commit_view(view, history, commit, merge, graph) {
 		grid_place(p, row + 2, 2, 1, 6);
 		I.setAttribute('type', 'button');
 		I.onclick = () => {
-			checkout(history, commit, false, [], view, graph);
+			checkout(history, commit, false, [], view, graph, gmo);
 		};
 		I.appendChild(t);
 		p.appendChild(I);
@@ -428,7 +437,7 @@ function commit_view(view, history, commit, merge, graph) {
 	}
 }
 
-function edit_view(view, history, commit, graph) {
+function edit_view(view, history, commit, graph, gmo) {
 	const row = 3 + (1 + trs_df1_dm) * 3;
 	let p = document.createElement('p');
 	let I = document.createElement('button');
@@ -440,7 +449,7 @@ function edit_view(view, history, commit, graph) {
 			.sort((a, b) => (a < b) ? 1 : -1)
 			.map((f) => f.value)
 			.map((v) => history[history.findIndex((c) => c.id == v)]);
-		checkout(history, commit, true, merge, view, graph);
+		checkout(history, commit, true, merge, view, graph, gmo);
 	};
 	I.appendChild(t);
 	p.appendChild(I);
@@ -488,7 +497,7 @@ function build_snapshot(commit) {
 	});
 }
 
-function save(history, commit, merge, view, graph) {
+function save(history, commit, merge, view, graph, gmo) {
 	const change = mst_df1.reduce((change, d) => {
 		const v = document.querySelector(
 			`input[name="df1 ${d.id} value"]:checked`
@@ -532,7 +541,5 @@ function save(history, commit, merge, view, graph) {
 
 	history.push(new_commit);
 
-	console.log(structuredClone(history));
-
-	checkout(history, new_commit, false, [], view, graph);
+	checkout(history, new_commit, false, [], view, graph, gmo);
 }

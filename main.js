@@ -13,9 +13,8 @@ function main() {
 
 	let view_graph = document.getElementById('view graph');
 	let view_input = document.getElementById('view input');
+	let view_gmo = document.getElementById('view gmo');
 
-	checkout(history, history[0], false, [], view_input, view_graph);
-
-	view_gmo('view gmo', 'df.1.');
+	checkout(history, history[0], false, [], view_input, view_graph, view_gmo);
 
 };

@@ -1,7 +1,7 @@
-function chart_graph(graph, view, input, edit, commit) {
+function chart_graph(graph, view, input, edit, commit, gmo) {
 	let C = prepare(graph);
 	place(C);
-	draw(C, view, graph, edit, commit, input);
+	draw(C, view, graph, edit, commit, input, gmo);
 }
 
 function prepare(graph) {
@@ -50,7 +50,7 @@ function place(C) {
 	C.forEach((c) => {c.j = col - c.j - 1; c.i = row - c.i - 1;});
 }
 
-function draw(C, view, graph, edit, commit, input) {
+function draw(C, view, graph, edit, commit, input, gmo) {
 	const row = Math.max.apply(Math, C.map((c) => c.i)) + 1;
 	const col = Math.max.apply(Math, C.map((c) => c.j)) + 1;
 
@@ -60,7 +60,7 @@ function draw(C, view, graph, edit, commit, input) {
 	view.style['grid-template-rows'] = `repeat(${(edit) ? row : row + 1}, 1fr)`;
 	view.style['grid-template-columns'] = `repeat(${col}, 1fr)`;
 
-	draw_box(C, view, graph, edit, input);
+	draw_box(C, view, graph, edit, input, gmo);
 	draw_line(C, view);
 	if (!edit)
 		draw_merge(C, commit, view);
@@ -126,7 +126,7 @@ function place_j(C) {
 	});
 }
 
-function draw_box(C, view, graph, edit, input) {
+function draw_box(C, view, graph, edit, input, gmo) {
 	C.forEach((c) => {
 		let I = document.createElement('button');
 		let t = document.createTextNode(c.name);
@@ -141,7 +141,7 @@ function draw_box(C, view, graph, edit, input) {
 			I.onclick = () => {
 				checkout(graph,
 					graph[graph.findIndex((g) => g.id == c.name)],
-				false, [], input, view);
+				false, [], input, view, gmo);
 			};
 		view.appendChild(I);
 	});
