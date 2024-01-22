@@ -1,3 +1,5 @@
+import checkout from 'sheet';
+
 function chart_graph(graph, view, input, edit, commit, gmo) {
 	let C = prepare(graph);
 	place(C);
@@ -107,7 +109,7 @@ function place_j(C) {
 		let nJc = c.branch.filter((d) => !Jc.includes(d.j));
 		let  D_ = [];
 		if (nJc.length > 0) {
-			d = nJc[0];
+			const d = nJc[0];
 			D_.push(d);
 			B[B.findIndex((e) => e == d)] = c;
 		} else {
