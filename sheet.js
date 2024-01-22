@@ -22,10 +22,8 @@ function checkout(history, commit, edit, merge, view, graph, gmo) {
 
 	chart_graph(history, graph, view, edit, commit, gmo);
 
-	view.style['width'] = 'fit-content';
 	view.innerHTML = '';
-	view.style['display'] = 'grid';
-	view.style['overflow-x'] = 'auto';
+	view.style['display'] = 'inline-grid';
 
 	let snapshot = {};
 

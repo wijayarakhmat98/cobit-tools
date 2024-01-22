@@ -57,9 +57,8 @@ function draw(C, view, graph, edit, commit, input, gmo) {
 	const col = Math.max.apply(Math, C.map((c) => c.j)) + 1;
 
 	view.innerHTML = '';
-	view.style['width'] = 'fit-content';
-	view.style['display'] = 'grid';
-	view.style['grid-template-rows'] = `repeat(${(edit) ? row : row + 1}, 1fr)`;
+	view.style['display'] = 'inline-grid';
+	view.style['grid-template-rows'] = `repeat(${row}, 1fr)${(edit) ? '' : ' auto'}`;
 	view.style['grid-template-columns'] = `repeat(${col}, 1fr)`;
 
 	draw_box(C, view, graph, edit, input, gmo);

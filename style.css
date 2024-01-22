@@ -1,52 +1,29 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+html, body {
+	min-width: 100%;
+	width: fit-content;
+}
+
+nav, article {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
 button {
 	border: none;
 }
 
-[id="view graph"] {
-	margin-right: auto;
-	margin-left: auto;
-}
-
-[id="view graph"] button {
-	margin: 0.5rem;
-}
-
-[id="view input"] {
-	margin-right: auto;
-	margin-left: auto;
-}
-
-[id="view input"] p {
-	white-space: nowrap;
-	margin-right: 0.5rem;
-	margin-left: 0.5rem;
-}
-
-[id="view input"] div p:first-child {
-	margin-right: 0;
-}
-
-[id="view input"] div p:last-child {
-	margin-left: 0;
-}
-
-[id="view input"] details p {
-	white-space: wrap;
-}
-
-[id="view input"] .reduced {
-	margin-top: -0.5rem;
-}
-
-[id="view input"] .reduced textarea {
-	resize: vertical;
-}
-
-[id="view input"] textarea:disabled {
+textarea:disabled {
 	background-color: rgba(0, 0, 0, 0);
 	border: none;
 }
 
-[id="view input"] p label:has(input[type="radio"]) {
-	font-size: 1.2rem;
+[id="view graph"] button {
+	margin: 0.5rem;
 }

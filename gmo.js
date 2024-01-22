@@ -72,10 +72,9 @@ function calculate_gmo(x, x_base) {
 
 function draw_gmo(view, r_hat) {
 	view.innerHTML = '';
-	view.style['width'] = 'fit-content';
 	view.style['margin-right'] = 'auto';
 	view.style['margin-left'] = 'auto';
-	view.style['display'] = 'grid';
+	view.style['display'] = 'inline-grid';
 	view.style['grid-template-columns'] = 'auto auto auto repeat(200, 0.2rem) auto';
 	const offset = 3;
 	for (let i = 0; i < mst_gmo.length; ++i) {
