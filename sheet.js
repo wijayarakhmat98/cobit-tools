@@ -1,3 +1,16 @@
+import {
+	mst_df1,
+	trs_df1_baseline,
+	trs_df1_dm,
+	trs_df1_lo,
+	trs_df1_hi,
+	trs_df1_ra
+}
+from 'master';
+
+import chart_graph from 'graph';
+import chart_gmo from 'gmo';
+
 function grid_place(o, r, c, h, w) {
 	o.style['grid-row-start'] = r;
 	o.style['grid-row-end'] = r + h;
@@ -524,3 +537,5 @@ function save(history, commit, merge, view, graph, gmo) {
 
 	checkout(history, new_commit, false, [], view, graph, gmo);
 }
+
+export default checkout;

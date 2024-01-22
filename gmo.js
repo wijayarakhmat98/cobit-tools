@@ -1,3 +1,11 @@
+import {
+	mst_gmo,
+	mst_df1,
+	trs_df1_baseline,
+	trs_df1_map_matrix
+}
+from 'master';
+
 function toggle_details(button, details) {
 	let x = document.getElementById(details);
 	let y = document.getElementById(button);
@@ -37,7 +45,7 @@ function chart_gmo(view, snapshot) {
 		return [v];
 	});
 	const x_base = trs_df1_baseline.map((d) => [d.value]);
-	r_hat = calculate_gmo(x, x_base);
+	const r_hat = calculate_gmo(x, x_base);
 	draw_gmo(view, r_hat);
 }
 
@@ -130,3 +138,5 @@ function draw_gmo(view, r_hat) {
 		view.append(details);
 	}
 }
+
+export default chart_gmo;

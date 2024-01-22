@@ -118,7 +118,7 @@ function place_j(C) {
 		c.j = B.findIndex((d) => d == c);
 
 		F.push(B.map((b) => (b == null) ? null : b.name));
-		F_col = Math.max.apply(Math, F.map((f) => f.length));
+		const F_col = Math.max.apply(Math, F.map((f) => f.length));
 		F.forEach((f) => {
 			while (f.length < F_col)
 				f.push(null);
@@ -222,3 +222,5 @@ function draw_merge(C, commit, view) {
 		view.appendChild(p);
 	});
 }
+
+export default chart_graph;

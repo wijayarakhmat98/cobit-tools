@@ -4,65 +4,38 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>COBIT Tools</title>
-	<script defer src="master.js"></script>
-	<script defer src="graph.js"></script>
-	<script defer src="gmo.js"></script>
-	<script defer src="sheet.js"></script>
-	<script defer src="main.js"></script>
-	<style>
-		button {
-			border: none;
+	<link rel="stylesheet" href="style.css">
+	<link rel="modulepreloaded" href="main.js">
+	<link rel="modulepreloaded" href="sheet.js">
+	<link rel="modulepreloaded" href="graph.js">
+	<link rel="modulepreloaded" href="gmo.js">
+	<link rel="modulepreloaded" href="master.js">
+	<script type="importmap">
+		{
+			"imports": {
+				"main": "./main.js",
+				"sheet": "./sheet.js",
+				"graph": "./graph.js",
+				"gmo": "./gmo.js",
+				"master": "./master.js"
+			}
 		}
-
-		[id="view graph"] {
-			margin-right: auto;
-			margin-left: auto;
-		}
-
-		[id="view graph"] button {
-			margin: 0.5rem;
-		}
-
-		[id="view input"] {
-			margin-right: auto;
-			margin-left: auto;
-		}
-
-		[id="view input"] p {
-			white-space: nowrap;
-			margin-right: 0.5rem;
-			margin-left: 0.5rem;
-		}
-
-		[id="view input"] div p:first-child {
-			margin-right: 0;
-		}
-
-		[id="view input"] div p:last-child {
-			margin-left: 0;
-		}
-
-		[id="view input"] details p {
-			white-space: wrap;
-		}
-
-		[id="view input"] .reduced {
-			margin-top: -0.5rem;
-		}
-
-		[id="view input"] .reduced textarea {
-			resize: vertical;
-		}
-
-		[id="view input"] textarea:disabled {
-			background-color: rgba(0, 0, 0, 0);
-			border: none;
-		}
-
-		[id="view input"] p label:has(input[type="radio"]) {
-			font-size: 1.2rem;
-		}
-	</style>
+	</script>
+	<script type="module">
+		import main from './main.js';
+		let history = [
+			{
+				'id': 0,
+				'parent': null,
+				'merge': [],
+				'change': [],
+				'author': 'System',
+				'description': 'Initial commit',
+				'timestamp': 0
+			}
+		];
+		main(history, 'view graph', 'view input', 'view gmo');
+	</script>
 </head>
 <body>
 	<br>
@@ -71,6 +44,5 @@
 	<br>
 	<div id="view gmo"></div>
 	<br>
-	<script type="module">main();</script>
 </body>
 </html>
