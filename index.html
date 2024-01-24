@@ -5,19 +5,21 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>COBIT Tools</title>
 	<link rel="stylesheet" href="style.css">
+	<link rel="modulepreloaded" href="master.js">
+	<link rel="modulepreloaded" href="component.js">
 	<link rel="modulepreloaded" href="main.js">
 	<link rel="modulepreloaded" href="sheet.js">
 	<link rel="modulepreloaded" href="graph.js">
 	<link rel="modulepreloaded" href="gmo.js">
-	<link rel="modulepreloaded" href="master.js">
 	<script type="importmap">
 		{
 			"imports": {
+				"master": "./master.js",
+				"component": "./component.js",
 				"main": "./main.js",
 				"sheet": "./sheet.js",
 				"graph": "./graph.js",
-				"gmo": "./gmo.js",
-				"master": "./master.js"
+				"gmo": "./gmo.js"
 			}
 		}
 	</script>
@@ -39,9 +41,7 @@
 </head>
 <body>
 	<header></header>
-	<nav>
-		<div id="view graph"></div>
-	</nav>
+	<nav id="view graph"></nav>
 	<main>
 		<article id="view df1">
 			<form id="view df1 input"></form>

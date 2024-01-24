@@ -4,6 +4,26 @@
 	box-sizing: border-box;
 }
 
+/* -------------------------------------------------- */
+
+div.radio, textarea {
+	margin: 0.5rem;
+}
+
+p, details {
+	padding: 0.5rem;
+}
+
+article div {
+	width: max-content;
+}
+
+div.snapshot {
+	height: min-content;
+}
+
+/* -------------------------------------------------- */
+
 html, body {
 	min-width: 100%;
 	width: fit-content;
@@ -15,12 +35,50 @@ nav, article {
 	align-items: center;
 }
 
-button {
-	border: none;
+details p {
+	min-width: 100%;
+	width: 0;
+	text-align: justify;
 }
 
-textarea:disabled {
-	background-color: rgba(0, 0, 0, 0);
+div.radio {
+	display: inline-block;
+	text-align: center;
+}
+
+div.radio label {
+	display: block;
+	font-size: 1.2rem;
+	line-height: 1.7rem;
+}
+
+div.radio:has(input[type="radio"]:checked) {
+	background-color: turquoise;
+}
+
+div.radio:has(input[type="radio"]:checked) label {
+	font-size: 1.5rem;
+	font-weight: bold;
+	text-shadow:
+		white  1px 0   1px,
+		white -1px 0   1px,
+		white  0   1px 1px,
+		white  0  -1px 1px;
+}
+
+p.expand {
+	resize: both;
+	overflow: auto;
+	overflow-wrap: break-word;
+}
+
+p.baseline {
+	text-align: center
+}
+
+/* -------------------------------------------------- */
+
+button {
 	border: none;
 }
 

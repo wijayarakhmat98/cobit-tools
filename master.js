@@ -1067,6 +1067,9 @@ const trs_df1_map = [
     }
 ];
 
+const trs_df1_lo = 1;
+const trs_df1_hi = 5;
+
 const trs_df1_baseline = [
 	{'id': 1, 'value': 3,},
 	{'id': 2, 'value': 3,},
@@ -1082,19 +1085,12 @@ const trs_df1_map_matrix = mst_gmo.map(
 	)
 );
 
-const trs_df1_dm = mst_df1.length;
-const trs_df1_lo = 1;
-const trs_df1_hi = 5;
-const trs_df1_ra = trs_df1_hi - trs_df1_lo + 1;
-
 export {
 	mst_gmo,
 	mst_df1,
 	trs_df1_map,
 	trs_df1_baseline,
 	trs_df1_map_matrix,
-	trs_df1_dm,
 	trs_df1_lo,
-	trs_df1_hi,
-	trs_df1_ra
+	trs_df1_hi
 };
