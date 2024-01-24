@@ -1,3 +1,9 @@
+function apply_callback(element, callback) {
+	if (callback)
+		element.onchange = () => callback(element);
+	return element;
+}
+
 function apply_style(element, style) {
 	for (const [name, value] of Object.entries(style))
 		element.style[name] = value;
@@ -62,34 +68,38 @@ function create_details(text1, text2, classes = []) {
 	return apply_class(details, classes);
 }
 
-function create_radio(name, value, text, checked = false, enabled = true, classes = []) {
+function create_radio(name, value, text, checked = false, callback = undefined, enabled = true, classes = []) {
 	let div = document.createElement('div');
 	let label = document.createElement('label');
 	let input = document.createElement('input');
 	const t = document.createTextNode(text);
 	input.setAttribute('type', 'radio');
 	input.setAttribute('name', name);
+	input.setAttribute('value', value);
 	input.id = `${name} ${value}`;
-	if (!enabled)
-		input.setAttribute('disabled', '');
 	if (checked)
 		input.setAttribute('checked', '');
+	if (!enabled)
+		input.setAttribute('disabled', '');
 	label.setAttribute('for', `${name} ${value}`);
 	div.classList.add('radio');
 	label.appendChild(t);
 	div.appendChild(label);
 	div.appendChild(input);
+	apply_callback(input, callback);
 	return apply_class(div, classes);
 }
 
-function create_textarea(name, value, enabled = true, classes = []) {
+function create_textarea(name, value = undefined, enabled = true, classes = []) {
 	let textarea = document.createElement('textarea');
-	const t = document.createTextNode(value);
 	if (name)
 		textarea.setAttribute('name', name);
+	if (value) {
+		const t = document.createTextNode(value);
+		textarea.appendChild(t);
+	}
 	if (!enabled)
 		textarea.setAttribute('disabled', '');
-	textarea.appendChild(t);
 	return apply_class(textarea, classes);
 }
 

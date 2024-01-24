@@ -38,11 +38,9 @@ function matrix_multiply(A, B) {
 }
 
 function chart_gmo(view, snapshot) {
-	const x = mst_df1.map((d) => {
+	const x = mst_df1.map(d => {
 		const v = document.querySelector(`input[name="df1 ${d.id} value"]:checked`).value;
-		if (v == 'old' || v < 0)
-			return [snapshot[v][d.id - 1].value];
-		return [v];
+		return [JSON.parse(v)['value']];
 	});
 	const x_base = trs_df1_baseline.map((d) => [d.value]);
 	const r_hat = calculate_gmo(x, x_base);
