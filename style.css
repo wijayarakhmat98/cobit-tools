@@ -6,6 +6,10 @@
 
 /* -------------------------------------------------- */
 
+* {
+	height: min-content;
+}
+
 div.radio, textarea {
 	margin: 0.5rem;
 }
@@ -14,12 +18,50 @@ p, details {
 	padding: 0.5rem;
 }
 
-article div {
-	width: max-content;
+div.view_gmo_bar {
+	width: 40rem;
 }
 
-div.snapshot {
-	height: min-content;
+div.view_gmo_bar:empty {
+	height: 100%;
+	border-right: 1px solid black;
+	border-left: 1px solid black;
+}
+
+section[id="view df1 gmo"] {
+	width: min-content;
+}
+
+div.view_gmo_bar p {
+	padding: 0;
+}
+
+section[id="view df1 gmo"] p,
+section[id="view df1 gmo"] details
+{
+	padding: 0 0.5rem 0 0;
+}
+
+section[id="view df1 gmo"] p.details {
+	padding: 0.5rem 0.5rem 0.5rem 0;
+}
+
+div.view_gmo_bar p.pos {
+	text-align: left;
+	background-color: cyan;
+}
+
+div.view_gmo_bar p.neg {
+	text-align: right;
+	background-color: orange;
+}
+
+div.view_gmo_bar p.zer {
+	text-align: center;
+}
+
+details > :not(summary) {
+	padding: 0.5rem 0;
 }
 
 /* -------------------------------------------------- */
@@ -29,13 +71,21 @@ html, body {
 	width: fit-content;
 }
 
+body {
+	padding: 1rem;
+}
+
 nav, article {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 }
 
-details p {
+details summary, p.summary {
+	white-space: nowrap;
+}
+
+details > :not(summary), p.details {
 	min-width: 100%;
 	width: 0;
 	text-align: justify;
@@ -68,20 +118,10 @@ div.radio:has(input[type="radio"]:checked) label {
 
 p.expand {
 	resize: both;
-	overflow: auto;
+	overflow: hidden;
 	overflow-wrap: break-word;
 }
 
 p.baseline {
 	text-align: center
-}
-
-/* -------------------------------------------------- */
-
-button {
-	border: none;
-}
-
-[id="view graph"] button {
-	margin: 0.5rem;
 }

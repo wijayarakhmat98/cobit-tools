@@ -24,6 +24,14 @@ function matrix_sum_element(A) {
 	return s;
 }
 
+function matrix_flatten(A) {
+	let a = [];
+	for (let i = 0; i < matrix_row(A); ++i)
+		for (let j = 0; j < matrix_col(A); ++j)
+			a.push(A[i][j]);
+	return a;
+}
+
 function matrix_reciprocal(A) {
 	const row = matrix_row(A);
 	const col = matrix_col(A);
@@ -91,6 +99,7 @@ export {
 	matrix_row,
 	matrix_col,
 	matrix_sum_element,
+	matrix_flatten,
 	matrix_reciprocal,
 	matrix_transpose,
 	matrix_scalar_multiply,

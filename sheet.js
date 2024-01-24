@@ -44,9 +44,8 @@ function checkout(history, commit, edit, merge, view, graph, gmo) {
 				...trs_df1_baseline.map(d => create_p(d.value, ['baseline']))
 			]),
 		],
-		[], create_grid(1 + mst_df1.length, 4)
+		[], create_grid(1 + mst_df1.length, 4, true)
 	);
-
 	chart_gmo(gmo);
 }
 
@@ -102,7 +101,7 @@ function create_trace(name, d, checked, callback) {
 					create_p('from'),
 					create_p(d.commit, ['expand']),
 				],
-				['snapshot'], {
+				[], {
 					...create_area(2, 1, 5, 1),
 					...create_grid(undefined, 'subgrid')
 				}
