@@ -19,6 +19,8 @@ import {
 }
 from 'component';
 
+import chart_gmo from 'gmo';
+
 function checkout(history, commit, edit, merge, view, graph, gmo) {
 	const snapshot = create_snapshot(commit, mst_df1, trs_df1_baseline);
 	replace_content(view,
@@ -29,7 +31,9 @@ function checkout(history, commit, edit, merge, view, graph, gmo) {
 			]),
 			create_column(2, mst_df1, [
 				create_p('Change'),
-				...mst_df1.map(d => create_change(`df1 ${d.id}`, trs_df1_lo, trs_df1_hi, undefined))
+				...mst_df1.map(d => create_change(`df1 ${d.id}`, trs_df1_lo, trs_df1_hi, undefined,
+					() => chart_gmo(gmo)
+				))
 			]),
 			create_column(3, mst_df1, [
 				create_p(`Viewing commit ${commit.id}`),
@@ -42,6 +46,8 @@ function checkout(history, commit, edit, merge, view, graph, gmo) {
 		],
 		[], create_grid(1 + mst_df1.length, 4)
 	);
+
+	chart_gmo(gmo);
 }
 
 function create_snapshot(commit, mst_df, trs_df_baseline) {

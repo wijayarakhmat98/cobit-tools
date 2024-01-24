@@ -6,6 +6,16 @@ import {
 }
 from 'master';
 
+import {
+	matrix_sum_element,
+	matrix_reciprocal,
+	matrix_scalar_multiply,
+	matrix_multiply,
+	matrix_element_multiply,
+	matrix_element_map
+}
+from 'matrix';
+
 function toggle_details(button, details) {
 	let x = document.getElementById(details);
 	let y = document.getElementById(button);
@@ -16,25 +26,6 @@ function toggle_details(button, details) {
 		x.style['display'] = 'none';
 		y.innerText = '>';
 	}
-}
-
-function matrix_multiply(A, B) {
-	const A_row = A.length;
-	const A_col = A[0].length;
-	const B_row = B.length;
-	const B_col = B[0].length;
-	let C = [];
-	for (let i = 0; i < A_row; ++i) {
-		C.push([]);
-		for (let j = 0; j < B_col; ++j) {
-			C[i].push(0.0);
-		}
-	}
-	for (let i = 0; i < A_row; ++i)
-		for (let j = 0; j < B_col; ++j)
-			for (let k = 0; k < A_col; ++k)
-				C[i][j] += A[i][k] * B[k][j];
-	return C;
 }
 
 function chart_gmo(view, snapshot) {
@@ -48,23 +39,11 @@ function chart_gmo(view, snapshot) {
 }
 
 function calculate_gmo(x, x_base) {
-	const one4 = [[1, 1, 1, 1]];
-	const one40 = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]];
-	const c = matrix_multiply(one4, x_base)[0][0] / matrix_multiply(one4, x)[0][0];
+	const c = matrix_sum_element(x_base) / matrix_sum_element(x);
 	const y = matrix_multiply(trs_df1_map_matrix, x);
 	const y_base = matrix_multiply(trs_df1_map_matrix, x_base);
-	const r = ((c, y, y_base) => {
-		let r = [];
-		for (let i = 0; i < y.length; ++i)
-			r.push([c * y[i][0] / y_base[i][0]]);
-		return r;
-	})(c, y, y_base);
-	const r_hat = ((r) => {
-		let r_hat = [];
-		for (let i = 0; i < r.length; ++i)
-			r_hat.push([Math.round(20 * r[i][0]) * 5 - 100]);
-		return r_hat;
-	})(r);
+	const r = matrix_scalar_multiply(c, matrix_element_multiply(y, matrix_reciprocal(y_base)));
+	const r_hat = matrix_element_map(r, e => Math.round(20 * e) * 5 - 100);
 	return r_hat;
 }
 
