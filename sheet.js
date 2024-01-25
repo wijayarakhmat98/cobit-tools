@@ -27,11 +27,11 @@ function checkout(history, commit, edit, merge, view, graph, gmo) {
 	const snapshot = create_snapshot(commit, mst_df1, trs_df1_baseline);
 	replace_content(view,
 		[
-			create_column(1, mst_df1, [
+			create_column(1 + mst_df1.length, [
 				create_p('Enterprise Strategy'),
 				...mst_df1.map(d => create_details(d.dimension, d.explanation))
 			]),
-			create_column(2, mst_df1,
+			create_column(1 + mst_df1.length,
 				[
 					create_p('Change', [], create_change_area(trs_df1_lo, trs_df1_hi)),
 					...mst_df1.map(d => create_change(
@@ -40,14 +40,14 @@ function checkout(history, commit, edit, merge, view, graph, gmo) {
 				],
 				[], create_change_grid(trs_df1_lo, trs_df1_hi)
 			),
-			create_column(3, mst_df1,
+			create_column(1 + mst_df1.length,
 				[
 					create_p(`Viewing commit ${commit.id}`, [], create_trace_area()),
 					...snapshot.map(d => create_trace(`df1 ${d.id}`, d, true))
 				],
 				[], create_trace_grid()
 			),
-			create_column(4, mst_df1, [
+			create_column(1 + mst_df1.length, [
 				create_p('Baseline'),
 				...trs_df1_baseline.map(d => create_p(d.value, ['baseline']))
 			]),
@@ -75,11 +75,11 @@ function create_snapshot(commit, mst_df, trs_df_baseline, classes = [], style = 
 	}), classes), style);
 }
 
-function create_column(col, df, children = [], classes = [], style = {}) {
+function create_column(h, children = [], classes = [], style = {}) {
 	return apply_style(apply_class(create_div(
 		children,
 		[], {
-			...create_area(col, 1, 1, df.length + 1),
+			...create_area(undefined, 1, undefined, h),
 			...create_grid('subgrid', undefined)
 		}
 	), classes), style);
@@ -99,7 +99,7 @@ function create_change(name, lo, hi, checked, callback, classes = [], style = {}
 			...create_range(lo, hi).map(
 				i => create_radio(`${name} value`, `{"value": ${i}, "from": "new"}`, i, i == checked, callback)
 			),
-			create_textarea(`${name} comment`)
+			create_textarea(`${name} comment`, 1)
 		],
 		[], {
 			...create_change_area(lo, hi),

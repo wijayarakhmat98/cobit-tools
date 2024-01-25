@@ -10,8 +10,13 @@
 	height: min-content;
 }
 
-div.radio, textarea {
+div.radio {
 	margin: 0.5rem;
+}
+
+textarea, p.expand {
+	margin-top: 0.5rem;
+	padding: 0 0.5rem 0.5rem 0.5rem;
 }
 
 p, details {
@@ -62,6 +67,10 @@ div.view_gmo_bar p.zer {
 
 details > :not(summary) {
 	padding: 0.5rem 0;
+}
+
+form[id="view df1 input"] textarea {
+	width: 6rem;
 }
 
 /* -------------------------------------------------- */

@@ -138,9 +138,11 @@ function create_radio(name, value, text, checked = false, callback = undefined, 
 	return apply_style(apply_class(div, classes), style);
 }
 
-function create_textarea(name, value = undefined, enabled = true, classes = [], style = {}) {
+function create_textarea(name, row = undefined, value = undefined, enabled = true, classes = [], style = {}) {
 	let textarea = document.createElement('textarea');
 	textarea.setAttribute('name', name);
+	if (row)
+		textarea.setAttribute('rows', row);
 	if (value) {
 		const t = document.createTextNode(value);
 		textarea.appendChild(t);
