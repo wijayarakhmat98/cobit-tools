@@ -28,7 +28,7 @@ function chart_sheet(view, commit, callback) {
 				create_p('Enterprise Strategy'),
 				...mst_df1.map(d => create_details(d.dimension, d.explanation))
 			]),
-			...commit.reverse().map(s => s == null ?
+			...commit.slice().reverse().map(s => s == null ?
 				create_column(1 + mst_df1.length,
 					[
 						create_p('Change', [], create_change_area(trs_df1_lo, trs_df1_hi)),
@@ -98,7 +98,7 @@ function create_change(name, lo, hi, checked, callback, classes = [], style = {}
 	return apply_style(apply_class(create_div(
 		[
 			...create_range(lo, hi).map(
-				i => create_radio(`${name} value`, `{"value": ${i}, "from": "new"}`, i, i == checked, callback)
+				i => create_radio(`${name} value`, `{"value": ${i}, "from": null}`, i, i == checked, callback)
 			),
 			create_textarea(`${name} comment`, 1)
 		],

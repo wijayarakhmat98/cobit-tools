@@ -1,7 +1,15 @@
 function chart_graph(view, graph) {
 	let C = prepare(graph);
-	place(C);
-	draw(view, C);
+	place_i(C);
+	place_j(C);
+	const row = Math.max.apply(Math, C.map((c) => c.i)) + 1;
+	const col = Math.max.apply(Math, C.map((c) => c.j)) + 1;
+	view.innerHTML = '';
+	view.style['display'] = 'inline-grid';
+	view.style['grid-template-rows'] = `repeat(${row}, 1fr)}`;
+	view.style['grid-template-columns'] = `repeat(${col}, 1fr)`;
+	draw_box(view, C);
+	draw_line(view, C);
 }
 
 function prepare(graph) {
@@ -32,35 +40,6 @@ function prepare(graph) {
 	});
 
 	return C;
-}
-
-function place(C) {
-	place_i(C);
-	place_j(C);
-
-	C.forEach((c) => {
-		let tmp = c.i;
-		c.i = c.j;
-		c.j = tmp;
-	});
-
-	const row = Math.max.apply(Math, C.map((c) => c.i)) + 1;
-	const col = Math.max.apply(Math, C.map((c) => c.j)) + 1;
-
-	C.forEach((c) => {c.j = col - c.j - 1; c.i = row - c.i - 1;});
-}
-
-function draw(view, C) {
-	const row = Math.max.apply(Math, C.map((c) => c.i)) + 1;
-	const col = Math.max.apply(Math, C.map((c) => c.j)) + 1;
-
-	view.innerHTML = '';
-	view.style['display'] = 'inline-grid';
-	view.style['grid-template-rows'] = `repeat(${row}, 1fr)}`;
-	view.style['grid-template-columns'] = `repeat(${col}, 1fr)`;
-
-	draw_box(view, C);
-	draw_line(view, C);
 }
 
 function J(c, F) {
@@ -152,6 +131,7 @@ function draw_line(view, C) {
 		d.style['grid-column-start'] = p.l;
 		d.style['grid-column-end'] = p.r;
 		d.style['z-index'] = -10;
+		d.style['height'] = 'auto';
 		view.appendChild(d);
 		const m = {
 			'w': p.r - p.l,
@@ -175,19 +155,19 @@ function draw_line(view, C) {
 		l.setAttribute('fill', 'none');
 		l.setAttribute('stroke', 'black');
 		l.setAttribute('stroke-width', '0.05');
-		if (c.i == b.i)
-			l.setAttribute('points', `${0.5 * a.w} ${0.5 * a.h} ${(m.w - 0.5) * a.w} ${0.5 * a.h}`);
+		if (c.j == b.j)
+			l.setAttribute('points', `${0.5 * a.w} ${(m.h - 0.5) * a.h} ${0.5 * a.w} ${0.5 * a.h}`);
 		else
 			if (c.branch.includes(b))
-				if (c.i < b.i)
-					l.setAttribute('points', `${0.5 * a.w} ${0.5 * a.h} ${0.5 * a.w} ${(m.h - 0.5) * a.h} ${(m.w - 0.5) * a.w} ${(m.h - 0.5) * a.h}`);
-				else
-					l.setAttribute('points', `${0.5 * a.w} ${(m.h - 0.5) * a.h} ${0.5 * a.w} ${0.5 * a.h} ${(m.w - 0.5) * a.w} ${0.5 * a.h}`);
-			else
-				if (c.i < b.i)
-					l.setAttribute('points', `${0.5 * a.w} ${0.5 * a.h} ${(m.w - 0.5) * a.w} ${0.5 * a.h} ${(m.w - 0.5) * a.w} ${(m.h - 0.5) * a.h}`);
-				else
+				if (c.j < b.j)
 					l.setAttribute('points', `${0.5 * a.w} ${(m.h - 0.5) * a.h} ${(m.w - 0.5) * a.w} ${(m.h - 0.5) * a.h} ${(m.w - 0.5) * a.w} ${0.5 * a.h}`);
+				else
+					l.setAttribute('points', `${(m.w - 0.5) * a.w} ${(m.h - 0.5) * a.h} ${0.5 * a.w} ${(m.h - 0.5) * a.h} ${0.5 * a.w} ${0.5 * a.h}`);
+			else
+				if (c.j < b.j)
+					l.setAttribute('points', `${0.5 * a.w} ${(m.h - 0.5) * a.h} ${0.5 * a.w} ${0.5 * a.h} ${(m.w - 0.5) * a.w} ${0.5 * a.h}`);
+				else
+					l.setAttribute('points', `${(m.w - 0.5) * a.w} ${(m.h - 0.5) * a.h} ${(m.w - 0.5) * a.w} ${0.5 * a.h} ${0.5 * a.w} ${0.5 * a.h}`);
 		s.appendChild(l);
 		d.appendChild(s);
 	})});

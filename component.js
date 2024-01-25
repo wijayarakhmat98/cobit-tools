@@ -151,12 +151,14 @@ function create_textarea(name, row = undefined, value = undefined, enabled = tru
 	return apply_style(apply_class(textarea, classes), style);
 }
 
-function create_button(text) {
+function create_button(text, callback = undefined, enabled = true, classes = [], style = {}) {
 	let button = document.createElement('button');
 	const t = document.createTextNode(text);
 	button.setAttribute('type', 'button');
 	button.appendChild(t);
-	return button;
+	if (callback)
+		button.onclick = callback;
+	return apply_style(apply_class(button, classes), style);
 }
 
 export {
