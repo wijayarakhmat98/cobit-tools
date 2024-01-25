@@ -152,6 +152,8 @@ function create_textarea(name, value = undefined, enabled = true, classes = [], 
 
 export {
 	random_token,
+	apply_style,
+	apply_class,
 	create_range,
 	create_grid,
 	create_area,

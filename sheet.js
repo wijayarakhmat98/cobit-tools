@@ -7,6 +7,8 @@ import {
 from 'master';
 
 import {
+	apply_style,
+	apply_class,
 	create_range,
 	create_grid,
 	create_area,
@@ -29,16 +31,22 @@ function checkout(history, commit, edit, merge, view, graph, gmo) {
 				create_p('Enterprise Strategy'),
 				...mst_df1.map(d => create_details(d.dimension, d.explanation))
 			]),
-			create_column(2, mst_df1, [
-				create_p('Change'),
-				...mst_df1.map(d => create_change(`df1 ${d.id}`, trs_df1_lo, trs_df1_hi, undefined,
-					() => chart_gmo(gmo)
-				))
-			]),
-			create_column(3, mst_df1, [
-				create_p(`Viewing commit ${commit.id}`),
-				...snapshot.map(d => create_trace(`df1 ${d.id}`, d, true))
-			]),
+			create_column(2, mst_df1,
+				[
+					create_p('Change', [], create_change_area(trs_df1_lo, trs_df1_hi)),
+					...mst_df1.map(d => create_change(
+						`df1 ${d.id}`, trs_df1_lo, trs_df1_hi, undefined, () => chart_gmo(gmo)
+					))
+				],
+				[], create_change_grid(trs_df1_lo, trs_df1_hi)
+			),
+			create_column(3, mst_df1,
+				[
+					create_p(`Viewing commit ${commit.id}`, [], create_trace_area()),
+					...snapshot.map(d => create_trace(`df1 ${d.id}`, d, true))
+				],
+				[], create_trace_grid()
+			),
 			create_column(4, mst_df1, [
 				create_p('Baseline'),
 				...trs_df1_baseline.map(d => create_p(d.value, ['baseline']))
@@ -49,8 +57,8 @@ function checkout(history, commit, edit, merge, view, graph, gmo) {
 	chart_gmo(gmo);
 }
 
-function create_snapshot(commit, mst_df, trs_df_baseline) {
-	return mst_df.map(d => {
+function create_snapshot(commit, mst_df, trs_df_baseline, classes = [], style = {}) {
+	return apply_style(apply_class(mst_df.map(d => {
 		let p = commit;
 		let c = undefined;
 		for (; p.parent; p = p.parent)
@@ -64,51 +72,65 @@ function create_snapshot(commit, mst_df, trs_df_baseline) {
 			'commit': p.id,
 			'description': p.description
 		};
-	});
+	}), classes), style);
 }
 
-function create_column(col, df, children = []) {
-	return create_div(
+function create_column(col, df, children = [], classes = [], style = {}) {
+	return apply_style(apply_class(create_div(
 		children,
 		[], {
 			...create_area(col, 1, 1, df.length + 1),
 			...create_grid('subgrid', undefined)
 		}
-	);
+	), classes), style);
 }
 
-function create_change(name, lo, hi, checked, callback) {
-	return create_div(
+function create_change_grid(lo, hi) {
+	return create_grid(undefined, hi - lo + 2)
+}
+
+function create_change_area(lo, hi) {
+	return create_area(undefined, undefined, hi - lo + 2, undefined);
+}
+
+function create_change(name, lo, hi, checked, callback, classes = [], style = {}) {
+	return apply_style(apply_class(create_div(
 		[
 			...create_range(lo, hi).map(
 				i => create_radio(`${name} value`, `{"value": ${i}, "from": "new"}`, i, i == checked, callback)
 			),
 			create_textarea(`${name} comment`)
 		],
-		[], create_grid(undefined, hi - lo + 2)
-	);
+		[], {
+			...create_change_area(lo, hi),
+			...create_grid(undefined, 'subgrid')
+		}
+	), classes), style);
 }
 
-function create_trace(name, d, checked, callback) {
-	return create_div(
+function create_trace_grid() {
+	return create_grid(undefined, 6);
+}
+
+function create_trace_area() {
+	return create_area(undefined, undefined, 6, undefined);
+}
+
+function create_trace(name, d, checked, callback, classes = [], style = {}) {
+	return apply_style(apply_class(create_div(
 		[
 			create_radio(`${name} value`, `{"value": ${d.value}, "from": "old"}`, d.value, checked, callback),
-			create_div(
-				[
-					create_p(d.note, ['expand']),
-					create_p('by'),
-					create_p(d.author, ['expand']),
-					create_p('from'),
-					create_p(d.commit, ['expand']),
-				],
-				[], {
-					...create_area(2, 1, 5, 1),
-					...create_grid(undefined, 'subgrid')
-				}
-			)
+			create_p(d.note, ['expand']),
+			create_p('by'),
+			create_p(d.author, ['expand']),
+			create_p('from'),
+			create_p(d.commit, ['expand']),
 		],
-		[], create_grid(undefined, 6)
-	);
+		[], {
+			...create_trace_area(),
+			...create_grid(undefined, 'subgrid')
+		}
+	), classes), style);
 }
 
 export default checkout;
