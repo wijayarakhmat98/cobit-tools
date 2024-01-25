@@ -1,3 +1,11 @@
+body {
+	margin: 0;
+	padding: 1rem;
+	width: fit-content;
+	min-width: 100%;
+	box-sizing: border-box;
+}
+
 button {
 	border: none;
 }
@@ -20,6 +28,7 @@ button {
 	white-space: nowrap;
 	margin-right: 0.5rem;
 	margin-left: 0.5rem;
+	margin-bottom: 0;
 }
 
 [id="view input"] div p:first-child {
@@ -30,12 +39,20 @@ button {
 	margin-left: 0;
 }
 
-[id="view input"] details p {
+[id="view input"] details p, p.details {
 	white-space: wrap;
+	width: 0;
+	min-width: 100%;
+	text-align: justify;
+}
+
+p.details {
+	box-sizing: border-box;
+	padding-right: 1rem;
 }
 
 [id="view input"] .reduced {
-	margin-top: -0.5rem;
+	/* margin-top: -0.5rem; */
 }
 
 [id="view input"] .reduced textarea {
@@ -49,4 +66,9 @@ button {
 
 [id="view input"] p label:has(input[type="radio"]) {
 	font-size: 1.2rem;
+}
+
+label:has(input[type="radio"]:checked) {
+	background-color: lightgreen;
+	font-weight: bold;
 }

@@ -46,7 +46,7 @@ function checkout(history, commit, edit, merge, view, graph, gmo) {
 		view.style['grid-template-rows'] = `repeat(${4 + (1 + trs_df1_dm) * 3}, auto)`;
 		view.style['grid-template-columns'] = tem_col;
 
-		horizontal_bar(view, 4, width);
+		// horizontal_bar(view, 4, width);
 
 		snapshot['old'] = build_snapshot(commit);
 		merge.forEach((m) => { snapshot[`${-m.id - 1}`] = build_snapshot(m); });
@@ -56,7 +56,7 @@ function checkout(history, commit, edit, merge, view, graph, gmo) {
 		merge.forEach((m) => {
 			col = snapshot_view(view, col, 'Merging commit', commit, snapshot[`${-m.id - 1}`], snapshot, -m.id - 1, true, gmo);
 		});
-		col = change_view(view, col, (merge.length > 0) ? 'Resolution' : 'Change', gmo, snapshot);
+		col = change_view(view, col, (merge.length > 0) ? 'Importance Resolution' : 'Importance', gmo, snapshot);
 		col = snapshot_view(view, col, 'Editing commit', commit, snapshot['old'], snapshot, 'old', true, gmo);
 		baseline_view(view, col);
 		commit_view(view, history, commit, merge, graph, gmo);
@@ -67,13 +67,13 @@ function checkout(history, commit, edit, merge, view, graph, gmo) {
 		view.style['grid-template-rows'] = `repeat(${2 + (1 + trs_df1_dm) * 3}, auto)`;
 		view.style['grid-template-columns'] = `auto auto auto auto auto auto`;
 
-		horizontal_bar(view, 4, 6);
+		// horizontal_bar(view, 4, 6);
 
 		snapshot['old'] = build_snapshot(commit);
 
 		let col = 1;
 		col = dimension_view(view, col);
-		col = snapshot_view(view, col, 'Viewing commit', commit, snapshot['old'], snapshot, 'old', false, gmo);
+		col = snapshot_view(view, col, 'Importance', commit, snapshot['old'], snapshot, 'old', false, gmo);
 		baseline_view(view, col);
 		edit_view(view, history, commit, graph, gmo);
 
@@ -95,7 +95,7 @@ function horizontal_bar(view, row, width) {
 function dimension_view(view, col) {
 	{
 		let p = document.createElement('p');
-		const t = document.createTextNode('Dimensions');
+		const t = document.createTextNode('Enterprise Strategy');
 		grid_place(p, 1, col, 1, 1);
 		p.appendChild(t);
 		view.appendChild(p);
@@ -183,7 +183,7 @@ function snapshot_view(view, col, header, commit, snapshot, all_snapshot, value,
 			I.appendChild(t2);
 			p2.appendChild(I);
 			D.appendChild(p1);
-			D.appendChild(p2);
+			// D.appendChild(p2);
 			view.appendChild(D);
 		}
 		{
@@ -193,31 +193,31 @@ function snapshot_view(view, col, header, commit, snapshot, all_snapshot, value,
 			const t2 = document.createTextNode(commit.id);
 			grid_place(p, 1, col + 3, 1, 1);
 			I.setAttribute('type', 'button');
-			I.onclick = () => {
-				let details = document.getElementById(`${commit.id} header details`);
-				if (details.style['display'] == 'none')
-					details.style['display'] = 'grid';
-				else
-					details.style['display'] = 'none';
-			};
+			// I.onclick = () => {
+			// 	let details = document.getElementById(`${commit.id} header details`);
+			// 	if (details.style['display'] == 'none')
+			// 		details.style['display'] = 'grid';
+			// 	else
+			// 		details.style['display'] = 'none';
+			// };
 			p.appendChild(t1);
 			I.appendChild(t2);
-			p.appendChild(I);
+			// p.appendChild(I);
 			view.appendChild(p);
 		}
-		{
-			let p = document.createElement('p');
-			let I = document.createElement('textarea');
-			const t = document.createTextNode(commit.description);
-			grid_place(p, 2, col + 1, 1, 3);
-			p.classList.add('reduced');
-			I.setAttribute('rows', 1);
-			I.style['width'] = 'calc(100% - 1rem)';
-			I.setAttribute('disabled', '');
-			I.appendChild(t);
-			p.appendChild(I);
-			view.appendChild(p);
-		}
+		// {
+		// 	let p = document.createElement('p');
+		// 	let I = document.createElement('textarea');
+		// 	const t = document.createTextNode(commit.description);
+		// 	grid_place(p, 2, col + 1, 1, 3);
+		// 	p.classList.add('reduced');
+		// 	I.setAttribute('rows', 1);
+		// 	I.style['width'] = 'calc(100% - 1rem)';
+		// 	I.setAttribute('disabled', '');
+		// 	I.appendChild(t);
+		// 	p.appendChild(I);
+		// 	view.appendChild(p);
+		// }
 		{
 			let div = document.createElement('div');
 			let tmp = document.createElement('div');
@@ -240,10 +240,10 @@ function snapshot_view(view, col, header, commit, snapshot, all_snapshot, value,
 		div1.style['padding'] = '0.5rem';
 		div2.style['width'] = '100%';
 		div2.style['height'] = '100%';
-		if (d.change == 'new')
-			div2.style['background-color'] = 'lightgreen';
-		if (d.change == 'inherit')
-			div2.style['background-color'] = 'lightgray';
+		// if (d.change == 'new')
+		// 	div2.style['background-color'] = 'lightgreen';
+		// if (d.change == 'inherit')
+		// 	div2.style['background-color'] = 'lightgray';
 		div1.append(div2);
 		view.appendChild(div1);
 	});
@@ -295,7 +295,7 @@ function snapshot_view(view, col, header, commit, snapshot, all_snapshot, value,
 		p1.appendChild(t1);
 		I.appendChild(t2);
 		p2.appendChild(I);
-		D.appendChild(p1);
+		// D.appendChild(p1);
 		D.appendChild(p2);
 		view.appendChild(D);
 	});
@@ -306,31 +306,31 @@ function snapshot_view(view, col, header, commit, snapshot, all_snapshot, value,
 		const t2 = document.createTextNode(d.commit);
 		grid_place(p, d.id * 3 + 3, col + 3, 1, 1);
 		I.setAttribute('type', 'button');
-		I.onclick = () => {
-			let details = document.getElementById(`${commit.id} ${d.id} details`);
-			if (details.style['display'] == 'none')
-				details.style['display'] = 'grid';
-			else
-				details.style['display'] = 'none';
-		};
-		p.appendChild(t1);
+		// I.onclick = () => {
+		// 	let details = document.getElementById(`${commit.id} ${d.id} details`);
+		// 	if (details.style['display'] == 'none')
+		// 		details.style['display'] = 'grid';
+		// 	else
+		// 		details.style['display'] = 'none';
+		// };
+		// p.appendChild(t1);
 		I.appendChild(t2);
 		p.appendChild(I);
 		view.appendChild(p);
 	});
-	snapshot.forEach((d) => {
-		let p = document.createElement('p');
-		let I = document.createElement('textarea');
-		const t = document.createTextNode(d.description);
-		grid_place(p, d.id * 3 + 3 + 1, col + 1, 1, 3);
-		p.classList.add('reduced');
-		I.setAttribute('rows', 1);
-		I.style['width'] = 'calc(100% - 1rem)';
-		I.setAttribute('disabled', '');
-		I.appendChild(t);
-		p.appendChild(I);
-		view.appendChild(p);
-	});
+	// snapshot.forEach((d) => {
+	// 	let p = document.createElement('p');
+	// 	let I = document.createElement('textarea');
+	// 	const t = document.createTextNode(d.description);
+	// 	grid_place(p, d.id * 3 + 3 + 1, col + 1, 1, 3);
+	// 	p.classList.add('reduced');
+	// 	I.setAttribute('rows', 1);
+	// 	I.style['width'] = 'calc(100% - 1rem)';
+	// 	I.setAttribute('disabled', '');
+	// 	I.appendChild(t);
+	// 	p.appendChild(I);
+	// 	view.appendChild(p);
+	// });
 	snapshot.forEach((d) => {
 		let div = document.createElement('div');
 		let tmp = document.createElement('div');
@@ -387,24 +387,24 @@ function commit_view(view, history, commit, merge, graph, gmo) {
 		p.appendChild(I);
 		view.appendChild(p);
 	}
-	{
-		let p = document.createElement('p');
-		const t = document.createTextNode('Description');
-		grid_place(p, row, 2, 1, trs_df1_ra + 1);
-		p.appendChild(t);
-		view.appendChild(p);
-	}
-	{
-		let p = document.createElement('p');
-		let I = document.createElement('textarea');
-		grid_place(p, row + 1, 2, 1, trs_df1_ra + 1);
-		p.classList.add('reduced');
-		I.style['width'] = 'calc(100% - 1rem)';
-		I.setAttribute('rows', 4);
-		I.setAttribute('name', 'description');
-		p.appendChild(I);
-		view.appendChild(p);
-	}
+	// {
+	// 	let p = document.createElement('p');
+	// 	const t = document.createTextNode('Description');
+	// 	grid_place(p, row, 2, 1, trs_df1_ra + 1);
+	// 	p.appendChild(t);
+	// 	view.appendChild(p);
+	// }
+	// {
+	// 	let p = document.createElement('p');
+	// 	let I = document.createElement('textarea');
+	// 	grid_place(p, row + 1, 2, 1, trs_df1_ra + 1);
+	// 	p.classList.add('reduced');
+	// 	I.style['width'] = 'calc(100% - 1rem)';
+	// 	I.setAttribute('rows', 4);
+	// 	I.setAttribute('name', 'description');
+	// 	p.appendChild(I);
+	// 	view.appendChild(p);
+	// }
 	{
 		let p = document.createElement('p');
 		let I = document.createElement('button');
@@ -521,7 +521,8 @@ function save(history, commit, merge, view, graph, gmo) {
 	}, []);
 
 	const author = document.querySelector('textarea[name="author"]').value;
-	const description = document.querySelector('textarea[name="description"]').value;
+	// const description = document.querySelector('textarea[name="description"]').value;
+	const description = '';
 
 	const new_commit = {
 		'id': history.length,

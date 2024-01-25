@@ -46,7 +46,7 @@ function chart_gmo(view, snapshot) {
 	});
 	const x_base = trs_df1_baseline.map((d) => [d.value]);
 	const r_hat = calculate_gmo(x, x_base);
-	draw_gmo(view, r_hat);
+	draw_gmo(view, x, r_hat);
 }
 
 function calculate_gmo(x, x_base) {
@@ -70,7 +70,41 @@ function calculate_gmo(x, x_base) {
 	return r_hat;
 }
 
-function draw_gmo(view, r_hat) {
+function draw_gmo(view, x, r_hat) {
+	let bar = document.getElementById('view bar');
+	bar.innerHTML = '';
+	bar.style['width'] = 'fit-content';
+	bar.style['margin-right'] = 'auto';
+	bar.style['margin-left'] = 'auto';
+	bar.style['display'] = 'grid';
+	bar.style['grid-template-columns'] = 'auto repeat(5, 8rem) auto';
+	console.log(x);
+	for (let i = 0; i < mst_df1.length; ++i) {
+		let name = document.createElement('div');
+		name.innerText = mst_df1[i]['dimension'];
+		name.style['grid-column-start'] = 1;
+		name.style['grid-column-end'] = 2;
+		name.style['white-space'] = 'nowrap';
+		name.style['padding-right'] = '1rem';
+		name.style['padding-left'] = '0.5rem';
+		name.style['padding-bottom'] = '0.5rem';
+		name.style['border-right'] = 'solid black 1px';
+		bar.append(name);
+		let im = document.createElement('div');
+		im.innerText = x[i][0];
+		im.style['background-color'] = 'lightgray';
+		im.style['grid-column-start'] = 2;
+		im.style['grid-column-end'] = 2 + 1.0 * x[i][0];
+		im.style['margin-bottom'] = '0.5rem';
+		im.style['padding-left'] = '0.5rem';
+		bar.append(im);
+		let line = document.createElement('div');
+		line.style['grid-column-start'] = 8;
+		line.style['grid-column-end'] = 9;
+		line.style['border-left'] = 'solid black 1px';
+		bar.append(line);
+	}
+
 	view.innerHTML = '';
 	view.style['width'] = 'fit-content';
 	view.style['margin-right'] = 'auto';
@@ -107,12 +141,12 @@ function draw_gmo(view, r_hat) {
 		let bar = document.createElement('div');
 		bar.innerText = r_hat[i][0];
 		if (r_hat[i][0] > 0) {
-			bar.style['background-color'] = 'lightblue';
+			bar.style['background-color'] = 'cyan';
 			bar.style['grid-column-start'] = 100 + offset;
 			bar.style['grid-column-end'] = 100 + offset + r_hat[i][0];
 			bar.style['text-align'] = 'left';
 		} else if (r_hat[i][0] < 0) {
-			bar.style['background-color'] = 'lightblue';
+			bar.style['background-color'] = 'orange';
 			bar.style['grid-column-start'] = 100 + offset + r_hat[i][0];
 			bar.style['grid-column-end'] =  100 + offset;
 			bar.style['text-align'] = 'right';
@@ -135,6 +169,7 @@ function draw_gmo(view, r_hat) {
 		details.style['margin-right'] = '1rem';
 		details.style['margin-left'] = '1rem';
 		details.style['display'] = 'none';
+		details.classList.add('details');
 		view.append(details);
 	}
 }
