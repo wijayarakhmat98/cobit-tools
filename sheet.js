@@ -21,40 +21,41 @@ import {
 }
 from 'component';
 
-import chart_gmo from 'gmo';
-
-function checkout(history, commit, edit, merge, view, graph, gmo) {
-	const snapshot = create_snapshot(commit, mst_df1, trs_df1_baseline);
+function chart_sheet(view, commit, callback) {
 	replace_content(view,
 		[
 			create_column(1 + mst_df1.length, [
 				create_p('Enterprise Strategy'),
 				...mst_df1.map(d => create_details(d.dimension, d.explanation))
 			]),
-			create_column(1 + mst_df1.length,
-				[
-					create_p('Change', [], create_change_area(trs_df1_lo, trs_df1_hi)),
-					...mst_df1.map(d => create_change(
-						`df1 ${d.id}`, trs_df1_lo, trs_df1_hi, undefined, () => chart_gmo(gmo)
-					))
-				],
-				[], create_change_grid(trs_df1_lo, trs_df1_hi)
-			),
-			create_column(1 + mst_df1.length,
-				[
-					create_p(`Viewing commit ${commit.id}`, [], create_trace_area()),
-					...snapshot.map(d => create_trace(`df1 ${d.id}`, d, true))
-				],
-				[], create_trace_grid()
+			...commit.reverse().map(s => s == null ?
+				create_column(1 + mst_df1.length,
+					[
+						create_p('Change', [], create_change_area(trs_df1_lo, trs_df1_hi)),
+						...mst_df1.map(d => create_change(
+							`df1 ${d.id}`, trs_df1_lo, trs_df1_hi, undefined, callback
+						))
+					],
+					[], create_change_grid(trs_df1_lo, trs_df1_hi)
+				)
+				:
+				create_column(1 + mst_df1.length,
+					[
+						create_p(`Viewing commit ${s.id}`, [], create_trace_area()),
+						...create_snapshot(s, mst_df1, trs_df1_baseline).map(d => create_trace(
+							`df1 ${d.id}`, d, true, callback
+						))
+					],
+					[], create_trace_grid()
+				)
 			),
 			create_column(1 + mst_df1.length, [
 				create_p('Baseline'),
 				...trs_df1_baseline.map(d => create_p(d.value, ['baseline']))
 			]),
 		],
-		[], create_grid(1 + mst_df1.length, 4, true)
+		[], create_grid(1 + mst_df1.length, 2 + commit.length, true)
 	);
-	chart_gmo(gmo);
 }
 
 function create_snapshot(commit, mst_df, trs_df_baseline, classes = [], style = {}) {
@@ -121,9 +122,9 @@ function create_trace(name, d, checked, callback, classes = [], style = {}) {
 		[
 			create_radio(`${name} value`, `{"value": ${d.value}, "from": "old"}`, d.value, checked, callback),
 			create_p(d.note, ['expand']),
-			create_p('by'),
+			create_p('by', ['trace_by']),
 			create_p(d.author, ['expand']),
-			create_p('from'),
+			create_p('from', ['trace_from']),
 			create_p(d.commit, ['expand']),
 		],
 		[], {
@@ -133,4 +134,4 @@ function create_trace(name, d, checked, callback, classes = [], style = {}) {
 	), classes), style);
 }
 
-export default checkout;
+export default chart_sheet;

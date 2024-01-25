@@ -104,7 +104,6 @@ function create_details_proxy(text, surrogate, element, classes = [], style = {}
 	}
 	details.addEventListener('toggle', () => {
 		for (let [token, display] of Object.entries(link)) {
-			console.log(details.cloneNode());
 			let e = document.getElementById(token);
 			if (details.hasAttribute('open'))
 				e.style['display'] = display;
@@ -152,6 +151,14 @@ function create_textarea(name, row = undefined, value = undefined, enabled = tru
 	return apply_style(apply_class(textarea, classes), style);
 }
 
+function create_button(text) {
+	let button = document.createElement('button');
+	const t = document.createTextNode(text);
+	button.setAttribute('type', 'button');
+	button.appendChild(t);
+	return button;
+}
+
 export {
 	random_token,
 	apply_style,
@@ -165,5 +172,6 @@ export {
 	create_details,
 	create_details_proxy,
 	create_radio,
-	create_textarea
+	create_textarea,
+	create_button
 };

@@ -1,9 +1,7 @@
-import checkout from 'sheet';
-
-function chart_graph(graph, view, input, edit, commit, gmo) {
+function chart_graph(view, graph) {
 	let C = prepare(graph);
 	place(C);
-	draw(C, view, graph, edit, commit, input, gmo);
+	draw(view, C);
 }
 
 function prepare(graph) {
@@ -52,19 +50,17 @@ function place(C) {
 	C.forEach((c) => {c.j = col - c.j - 1; c.i = row - c.i - 1;});
 }
 
-function draw(C, view, graph, edit, commit, input, gmo) {
+function draw(view, C) {
 	const row = Math.max.apply(Math, C.map((c) => c.i)) + 1;
 	const col = Math.max.apply(Math, C.map((c) => c.j)) + 1;
 
 	view.innerHTML = '';
 	view.style['display'] = 'inline-grid';
-	view.style['grid-template-rows'] = `repeat(${row}, 1fr)${(edit) ? '' : ' auto'}`;
+	view.style['grid-template-rows'] = `repeat(${row}, 1fr)}`;
 	view.style['grid-template-columns'] = `repeat(${col}, 1fr)`;
 
-	draw_box(C, view, graph, edit, input, gmo);
-	draw_line(C, view);
-	if (!edit)
-		draw_merge(C, commit, view);
+	draw_box(view, C);
+	draw_line(view, C);
 }
 
 function J(c, F) {
@@ -127,7 +123,7 @@ function place_j(C) {
 	});
 }
 
-function draw_box(C, view, graph, edit, input, gmo) {
+function draw_box(view, C) {
 	C.forEach((c) => {
 		let I = document.createElement('button');
 		let t = document.createTextNode(c.name);
@@ -138,17 +134,11 @@ function draw_box(C, view, graph, edit, input, gmo) {
 		I.style['grid-column-start'] = c.j + 1;
 		I.style['grid-column-end'] = c.j + 2;
 		I.setAttribute('type', 'button');
-		if (!edit)
-			I.onclick = () => {
-				checkout(graph,
-					graph[graph.findIndex((g) => g.id == c.name)],
-				false, [], input, view, gmo);
-			};
 		view.appendChild(I);
 	});
 }
 
-function draw_line(C, view) {
+function draw_line(view, C) {
 	C.forEach((c) => {c.children.forEach((b) => {
 		const p = {
 			'l': Math.min(c.j, b.j) + 1,
@@ -201,27 +191,6 @@ function draw_line(C, view) {
 		s.appendChild(l);
 		d.appendChild(s);
 	})});
-}
-
-function draw_merge(C, commit, view) {
-	const row = Math.max.apply(Math, C.map((c) => c.i)) + 2;
-	C.forEach((c) => {
-		if (c.name == commit.id)
-			return;
-		let p = document.createElement('p');
-		let I = document.createElement('input');
-		p.style['text-align'] = 'center';
-		p.style['margin'] = 0;
-		p.style['grid-row-start'] = row;
-		p.style['grid-row-end'] = row + 1;
-		p.style['grid-column-start'] = c.j + 1;
-		p.style['grid-column-end'] = c.j + 2;
-		I.setAttribute('type', 'checkbox');
-		I.setAttribute('name', 'merge');
-		I.setAttribute('value', c.name);
-		p.appendChild(I);
-		view.appendChild(p);
-	});
 }
 
 export default chart_graph;

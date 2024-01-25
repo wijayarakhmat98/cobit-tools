@@ -9,8 +9,10 @@
 	<link rel="modulepreloaded" href="matrix.js">
 	<link rel="modulepreloaded" href="component.js">
 	<link rel="modulepreloaded" href="main.js">
-	<link rel="modulepreloaded" href="sheet.js">
+	<link rel="modulepreloaded" href="checkout.js">
+	<link rel="modulepreloaded" href="control.js">
 	<link rel="modulepreloaded" href="graph.js">
+	<link rel="modulepreloaded" href="sheet.js">
 	<link rel="modulepreloaded" href="gmo.js">
 	<script type="importmap">
 		{
@@ -19,14 +21,16 @@
 				"matrix": "./matrix.js",
 				"component": "./component.js",
 				"main": "./main.js",
-				"sheet": "./sheet.js",
+				"checkout": "./checkout.js",
+				"control": "./control.js",
 				"graph": "./graph.js",
+				"sheet": "./sheet.js",
 				"gmo": "./gmo.js"
 			}
 		}
 	</script>
 	<script type="module">
-		import main from './main.js';
+		import main from 'main';
 		let history = [
 			{
 				'id': 0,
@@ -38,15 +42,18 @@
 				'timestamp': 0
 			}
 		];
-		main(history, 'view graph', 'view df1 input', 'view df1 gmo');
+		main(history, 'view control', 'view graph', 'view df1 sheet', 'view df1 gmo');
 	</script>
 </head>
 <body>
-	<header></header>
-	<nav id="view graph"></nav>
-	<main>
+	<header id="view control" style="grid-area: h;"></header>
+	<nav style="grid-area: g;">
+		<div id="view graph"></div>
+	</nav>
+	<nav style="grid-area: n;"></nav>
+	<main style="grid-area: m;">
 		<article id="view df1">
-			<form id="view df1 input"></form>
+			<form id="view df1 sheet"></form>
 			<section id="view df1 gmo"></section>
 		</article>
 	</main>
