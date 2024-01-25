@@ -98,6 +98,10 @@ div.username {
 	margin-left: auto;
 }
 
+p.description {
+	margin-top: 0;
+}
+
 /* -------------------------------------------------- */
 
 html, body {

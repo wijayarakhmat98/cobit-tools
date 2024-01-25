@@ -50,7 +50,7 @@ function save(commit, history, ...argv) {
 			return c;
 		}, []),
 		'author': document.querySelector('textarea[name="username"]').value,
-		'description': '',
+		'description': document.querySelector('textarea[name="description"]').value,
 		'timestamp': Date.now()
 	};
 	history.push(new_commit);

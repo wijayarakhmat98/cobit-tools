@@ -13,10 +13,11 @@ function chart_control(view, view_graph, commit, callback) {
 	replace_content(view, [
 		create_details_proxy('Tree', [], [view_graph]),
 		...(commit.length == 1
-			? [create_button('Edit', callback.edit)]
+			? [create_button('Modify', callback.edit)]
 			: [
-				create_button('Discard', callback.discard),
-				create_button('Save', callback.save)
+				create_description(),
+				create_button('Commit', callback.save),
+				create_button('Discard', callback.discard)
 			])
 		, create_username()
 	]);
@@ -29,6 +30,16 @@ function create_username() {
 			create_textarea('username', 1)
 		],
 		['username'], create_grid(undefined, 2, true)
+	);
+}
+
+function create_description() {
+	return create_div(
+		[
+			create_p('Description'),
+			create_textarea('description', 1)
+		],
+		[], create_grid(undefined, 2, true)
 	);
 }
 

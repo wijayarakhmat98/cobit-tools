@@ -120,16 +120,20 @@ function create_trace_area() {
 function create_trace(name, d, checked, callback, classes = [], style = {}) {
 	return apply_style(apply_class(create_div(
 		[
-			create_radio(`${name} value`, `{"value": ${d.value}, "from": "old"}`, d.value, checked, callback),
+			create_radio(
+				`${name} value`, `{"value": ${d.value}, "from": "old"}`, d.value, checked, callback,
+				true, [], create_area(undefined, undefined, undefined, 2)
+			),
 			create_p(d.note, ['expand']),
 			create_p('by', ['trace_by']),
 			create_p(d.author, ['expand']),
 			create_p('from', ['trace_from']),
 			create_p(d.commit, ['expand']),
+			create_p(d.description, ['expand', 'description'], create_area(undefined, undefined, 5, undefined))
 		],
 		[], {
 			...create_trace_area(),
-			...create_grid(undefined, 'subgrid')
+			...create_grid(2, 'subgrid')
 		}
 	), classes), style);
 }
