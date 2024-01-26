@@ -52,7 +52,7 @@
 				],
 				'author': 'Mr A',
 				'description': 'Document Q',
-				'timestamp': 0
+				'timestamp': 1
 		};
 		const commit_2 = {
 				'id': 2,
@@ -66,7 +66,7 @@
 				],
 				'author': 'Ms B',
 				'description': 'Document R',
-				'timestamp': 0
+				'timestamp': 2
 		};
 		const commit_3 = {
 				'id': 3,
@@ -74,15 +74,26 @@
 				'merge': [commit_1, commit_2],
 				'change': [
 					{'id': 1, 'inherit': true, 'from': commit_2},
-					{'id': 2, 'inherit': false, 'value': 3, 'note': "average\nQ-14, R-1"},
+					{'id': 2, 'inherit': false, 'value': 3, 'note': 'average\nQ-14, R-1'},
 					{'id': 3, 'inherit': true, 'from': commit_1},
-					{'id': 4, 'inherit': false, 'value': 4, 'note': "maximum\nQ-16, R-9"}
+					{'id': 4, 'inherit': false, 'value': 4, 'note': 'maximum\nQ-16, R-9'}
 				],
 				'author': 'PIC',
 				'description': 'Document Q, R',
-				'timestamp': 0
+				'timestamp': 3
 		};
-		let history = [commit_0, commit_1, commit_2, commit_3];
+		const commit_4 = {
+				'id': 4,
+				'parent': commit_1,
+				'merge': [],
+				'change': [
+					{'id': 1, 'inherit': false, 'value': 3, 'note': 'Q-13, T-82'},
+				],
+				'author': 'Mr A',
+				'description': 'Document Q, T',
+				'timestamp': 4
+		};
+		let history = [commit_0, commit_1, commit_2, commit_3, commit_4];
 		main(history, 'view control', 'view graph', 'view df1 sheet', 'view df1 gmo');
 	</script>
 </head>

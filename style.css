@@ -25,7 +25,7 @@ textarea, p.expand {
 
 p.expand {
 	margin: 0.5rem 0;
-	padding: 0 0.5rem;
+	padding: 0 1rem 0 0;
 }
 
 p, details {
@@ -172,6 +172,7 @@ p.expand {
 	resize: both;
 	overflow: hidden;
 	overflow-wrap: break-word;
+	white-space: pre;
 }
 
 p.baseline {

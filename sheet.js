@@ -60,11 +60,15 @@ function chart_sheet(view, commit, callback) {
 
 function create_snapshot(commit, mst_df, trs_df_baseline, classes = [], style = {}) {
 	return apply_style(apply_class(mst_df.map(d => {
-		let p = commit;
-		let c = undefined;
-		for (; p.parent; p = p.parent)
+		let p, c;
+		for (p = commit; p.parent;)
 			if (c = p.change.find(e => e.id == d.id))
-				break;
+				if (c.inherit)
+					p = c.from;
+				else
+					break;
+			else
+				p = p.parent
 		return {
 			'id': d.id,
 			'value': c ? c.value : trs_df_baseline.find(e => e.id == d.id).value,
