@@ -68,12 +68,14 @@ function create_p(text, classes = [], style = {}) {
 	return apply_style(apply_class(p, classes), style);
 }
 
-function create_details(text1, text2, classes = [], style = {}) {
+function create_details(text1, text2, open = false, classes = [], style = {}) {
 	let details = document.createElement('details');
 	let summary = document.createElement('summary');
 	let p = document.createElement('p');
 	const t1 = document.createTextNode(text1);
 	const t2 = document.createTextNode(text2);
+	if (open)
+		details.setAttribute('open', '');
 	summary.appendChild(t1);
 	p.appendChild(t2);
 	details.appendChild(summary);
@@ -81,10 +83,12 @@ function create_details(text1, text2, classes = [], style = {}) {
 	return apply_style(apply_class(details, classes), style);
 }
 
-function create_details_proxy(text, surrogate, element, classes = [], style = {}) {
+function create_details_proxy(text, surrogate, element, open = false, classes = [], style = {}) {
 	let details = document.createElement('details');
 	let summary = document.createElement('summary');
 	const t = document.createTextNode(text);
+	if (open)
+		details.setAttribute('open', '');
 	summary.appendChild(t);
 	details.appendChild(summary);
 	for (let s of surrogate)
@@ -99,7 +103,8 @@ function create_details_proxy(text, surrogate, element, classes = [], style = {}
 		const token = random_token();
 		const display = e.style['display'];
 		e.id = token;
-		e.style['display'] = 'none';
+		if (!open)
+			e.style['display'] = 'none';
 		link[token] = display;
 	}
 	details.addEventListener('toggle', () => {

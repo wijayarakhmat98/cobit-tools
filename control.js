@@ -11,7 +11,7 @@ from 'component';
 
 function chart_control(view, view_graph, commit, callback) {
 	replace_content(view, [
-		create_details_proxy('Tree', [], []), // view_graph]),
+		create_details_proxy('Tree', [], [view_graph], true),
 		...(commit.length == 1 ?
 			[create_button('Modify', callback.edit)]
 			:

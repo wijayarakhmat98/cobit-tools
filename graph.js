@@ -28,7 +28,6 @@ function chart_graph(view, graph, callback) {
 		[], create_grid(row, col + 1)
 	);
 	draw_line(view, C);
-	console.log(structuredClone(C));
 }
 
 function prepare(graph) {
