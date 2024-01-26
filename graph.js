@@ -4,7 +4,9 @@ import {
 	replace_content,
 	create_div,
 	create_p,
-	create_button
+	create_button,
+	create_svg,
+	create_polyline
 }
 from 'component';
 
@@ -27,7 +29,7 @@ function chart_graph(view, graph, callback) {
 		],
 		[], create_grid(row, col + 1)
 	);
-	draw_line(view, C);
+	draw_branch(view, C);
 }
 
 function prepare(graph) {
@@ -52,8 +54,7 @@ function prepare(graph) {
 	for (let c of C) {
 		c.children = C.filter(d => d.parents.includes(c));
 		c.merge_children = c.children.filter(d => d.parents[0] != c);
-		c.branch_children = c.merge_children.length ? [] :
-			c.children.filter(d => d.parents[0] == c)
+		c.branch_children = c.children.filter(d => d.parents[0] == c)
 			.sort((a, b) =>
 				(a.graph.merge.length < b.graph.merge.length) ? 1 : ((a.graph.merge.length > b.graph.merge.length) ? -1 : 0)
 			);
@@ -97,7 +98,7 @@ function place_j(C) {
 	let B = [];
 	for (const c of C) {
 		let  Jc = J(c, F);
-		let nJc = c.branch_children.filter(d => !Jc.includes(d.j));
+		let nJc = c.merge_children.length ? [] : c.branch_children.filter(d => !Jc.includes(d.j));
 		let  D_ = [];
 		if (nJc.length > 0) {
 			const d = nJc[0];
@@ -120,59 +121,62 @@ function place_j(C) {
 	}
 }
 
-function draw_line(view, C) {
-	for (const c of C) for (const b of c.children) {
-		const p = {
-			'l': Math.min(c.j, b.j) + 0,
-			'r': Math.max(c.j, b.j) + 1,
-			't': Math.min(c.i, b.i) + 0,
-			'b': Math.max(c.i, b.i) + 1
-		};
-		let d = create_div([], [], {
-			...create_area(p.l, p.t, p.r - p.l, p.b - p.t),
-			'z-index': -10,
-			'width': 'auto',
-			'height': 'auto'
-		});
-		view.appendChild(d);
-		const m = {
-			'w': p.r - p.l,
-			'h': p.b - p.t
-		};
-		const a = (() => {
-			const r = d.getBoundingClientRect();
-			const w = r.width / m.w;
-			const h = r.height / m.h;
-			if (w < h) return {'w': 1, 'h': h / w};
-			if (w > h) return {'w': w / h, 'h': 1};
-			return {'w': 1, 'h': 1};
-		})();
-		let s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-		s.style['width'] = 0;
-		s.style['height'] = 0;
-		s.style['min-width'] = '100%';
-		s.style['min-height'] = '100%';
-		s.setAttribute('viewBox', `0 0 ${m.w * a.w} ${m.h * a.h}`);
-		let l = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
-		l.setAttribute('fill', 'none');
-		l.setAttribute('stroke', 'black');
-		l.setAttribute('stroke-width', '0.05');
-		if (c.j == b.j)
-			l.setAttribute('points', `${0.5 * a.w} ${(m.h - 0.5) * a.h} ${0.5 * a.w} ${0.5 * a.h}`);
-		else
-			if (c.merge_children.includes(b))
-				if (c.j < b.j)
-					l.setAttribute('points', `${0.5 * a.w} ${(m.h - 0.5) * a.h} ${0.5 * a.w} ${0.5 * a.h} ${(m.w - 0.5) * a.w} ${0.5 * a.h}`);
-				else
-					l.setAttribute('points', `${(m.w - 0.5) * a.w} ${(m.h - 0.5) * a.h} ${(m.w - 0.5) * a.w} ${0.5 * a.h} ${0.5 * a.w} ${0.5 * a.h}`);
-			else
-				if (c.j < b.j)
-					l.setAttribute('points', `${0.5 * a.w} ${(m.h - 0.5) * a.h} ${(m.w - 0.5) * a.w} ${(m.h - 0.5) * a.h} ${(m.w - 0.5) * a.w} ${0.5 * a.h}`);
-				else
-					l.setAttribute('points', `${(m.w - 0.5) * a.w} ${(m.h - 0.5) * a.h} ${0.5 * a.w} ${(m.h - 0.5) * a.h} ${0.5 * a.w} ${0.5 * a.h}`);
-		s.appendChild(l);
-		d.appendChild(s);
+function draw_branch(view, C) {
+	for (const c of C) {
+		for (const d of c.branch_children)
+			create_vertical_line(view, d.j, d.i, 1, c.i - d.i + 1);
+		const l = Math.min.apply(Math, [c, ...c.branch_children].map(d => d.j));
+		const w = Math.max.apply(Math, [c, ...c.branch_children].map(d => d.j)) - l + 1;
+		if (w == 1)
+			continue;
+		create_horizontal_line(view, l, c.i, w, 1);
 	}
+}
+
+function get_aspect_ratio(element, w, h) {
+	const rect = element.getBoundingClientRect();
+	const rw = rect.width / w;
+	const rh = rect.height / h;
+	return [
+		(rw > rh) ? rw / rh : 1.0,
+		(rw < rh) ? rh / rw : 1.0
+	];
+}
+
+function create_svg_area(view, x, y, w, h, children_callback) {
+	let div = create_div([], [], {
+		...create_area(x, y, w, h),
+		'z-index': -100,
+		'width': 'auto',
+		'height': 'auto'
+	});
+	view.appendChild(div);
+	const [ar_w, ar_h] = get_aspect_ratio(div, w, h);
+	div.appendChild(
+		create_svg(
+			[0, 0, w * ar_w, h * ar_h],
+			children_callback(ar_w, ar_h),
+			[], {
+				'min-width': '100%',
+				'min-height': '100%',
+				'width': 0,
+				'height': 0
+			}
+		)
+	);
+	return div;
+}
+
+function create_horizontal_line(view, x, y, w, h) {
+	return create_svg_area(view, x, y, w, h, (ar_w, ar_h) => [
+		create_polyline([0.475 * ar_w, 0.5 * h * ar_h, (w - 0.475) * ar_w, 0.5 * h * ar_h])
+	]);
+}
+
+function create_vertical_line(view, x, y, w, h) {
+	return create_svg_area(view, x, y, w, h, (ar_w, ar_h) => [
+		create_polyline([0.5 * w * ar_w, 0.5 * ar_h, 0.5 * w * ar_w, (h - 0.5) * ar_h])
+	]);
 }
 
 export default chart_graph;

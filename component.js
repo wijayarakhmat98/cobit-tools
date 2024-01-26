@@ -166,6 +166,26 @@ function create_button(text, callback = undefined, enabled = true, classes = [],
 	return apply_style(apply_class(button, classes), style);
 }
 
+function create_svg(viewbox, children = [], classes = [], style = []) {
+	let svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+	svg.setAttribute('viewBox', viewbox.join(' '));
+	for (const c of children)
+		svg.appendChild(c);
+	return apply_style(apply_class(svg, classes), style);
+}
+
+function create_polyline(points = [], color = 'black', width = 0.05, dasharray = undefined) {
+	let polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+	if (points.length)
+		polyline.setAttribute('points', points.join(' '));
+	polyline.setAttribute('fill', 'none');
+	polyline.setAttribute('stroke', color);
+	polyline.setAttribute('stroke-width', width);
+	if (dasharray)
+		polyline.setAttribute('stroke-dasharray', dasharray);
+	return polyline;
+}
+
 export {
 	random_token,
 	apply_style,
@@ -180,5 +200,7 @@ export {
 	create_details_proxy,
 	create_radio,
 	create_textarea,
-	create_button
+	create_button,
+	create_svg,
+	create_polyline
 };
