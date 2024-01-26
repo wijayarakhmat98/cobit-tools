@@ -10,7 +10,7 @@ import chart_control from 'control';
 
 function checkout(commit, history, view_control, view_graph, view_sheet, view_gmo) {
 	const views = [view_control, view_graph, view_sheet, view_gmo];
-	chart_graph(view_graph, history);
+	chart_graph(view_graph, history, commit.length == 1 ? commit => view(commit, history, ...views) : undefined);
 	chart_sheet(view_sheet, commit, () => chart_gmo(view_gmo));
 	chart_gmo(view_gmo);
 	chart_control(view_control, view_graph, commit, {
@@ -18,6 +18,10 @@ function checkout(commit, history, view_control, view_graph, view_sheet, view_gm
 		'discard': () => discard(commit, history, ...views),
 		'save': () => save(commit, history, ...views)
 	});
+}
+
+function view(commit, ...argv) {
+	checkout([commit], ...argv)
 }
 
 function edit(commit, ...argv) {
@@ -43,8 +47,8 @@ function save(commit, history, ...argv) {
 				'id': d.id,
 				'inherit': false,
 				'value': v.value,
-				'comment': document.querySelector(
-					`textarea[name="df1 ${d.id} comment"]`
+				'note': document.querySelector(
+					`textarea[name="df1 ${d.id} note"]`
 				).value
 			});
 			return c;

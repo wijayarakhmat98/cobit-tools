@@ -11,15 +11,18 @@ from 'component';
 
 function chart_control(view, view_graph, commit, callback) {
 	replace_content(view, [
-		create_details_proxy('Tree', [], [view_graph]),
-		...(commit.length == 1
-			? [create_button('Modify', callback.edit)]
-			: [
-				create_description(),
+		create_details_proxy('Tree', [], []), // view_graph]),
+		...(commit.length == 1 ?
+			[create_button('Modify', callback.edit)]
+			:
+			[
 				create_button('Commit', callback.save),
+				create_description(),
+				// create_button('Commit', callback.save),
 				create_button('Discard', callback.discard)
-			])
-		, create_username()
+			]
+		),
+		create_username()
 	]);
 }
 

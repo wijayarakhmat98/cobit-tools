@@ -1,21 +1,38 @@
-function chart_graph(view, graph) {
+import {
+	create_grid,
+	create_area,
+	replace_content,
+	create_div,
+	create_p,
+	create_button
+}
+from 'component';
+
+function chart_graph(view, graph, callback) {
 	let C = prepare(graph);
 	place_i(C);
 	place_j(C);
-	const row = Math.max.apply(Math, C.map((c) => c.i)) + 1;
-	const col = Math.max.apply(Math, C.map((c) => c.j)) + 1;
-	view.innerHTML = '';
-	view.style['display'] = 'inline-grid';
-	view.style['grid-template-rows'] = `repeat(${row}, 1fr)}`;
-	view.style['grid-template-columns'] = `repeat(${col}, 1fr)`;
-	draw_box(view, C);
+	for (let c of C) {
+		c.i += 1;
+		c.j += 1;
+	}
+	const row = Math.max.apply(Math, C.map((c) => c.i));
+	const col = Math.max.apply(Math, C.map((c) => c.j));
+	replace_content(view,
+		[
+			...C.map(c => create_button(c.id, callback ? () => callback(c.graph) : undefined, true, [], create_area(c.j, c.i, 1, 1))),
+			...C.map(c => create_p(c.description, ['expand'], create_area(col + 1, c.i, 1, 1)))
+		],
+		[], create_grid(row, col + 1)
+	);
 	draw_line(view, C);
 }
 
 function prepare(graph) {
 	let C = graph.map((g) => ({
 		'graph': g,
-		'name': g.id,
+		'id': g.id,
+		'description': g.description,
 		'timestamp': g.timestamp,
 		'i': undefined,
 		'j': undefined,
@@ -27,7 +44,7 @@ function prepare(graph) {
 	}));
 
 	C.forEach((c) => {
-		c.parents = c.parents.map((d) => C[C.findIndex((e) => e.name == d.id)]);
+		c.parents = c.parents.map((d) => C[C.findIndex((e) => e.id == d.id)]);
 	});
 
 	C.forEach((c) => {
@@ -102,36 +119,20 @@ function place_j(C) {
 	});
 }
 
-function draw_box(view, C) {
-	C.forEach((c) => {
-		let I = document.createElement('button');
-		let t = document.createTextNode(c.name);
-		I.appendChild(t);
-		I.style['text-align'] = 'center';
-		I.style['grid-row-start'] = c.i + 1;
-		I.style['grid-row-end'] = c.i + 2;
-		I.style['grid-column-start'] = c.j + 1;
-		I.style['grid-column-end'] = c.j + 2;
-		I.setAttribute('type', 'button');
-		view.appendChild(I);
-	});
-}
-
 function draw_line(view, C) {
 	C.forEach((c) => {c.children.forEach((b) => {
 		const p = {
-			'l': Math.min(c.j, b.j) + 1,
-			'r': Math.max(c.j, b.j) + 2,
-			't': Math.min(c.i, b.i) + 1,
-			'b': Math.max(c.i, b.i) + 2
+			'l': Math.min(c.j, b.j) + 0,
+			'r': Math.max(c.j, b.j) + 1,
+			't': Math.min(c.i, b.i) + 0,
+			'b': Math.max(c.i, b.i) + 1
 		};
-		let d = document.createElement('div');
-		d.style['grid-row-start'] = p.t;
-		d.style['grid-row-end'] = p.b;
-		d.style['grid-column-start'] = p.l;
-		d.style['grid-column-end'] = p.r;
-		d.style['z-index'] = -10;
-		d.style['height'] = 'auto';
+		let d = create_div([], [], {
+			...create_area(p.l, p.t, p.r - p.l, p.b - p.t),
+			'z-index': -10,
+			'width': 'auto',
+			'height': 'auto'
+		});
 		view.appendChild(d);
 		const m = {
 			'w': p.r - p.l,

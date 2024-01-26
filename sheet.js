@@ -68,7 +68,7 @@ function create_snapshot(commit, mst_df, trs_df_baseline, classes = [], style = 
 		return {
 			'id': d.id,
 			'value': c ? c.value : trs_df_baseline.find(e => e.id == d.id).value,
-			'note': c ? c.comment : 'Baseline',
+			'note': c ? c.note : 'Baseline',
 			'author': p.author,
 			'commit': p.id,
 			'description': p.description
@@ -100,7 +100,7 @@ function create_change(name, lo, hi, checked, callback, classes = [], style = {}
 			...create_range(lo, hi).map(
 				i => create_radio(`${name} value`, `{"value": ${i}, "from": null}`, i, i == checked, callback)
 			),
-			create_textarea(`${name} comment`, 1)
+			create_textarea(`${name} note`, 1)
 		],
 		[], {
 			...create_change_area(lo, hi),
