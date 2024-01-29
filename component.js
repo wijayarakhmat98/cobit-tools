@@ -48,10 +48,26 @@ function create_area(x, y, w, h) {
 }
 
 function replace_content(element, children = [], classes = [], style = {}) {
-	element.innerHTML = '';
-	for (const c of children)
-		element.appendChild(c);
+	element.replaceChildren(...children);
 	return apply_style(apply_class(element, classes), style);
+}
+
+function replace_row(element, sub_row, children = [], classes = [], style = {}) {
+	const col_style = create_area(undefined, 1, undefined, sub_row);
+	for (let c of children)
+		apply_style(c, col_style);
+	return replace_content(element, children, classes, {
+		...create_grid(sub_row, undefined), ...style
+	});
+}
+
+function replace_col(element, sub_col, children = [], classes = [], style = []) {
+	const row_style = create_area(1, undefined, sub_col, undefined);
+	for (let c of children)
+		apply_style(c, row_style);
+	return replace_content(element, children, classes, {
+		...create_grid(undefined, sub_col), ...style
+	});
 }
 
 function create_div(children = [], classes = [], style = {}) {
@@ -59,6 +75,24 @@ function create_div(children = [], classes = [], style = {}) {
 	for (const c of children)
 		div.appendChild(c);
 	return apply_style(apply_class(div, classes), style);
+}
+
+function create_row(sub_row, children = [], classes = [], style = {}) {
+	const col_style = create_area(undefined, 1, undefined, sub_row);
+	for (let c of children)
+		apply_style(c, col_style);
+	return create_div(children, classes, {
+		...create_grid(sub_row, 'subgrid'), ...style
+	});
+}
+
+function create_column(sub_col, children = [], classes = [], style = {}) {
+	const row_style = create_area(1, undefined, sub_col, undefined);
+	for (let c of children)
+		apply_style(c, row_style);
+	return create_div(children, classes, {
+		...create_grid('subgrid', sub_col), ...style
+	});
 }
 
 function create_p(text, classes = [], style = {}) {
@@ -194,7 +228,11 @@ export {
 	create_grid,
 	create_area,
 	replace_content,
+	replace_row,
+	replace_col,
 	create_div,
+	create_row,
+	create_column,
 	create_p,
 	create_details,
 	create_details_proxy,

@@ -130,7 +130,7 @@ body {
 	grid-template-areas: "h h" "g m";
 }
 
-nav, article {
+article {
 	display: flex;
 	flex-direction: column;
 	align-items: center;

@@ -12,8 +12,9 @@ import {
 	create_range,
 	create_grid,
 	create_area,
-	replace_content,
+	replace_row,
 	create_div,
+	create_column,
 	create_p,
 	create_details,
 	create_radio,
@@ -22,39 +23,38 @@ import {
 from 'component';
 
 function chart_sheet(view, commit, callback) {
-	replace_content(view,
+	replace_row(view, 1 + mst_df1.length,
 		[
-			create_column(1 + mst_df1.length, [
+			create_column(1, [
 				create_p('Enterprise Strategy'),
 				...mst_df1.map(d => create_details(d.dimension, d.explanation))
 			]),
 			...commit.slice().reverse().map(s => s == null ?
-				create_column(1 + mst_df1.length,
+				create_column(
+					create_change_sub_col(trs_df1_lo, trs_df1_hi),
 					[
-						create_p('Change', [], create_change_area(trs_df1_lo, trs_df1_hi)),
+						create_p('Change'),
 						...mst_df1.map(d => create_change(
 							`df1 ${d.id}`, trs_df1_lo, trs_df1_hi, undefined, callback
 						))
-					],
-					[], create_change_grid(trs_df1_lo, trs_df1_hi)
+					]
 				)
 				:
-				create_column(1 + mst_df1.length,
+				create_column(
+					create_trace_sub_col(),
 					[
-						create_p(`Viewing commit ${s.id}`, [], create_trace_area()),
+						create_p(`Viewing commit ${s.id}`),
 						...create_snapshot(s, mst_df1, trs_df1_baseline).map(d => create_trace(
 							`df1 ${d.id}`, d, true, callback
 						))
-					],
-					[], create_trace_grid()
+					]
 				)
 			),
-			create_column(1 + mst_df1.length, [
+			create_column(1, [
 				create_p('Baseline'),
 				...trs_df1_baseline.map(d => create_p(d.value, ['baseline']))
 			]),
-		],
-		[], create_grid(1 + mst_df1.length, 2 + commit.length, true)
+		]
 	);
 }
 
@@ -80,22 +80,8 @@ function create_snapshot(commit, mst_df, trs_df_baseline, classes = [], style = 
 	}), classes), style);
 }
 
-function create_column(h, children = [], classes = [], style = {}) {
-	return apply_style(apply_class(create_div(
-		children,
-		[], {
-			...create_area(undefined, 1, undefined, h),
-			...create_grid('subgrid', undefined)
-		}
-	), classes), style);
-}
-
-function create_change_grid(lo, hi) {
-	return create_grid(undefined, hi - lo + 2)
-}
-
-function create_change_area(lo, hi) {
-	return create_area(undefined, undefined, hi - lo + 2, undefined);
+function create_change_sub_col(lo, hi) {
+	return hi - lo + 2;
 }
 
 function create_change(name, lo, hi, checked, callback, classes = [], style = {}) {
@@ -107,18 +93,13 @@ function create_change(name, lo, hi, checked, callback, classes = [], style = {}
 			create_textarea(`${name} note`, 1)
 		],
 		[], {
-			...create_change_area(lo, hi),
 			...create_grid(undefined, 'subgrid')
 		}
 	), classes), style);
 }
 
-function create_trace_grid() {
-	return create_grid(undefined, 6);
-}
-
-function create_trace_area() {
-	return create_area(undefined, undefined, 6, undefined);
+function create_trace_sub_col() {
+	return 6;
 }
 
 function create_trace(name, d, checked, callback, classes = [], style = {}) {
@@ -136,7 +117,6 @@ function create_trace(name, d, checked, callback, classes = [], style = {}) {
 			create_p(d.description, ['expand', 'description'], create_area(undefined, undefined, 5, undefined))
 		],
 		[], {
-			...create_trace_area(),
 			...create_grid(2, 'subgrid')
 		}
 	), classes), style);
