@@ -23,15 +23,15 @@ import {
 from 'component';
 
 function chart_sheet(view, commit, callback) {
-	replace_row(view, 1 + mst_df1.length,
+	replace_row(view, 1 + mst_df1.length, true,
 		[
-			create_column(1, [
+			create_column(1, true, [
 				create_p('Enterprise Strategy'),
 				...mst_df1.map(d => create_details(d.dimension, d.explanation))
 			]),
 			...commit.slice().reverse().map(s => s == null ?
 				create_column(
-					create_change_sub_col(trs_df1_lo, trs_df1_hi),
+					create_change_sub_col(trs_df1_lo, trs_df1_hi), true,
 					[
 						create_p('Change'),
 						...mst_df1.map(d => create_change(
@@ -41,7 +41,7 @@ function chart_sheet(view, commit, callback) {
 				)
 				:
 				create_column(
-					create_trace_sub_col(),
+					create_trace_sub_col(), true,
 					[
 						create_p(`Viewing commit ${s.id}`),
 						...create_snapshot(s, mst_df1, trs_df1_baseline).map(d => create_trace(
@@ -50,7 +50,7 @@ function chart_sheet(view, commit, callback) {
 					]
 				)
 			),
-			create_column(1, [
+			create_column(1, true, [
 				create_p('Baseline'),
 				...trs_df1_baseline.map(d => create_p(d.value, ['baseline']))
 			]),

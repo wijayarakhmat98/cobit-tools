@@ -14,6 +14,12 @@ function random_token(length = 32) {
 	return T;
 }
 
+function apply_attribute(element, attribute) {
+	for (const [name, value] of Object.entries(attribute))
+		element.setAttribute(name, value);
+	return element;
+}
+
 function apply_style(element, style) {
 	for (const [name, value] of Object.entries(style))
 		element.style[name] = value;
@@ -47,62 +53,70 @@ function create_area(x, y, w, h) {
 	};
 }
 
-function replace_content(element, children = [], classes = [], style = {}) {
+function replace_content(element, children = [], classes = [], style = {}, attribute = {}) {
 	element.replaceChildren(...children);
-	return apply_style(apply_class(element, classes), style);
+	return apply_attribute(apply_style(apply_class(element, classes), style), attribute);
 }
 
-function replace_row(element, sub_row, children = [], classes = [], style = {}) {
-	const col_style = create_area(undefined, 1, undefined, sub_row);
-	for (let c of children)
-		apply_style(c, col_style);
+function replace_row(element, sub_row, span, children = [], classes = [], style = {}, attribute = {}) {
+	if (span) {
+		const col_style = create_area(undefined, 1, undefined, sub_row);
+		for (let c of children)
+			apply_style(c, col_style);
+	}
 	return replace_content(element, children, classes, {
 		...create_grid(sub_row, undefined), ...style
-	});
+	}, attribute);
 }
 
-function replace_col(element, sub_col, children = [], classes = [], style = []) {
-	const row_style = create_area(1, undefined, sub_col, undefined);
-	for (let c of children)
-		apply_style(c, row_style);
+function replace_col(element, sub_col, span, children = [], classes = [], style = [], attribute = {}) {
+	if (span) {
+		const row_style = create_area(1, undefined, sub_col, undefined);
+		for (let c of children)
+			apply_style(c, row_style);
+	}
 	return replace_content(element, children, classes, {
 		...create_grid(undefined, sub_col), ...style
-	});
+	}, attributes);
 }
 
-function create_div(children = [], classes = [], style = {}) {
+function create_div(children = [], classes = [], style = {}, attribute = {}) {
 	let div = document.createElement('div');
 	for (const c of children)
 		div.appendChild(c);
-	return apply_style(apply_class(div, classes), style);
+	return apply_attribute(apply_style(apply_class(div, classes), style), attribute);
 }
 
-function create_row(sub_row, children = [], classes = [], style = {}) {
-	const col_style = create_area(undefined, 1, undefined, sub_row);
-	for (let c of children)
-		apply_style(c, col_style);
+function create_row(sub_row, span, children = [], classes = [], style = {}, attribute = {}) {
+	if (span) {
+		const col_style = create_area(undefined, 1, undefined, sub_row);
+		for (let c of children)
+			apply_style(c, col_style);
+	}
 	return create_div(children, classes, {
 		...create_grid(sub_row, 'subgrid'), ...style
-	});
+	}, attribute);
 }
 
-function create_column(sub_col, children = [], classes = [], style = {}) {
-	const row_style = create_area(1, undefined, sub_col, undefined);
-	for (let c of children)
-		apply_style(c, row_style);
+function create_column(sub_col, span, children = [], classes = [], style = {}, attribute = {}) {
+	if (span) {
+		const row_style = create_area(1, undefined, sub_col, undefined);
+		for (let c of children)
+			apply_style(c, row_style);
+	}
 	return create_div(children, classes, {
 		...create_grid('subgrid', sub_col), ...style
-	});
+	}, attribute);
 }
 
-function create_p(text, classes = [], style = {}) {
+function create_p(text, classes = [], style = {}, attribute = {}) {
 	let p = document.createElement('p');
 	const t = document.createTextNode(text);
 	p.appendChild(t);
-	return apply_style(apply_class(p, classes), style);
+	return apply_attribute(apply_style(apply_class(p, classes), style), attribute);
 }
 
-function create_details(text1, text2, open = false, classes = [], style = {}) {
+function create_details(text1, text2, open = false, classes = [], style = {}, attribute = {}) {
 	let details = document.createElement('details');
 	let summary = document.createElement('summary');
 	let p = document.createElement('p');
@@ -114,10 +128,10 @@ function create_details(text1, text2, open = false, classes = [], style = {}) {
 	p.appendChild(t2);
 	details.appendChild(summary);
 	details.appendChild(p);
-	return apply_style(apply_class(details, classes), style);
+	return apply_attribute(apply_style(apply_class(details, classes), style), attribute);
 }
 
-function create_details_proxy(text, surrogate, element, open = false, classes = [], style = {}) {
+function create_details_proxy(text, surrogate, element, open = false, classes = [], style = {}, attribute = {}) {
 	let details = document.createElement('details');
 	let summary = document.createElement('summary');
 	const t = document.createTextNode(text);
@@ -150,10 +164,10 @@ function create_details_proxy(text, surrogate, element, open = false, classes = 
 				e.style['display'] = 'none';
 		}
 	});
-	return apply_style(apply_class(details, classes), style);
+	return apply_attribute(apply_style(apply_class(details, classes), style), attribute);
 }
 
-function create_radio(name, value, text, checked = false, callback = undefined, enabled = true, classes = [], style = {}) {
+function create_radio(name, value, text, checked = false, callback = undefined, enabled = true, classes = [], style = {}, attribute = {}) {
 	let div = document.createElement('div');
 	let label = document.createElement('label');
 	let input = document.createElement('input');
@@ -173,10 +187,10 @@ function create_radio(name, value, text, checked = false, callback = undefined, 
 	div.appendChild(input);
 	if (callback)
 		input.onchange = callback;
-	return apply_style(apply_class(div, classes), style);
+	return apply_attribute(apply_style(apply_class(div, classes), style), attribute);
 }
 
-function create_textarea(name, row = undefined, value = undefined, enabled = true, classes = [], style = {}) {
+function create_textarea(name, row = undefined, value = undefined, enabled = true, classes = [], style = {}, attribute = {}) {
 	let textarea = document.createElement('textarea');
 	textarea.setAttribute('name', name);
 	if (row)
@@ -187,28 +201,28 @@ function create_textarea(name, row = undefined, value = undefined, enabled = tru
 	}
 	if (!enabled)
 		textarea.setAttribute('disabled', '');
-	return apply_style(apply_class(textarea, classes), style);
+	return apply_attribute(apply_style(apply_class(textarea, classes), style), attribute);
 }
 
-function create_button(text, callback = undefined, enabled = true, classes = [], style = {}) {
+function create_button(text, callback = undefined, enabled = true, classes = [], style = {}, attribute = {}) {
 	let button = document.createElement('button');
 	const t = document.createTextNode(text);
 	button.setAttribute('type', 'button');
 	button.appendChild(t);
 	if (callback)
 		button.onclick = callback;
-	return apply_style(apply_class(button, classes), style);
+	return apply_attribute(apply_style(apply_class(button, classes), style), attribute);
 }
 
-function create_svg(viewbox, children = [], classes = [], style = []) {
+function create_svg(viewbox, children = [], classes = [], style = [], attribute = {}) {
 	let svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 	svg.setAttribute('viewBox', viewbox.join(' '));
 	for (const c of children)
 		svg.appendChild(c);
-	return apply_style(apply_class(svg, classes), style);
+	return apply_attribute(apply_style(apply_class(svg, classes), style), attribute);
 }
 
-function create_polyline(points = [], color = 'black', width = 0.05, dasharray = undefined) {
+function create_polyline(points = [], color = 'black', width = 1.0, dasharray = undefined) {
 	let polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
 	if (points.length)
 		polyline.setAttribute('points', points.join(' '));
@@ -222,6 +236,7 @@ function create_polyline(points = [], color = 'black', width = 0.05, dasharray =
 
 export {
 	random_token,
+	apply_attribute,
 	apply_style,
 	apply_class,
 	create_range,
