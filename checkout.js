@@ -3,17 +3,19 @@ import {
 }
 from 'master';
 
+import chart_header from 'header';
 import chart_graph from 'graph';
+import chart_control from 'control';
 import chart_sheet from 'sheet';
 import chart_gmo from 'gmo';
-import chart_control from 'control';
 
-function checkout(commit, history, view_control, view_graph, view_sheet, view_gmo) {
-	const views = [view_control, view_graph, view_sheet, view_gmo];
+function checkout(commit, history, view_header, view_graph, view_control, view_sheet, view_gmo) {
+	const views = [view_header, view_graph, view_control, view_sheet, view_gmo];
 	chart_graph(view_graph, history, commit.length == 1 ? commit => view(commit, history, ...views) : undefined);
 	chart_sheet(view_sheet, commit, () => chart_gmo(view_gmo));
 	chart_gmo(view_gmo);
-	chart_control(view_control, view_graph, commit, {
+	chart_header(view_header, view_graph);
+	chart_control(view_control, commit, {
 		'edit': () => edit(commit, history, ...views),
 		'discard': () => discard(commit, history, ...views),
 		'save': () => save(commit, history, ...views)
