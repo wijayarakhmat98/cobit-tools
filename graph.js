@@ -107,7 +107,15 @@ function chart_link(view, row, col, C, node) {
 		}),
 		...C.flatMap(c => c.branch_children.map(d =>
 			create_vertical_fit(d.j, d.i, 1, c.i - d.i + 1, rw, rh, nj, ni)
-		))
+		)),
+		...C.flatMap(c => {
+			const l = Math.min.apply(Math, [c, ...c.merge_parent].map(d => d.j));
+			const w = Math.max.apply(Math, [c, ...c.merge_parent].map(d => d.j)) - l + 1;
+			return w == 1 ? [] : create_horizontal_fit(l, c.i, w, 1, rw, rh, nj, ni, 'black', 1.0, [1, 1]);
+		}),
+		...C.flatMap(c => c.merge_parent.map(d =>
+			create_vertical_fit(d.j, c.i, 1, d.i - c.i + 1, rw, rh, nj, ni, 'black', 1.0, [1, 1])
+		)),
 	]);
 }
 
@@ -126,7 +134,7 @@ function create_svg_fit(x, y, w, h, sw, sh, children) {
 	);
 }
 
-function create_horizontal_fit(x, y, w, h, rw, rh, nj, ni) {
+function create_horizontal_fit(x, y, w, h, rw, rh, nj, ni, color = 'black', width = 1.0, dasharray = []) {
 	const fx = x - 1, lx = x + w - 2;
 	const fy = y - 1, ly = y + h - 2;
 	return create_svg_fit(
@@ -134,15 +142,15 @@ function create_horizontal_fit(x, y, w, h, rw, rh, nj, ni) {
 		rw.slice(fx, lx + 1).reduce((sum, x) => sum += x, 0.0),
 		rh.slice(fy, ly + 1).reduce((sum, x) => sum += x, 0.0),
 		[create_polyline([
-			nj[fx].ml + 0.5 * nj[fx].bw - 0.5,
+			nj[fx].ml + 0.5 * nj[fx].bw - 0.5 * width,
 			ni[fy].mt + 0.5 * ni[fy].bh,
-			rw.slice(fx, lx).reduce((sum, x) => sum += x, 0.0) + nj[lx].ml + 0.5 * nj[lx].bw + 0.5,
+			rw.slice(fx, lx).reduce((sum, x) => sum += x, 0.0) + nj[lx].ml + 0.5 * nj[lx].bw + 0.5 * width,
 			ni[fy].mt + 0.5 * ni[fy].bh
-		])]
+		], color, width, dasharray)]
 	);
 }
 
-function create_vertical_fit(x, y, w, h, rw, rh, nj, ni) {
+function create_vertical_fit(x, y, w, h, rw, rh, nj, ni, color = 'black', width = 1.0, dasharray = []) {
 	const fx = x - 1, lx = x + w - 2;
 	const fy = y - 1, ly = y + h - 2;
 	return create_svg_fit(
@@ -151,10 +159,10 @@ function create_vertical_fit(x, y, w, h, rw, rh, nj, ni) {
 		rh.slice(fy, ly + 1).reduce((sum, x) => sum += x, 0.0),
 		[create_polyline([
 			nj[fx].ml + 0.5 * nj[fx].bw,
-			ni[fy].mt + 0.5 * ni[fy].bh - 0.5,
+			ni[fy].mt + 0.5 * ni[fy].bh - 0.5 * width,
 			nj[fx].ml + 0.5 * nj[fx].bw,
-			rh.slice(fy, ly).reduce((sum, x) => sum += x, 0.0) + ni[ly].mt + 0.5 * ni[ly].bh + 0.5
-		])]
+			rh.slice(fy, ly).reduce((sum, x) => sum += x, 0.0) + ni[ly].mt + 0.5 * ni[ly].bh + 0.5 * width
+		], color, width, dasharray)]
 	);
 }
 

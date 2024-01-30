@@ -250,16 +250,16 @@ function create_svg(viewbox, children = [], classes = [], style = [], attribute 
 	return apply_attribute(apply_style(apply_class(svg, classes), style), attribute);
 }
 
-function create_polyline(points = [], color = 'black', width = 1.0, dasharray = undefined) {
+function create_polyline(points = [], color = 'black', width = 1.0, dasharray = [], attribute = {}) {
 	let polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
 	if (points.length)
 		polyline.setAttribute('points', points.join(' '));
 	polyline.setAttribute('fill', 'none');
 	polyline.setAttribute('stroke', color);
 	polyline.setAttribute('stroke-width', width);
-	if (dasharray)
-		polyline.setAttribute('stroke-dasharray', dasharray);
-	return polyline;
+	if (dasharray.length)
+		polyline.setAttribute('stroke-dasharray', dasharray.join(' '));
+	return apply_attribute(polyline, attribute);
 }
 
 export {
