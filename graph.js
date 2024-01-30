@@ -1,4 +1,5 @@
 import {
+	listener_resize,
 	create_range,
 	create_grid,
 	create_area,
@@ -66,7 +67,7 @@ function chart_graph(view, graph, callback) {
 		create_column(col, false, [view_link, create_div(node, [], subgrid)]),
 		create_column(1, true, C.map(c => create_p(c.description, ['expand'])))
 	]);
-	new ResizeObserver(() => chart_link(view_link, row, col, C, node)).observe(view_link);
+	listener_resize(view_link, () => chart_link(view_link, row, col, C, node));
 }
 
 function chart_link(view, row, col, C, node) {

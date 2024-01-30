@@ -14,6 +14,35 @@ function random_token(length = 32) {
 	return T;
 }
 
+function listener_click(element, callback, context = undefined) {
+	if (!context)
+		context = element;
+	if (callback)
+		element.onclick = () => callback(context);
+	return element;
+}
+
+function listener_change(element, callback, context = undefined) {
+	if (!context)
+		context = element;
+	if (callback)
+		element.onchange = () => callback(context);
+	return element;
+}
+
+function listener_resize(element, callback, context = undefined) {
+	if (!context)
+		context = element;
+	if (callback)
+		new ResizeObserver(
+			() => {
+				if (document.contains(element))
+					callback(context);
+			}
+		).observe(element);
+	return element;
+}
+
 function apply_attribute(element, attribute) {
 	for (const [name, value] of Object.entries(attribute))
 		element.setAttribute(name, value);
@@ -140,12 +169,12 @@ function create_details_proxy(text, surrogate, element, open = false, classes = 
 	summary.appendChild(t);
 	details.appendChild(summary);
 	for (let s of surrogate)
-		s.onclick = () => {
+		listener_click(s, () => {
 			if (details.hasAttribute('open'))
 				details.removeAttribute('open');
 			else
 				details.setAttribute('open', '');
-		};
+		});
 	let link = {};
 	for (let e of element) {
 		const token = random_token();
@@ -185,8 +214,7 @@ function create_radio(name, value, text, checked = false, callback = undefined, 
 	label.appendChild(t);
 	div.appendChild(label);
 	div.appendChild(input);
-	if (callback)
-		input.onchange = callback;
+	listener_change(input, callback);
 	return apply_attribute(apply_style(apply_class(div, classes), style), attribute);
 }
 
@@ -236,6 +264,9 @@ function create_polyline(points = [], color = 'black', width = 1.0, dasharray = 
 
 export {
 	random_token,
+	listener_click,
+	listener_change,
+	listener_resize,
 	apply_attribute,
 	apply_style,
 	apply_class,
