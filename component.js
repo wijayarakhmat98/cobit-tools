@@ -22,6 +22,14 @@ function listener_click(element, callback, context = undefined) {
 	return element;
 }
 
+function listener_toggle(element, callback, context = undefined) {
+	if (!context)
+		context = element;
+	if (callback)
+		element.addEventListener('toggle', () => callback(context));
+	return element;
+}
+
 function listener_change(element, callback, context = undefined) {
 	if (!context)
 		context = element;
@@ -65,11 +73,11 @@ function create_range(start, stop, step = 1) {
 	return Array.from({'length': (stop - start) / step + 1}, (_, i) => start + i * step);
 }
 
-function create_grid(row, col, inline = false) {
+function create_grid(row, col, unit = 'auto') {
 	return {
-		'display': inline ? 'inline-grid' : 'grid',
-		...(row && {'grid-template-rows': row == 'subgrid' ? row : `repeat(${row}, auto)`}),
-		...(col && {'grid-template-columns': col == 'subgrid' ? col : `repeat(${col}, auto)`})
+		'display': 'grid',
+		...(row && {'grid-template-rows': row == 'subgrid' ? row : `repeat(${row}, ${unit})`}),
+		...(col && {'grid-template-columns': col == 'subgrid' ? col : `repeat(${col}, ${unit})`})
 	};
 }
 
@@ -87,25 +95,25 @@ function replace_content(element, children = [], classes = [], style = {}, attri
 	return apply_attribute(apply_style(apply_class(element, classes), style), attribute);
 }
 
-function replace_row(element, sub_row, span, children = [], classes = [], style = {}, attribute = {}) {
+function replace_row(element, sub_row, children = [], span = true, col = undefined, unit = 'auto', classes = [], style = {}, attribute = {}) {
 	if (span) {
 		const col_style = create_area(undefined, 1, undefined, sub_row);
 		for (let c of children)
 			apply_style(c, col_style);
 	}
 	return replace_content(element, children, classes, {
-		...create_grid(sub_row, undefined), ...style
+		...create_grid(sub_row, col, unit), ...style
 	}, attribute);
 }
 
-function replace_col(element, sub_col, span, children = [], classes = [], style = [], attribute = {}) {
+function replace_col(element, sub_col, children = [], span = true, row = undefined, unit = 'auto', classes = [], style = [], attribute = {}) {
 	if (span) {
 		const row_style = create_area(1, undefined, sub_col, undefined);
 		for (let c of children)
 			apply_style(c, row_style);
 	}
 	return replace_content(element, children, classes, {
-		...create_grid(undefined, sub_col), ...style
+		...create_grid(row, sub_col, unit), ...style
 	}, attributes);
 }
 
@@ -116,25 +124,25 @@ function create_div(children = [], classes = [], style = {}, attribute = {}) {
 	return apply_attribute(apply_style(apply_class(div, classes), style), attribute);
 }
 
-function create_row(sub_row, span, children = [], classes = [], style = {}, attribute = {}) {
+function create_row(sub_row, children = [], span = true, col = 'subgrid', unit = 'auto', classes = [], style = {}, attribute = {}) {
 	if (span) {
 		const col_style = create_area(undefined, 1, undefined, sub_row);
 		for (let c of children)
 			apply_style(c, col_style);
 	}
 	return create_div(children, classes, {
-		...create_grid(sub_row, 'subgrid'), ...style
+		...create_grid(sub_row, col, unit), ...style
 	}, attribute);
 }
 
-function create_column(sub_col, span, children = [], classes = [], style = {}, attribute = {}) {
+function create_column(sub_col, children = [], span = true, row = 'subgrid', unit = 'auto', classes = [], style = {}, attribute = {}) {
 	if (span) {
 		const row_style = create_area(1, undefined, sub_col, undefined);
 		for (let c of children)
 			apply_style(c, row_style);
 	}
 	return create_div(children, classes, {
-		...create_grid('subgrid', sub_col), ...style
+		...create_grid(row, sub_col, unit), ...style
 	}, attribute);
 }
 
@@ -175,23 +183,19 @@ function create_details_proxy(text, surrogate, element, open = false, classes = 
 			else
 				details.setAttribute('open', '');
 		});
-	let link = {};
-	for (let e of element) {
-		const token = random_token();
-		const display = e.style['display'];
-		e.id = token;
+	let link = element.map(e => ({
+		'element': e,
+		'display': e.style['display']
+	}));
+	for (let e of element)
 		if (!open)
 			e.style['display'] = 'none';
-		link[token] = display;
-	}
-	details.addEventListener('toggle', () => {
-		for (let [token, display] of Object.entries(link)) {
-			let e = document.getElementById(token);
+	listener_toggle(details, () => {
+		for (let l of link)
 			if (details.hasAttribute('open'))
-				e.style['display'] = display;
+				l.element.style['display'] = l.display;
 			else
-				e.style['display'] = 'none';
-		}
+				l.element.style['display'] = 'none';
 	});
 	return apply_attribute(apply_style(apply_class(details, classes), style), attribute);
 }
@@ -265,6 +269,7 @@ function create_polyline(points = [], color = 'black', width = 1.0, dasharray = 
 export {
 	random_token,
 	listener_click,
+	listener_toggle,
 	listener_change,
 	listener_resize,
 	apply_attribute,

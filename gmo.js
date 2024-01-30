@@ -86,7 +86,7 @@ function draw_gmo(view, r_hat) {
 				'grid-template-columns': 'repeat(200, 1fr)'
 			})
 		],
-		[], create_grid(mst_gmo.length, 2, true)
+		[], create_grid(mst_gmo.length, 2)
 	);
 }
 

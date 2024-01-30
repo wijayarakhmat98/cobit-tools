@@ -96,20 +96,16 @@
 				'timestamp': 3
 		};
 		let history = [commit_0, commit_1, commit_2, commit_3, commit_4];
-		main(history, 'view header', 'view graph', 'view control', 'view df1 sheet', 'view df1 gmo');
+		main(history, 'view_header', 'view_graph', 'view_control', 'view_sheet', 'view_gmo');
 	</script>
 </head>
 <body>
-	<header id="view header" style="grid-area: h;"></header>
-	<nav id="view graph" style="grid-area: g;"></nav>
-	<main style="grid-area: m;">
-		<section id="view control" style="grid-area: c;"></section>
-		<nav></nav>
-		<article id="view df1">
-			<form id="view df1 sheet"></form>
-			<section id="view df1 gmo"></section>
-		</article>
-	</main>
-	<footer></footer>
+	<header id="view_header"></header>
+	<nav id="view_graph"></nav>
+	<section id="view_control"></section>
+	<nav id="view_focus"></nav>
+	<section id="view_visual"></section>
+	<form id="view_sheet"></form>
+	<section id="view_gmo"></section>
 </body>
 </html>

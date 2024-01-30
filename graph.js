@@ -63,9 +63,9 @@ function chart_graph(view, graph, callback) {
 		...create_area(1, 1, col, row), ...create_grid('subgrid', 'subgrid')
 	};
 	let view_link = create_div([], [], subgrid);
-	replace_row(view, row, true, [
-		create_column(col, false, [view_link, create_div(node, [], subgrid)]),
-		create_column(1, true, C.map(c => create_p(c.description, ['expand'])))
+	replace_row(view, row, [
+		create_column(col, [view_link, create_div(node, [], subgrid)], false, 'subgrid', '1fr'),
+		create_column(1, C.map(c => create_p(c.description, ['expand'])))
 	]);
 	listener_resize(view_link, () => chart_link(view_link, row, col, C, node));
 }
@@ -111,10 +111,10 @@ function chart_link(view, row, col, C, node) {
 		...C.flatMap(c => {
 			const l = Math.min.apply(Math, [c, ...c.merge_parent].map(d => d.j));
 			const w = Math.max.apply(Math, [c, ...c.merge_parent].map(d => d.j)) - l + 1;
-			return w == 1 ? [] : create_horizontal_fit(l, c.i, w, 1, rw, rh, nj, ni, 'black', 1.0, [1, 1]);
+			return w == 1 ? [] : create_horizontal_fit(l, c.i, w, 1, rw, rh, nj, ni, 'black', 1.0, [4, 4]);
 		}),
 		...C.flatMap(c => c.merge_parent.map(d =>
-			create_vertical_fit(d.j, c.i, 1, d.i - c.i + 1, rw, rh, nj, ni, 'black', 1.0, [1, 1])
+			create_vertical_fit(d.j, c.i, 1, d.i - c.i + 1, rw, rh, nj, ni, 'black', 1.0, [4, 4])
 		)),
 	]);
 }
