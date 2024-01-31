@@ -9,7 +9,17 @@ import chart_control from 'control';
 import chart_sheet from 'sheet';
 import chart_gmo from 'gmo';
 
-function checkout(commit, history, view_header, view_graph, view_control, view_sheet, view_gmo) {
+function checkout(
+	commit,
+	history,
+	view_header,
+	view_control,
+	view_graph,
+	view_focus,
+	view_visual,
+	view_sheet,
+	view_gmo
+) {
 	const views = [view_header, view_graph, view_control, view_sheet, view_gmo];
 	chart_graph(view_graph, history, commit.length == 1 ? commit => view(commit, history, ...views) : undefined);
 	chart_sheet(view_sheet, commit, () => chart_gmo(view_gmo));

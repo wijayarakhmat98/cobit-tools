@@ -28,16 +28,16 @@ body {
 	display: flex;
 }
 
+#view_control {
+	grid-area: c;
+	display: flex;
+}
+
 #view_graph {
 	grid-area: g;
 	width: max-content;
 	height: fit-content;
 	column-gap: 1rem;
-}
-
-#view_control {
-	grid-area: c;
-	display: flex;
 }
 
 #view_focus {
@@ -66,13 +66,13 @@ body {
 	gap: 1rem;
 }
 
+#view_control > * {
+	gap: 1rem;
+}
+
 #view_graph button {
 	aspect-ratio: 1 / 1;
 	margin: 0.25rem;
-}
-
-#view_control > * {
-	gap: 1rem;
 }
 
 #view_sheet > div {
