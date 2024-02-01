@@ -20,7 +20,7 @@ function checkout(
 	view_sheet,
 	view_gmo
 ) {
-	const views = [view_header, view_graph, view_control, view_sheet, view_gmo];
+	const views = [view_header, view_control, view_graph, view_focus, view_visual, view_sheet, view_gmo];
 	chart_graph(view_graph, history, commit.length == 1 ? commit => view(commit, history, ...views) : undefined);
 	chart_sheet(view_sheet, commit, () => chart_gmo(view_gmo));
 	chart_gmo(view_gmo);
