@@ -36,7 +36,7 @@ function listener_resize(element, callback, context = undefined) {
 	if (callback)
 		new ResizeObserver(
 			() => {
-				if (document.contains(element))
+				if (element.isConnected)
 					callback(context ?? element);
 			}
 		).observe(element);
