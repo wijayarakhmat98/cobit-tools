@@ -70,7 +70,7 @@ body {
 	gap: 1rem;
 }
 
-#view_control button {
+#view_control button, .toggle {
 	padding: 0 0.25rem;
 }
 
@@ -183,4 +183,17 @@ details p, .details {
 	flex: 1;
 	display: flex;
 	justify-content: flex-end;
+}
+
+.toggle {
+	user-select: none;
+	background-color: #ebebeb;
+}
+
+.toggle_radio:has(:checked) {
+	background-color: lightgreen;
+}
+
+.toggle_checkbox:has(:checked) {
+	background-color: gold;
 }

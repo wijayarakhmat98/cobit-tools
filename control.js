@@ -1,8 +1,12 @@
 import {
-	create_grid,
+	listener_click,
+	apply_label,
 	replace_content,
 	create_div,
 	create_p,
+	create_label,
+	create_toggle_radio,
+	create_toggle_checkbox,
 	create_textarea,
 	create_button
 }
@@ -13,7 +17,7 @@ function chart_control(view, commit, callback) {
 		[
 			create_div(
 				[
-					create_button('Modify', callback.edit)
+					listener_click(create_button('Modify'), callback.edit)
 				],
 				['flex-start']
 			)
@@ -22,19 +26,22 @@ function chart_control(view, commit, callback) {
 		[
 			create_div(
 				[
-					create_p('Parent'),
-					create_p(commit[0].id, ['expand']),
-					create_p('Merge'),
-					create_p(commit.slice(2).map(c => c.id).join(', '), ['expand']),
+					create_toggle_radio('mode', 'parent', 'Parent', true),
+					create_p(commit[0].id),
+					create_toggle_radio('mode', 'merge', 'Merge'),
+					create_p('[' + commit.slice(2).map(c => c.id).join(', ') + ']'),
+					create_toggle_checkbox('new', 'new', 'New', true)
 				],
 				['flex-start']
 			),
 			create_div(
 				[
-					create_p('Description'),
-					create_textarea('description', 1),
-					create_button('Commit', callback.save),
-					create_button('Discard', callback.discard)
+					...apply_label(
+						create_label('Description'),
+						create_textarea('description', 1)
+					),
+					listener_click(create_button('Commit'), callback.save),
+					listener_click(create_button('Discard'), callback.discard)
 				],
 				['flex-end']
 			)

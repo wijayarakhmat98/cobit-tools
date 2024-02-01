@@ -74,7 +74,7 @@ function main(
 	let view_sheet = document.getElementById(sheet_id);
 	let view_gmo = document.getElementById(gmo_id);
 	checkout(
-		[history[0]],
+		[history[0], null],
 		history,
 		view_header,
 		view_control,

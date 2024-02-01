@@ -1,8 +1,8 @@
 import {
-	create_grid,
+	apply_label,
 	replace_content,
 	create_div,
-	create_p,
+	create_label,
 	create_details_proxy,
 	create_textarea
 }
@@ -18,15 +18,14 @@ function chart_header(view, view_graph) {
 		),
 		create_div(
 			[
-				create_p('Username'),
-				create_textarea('username', 1)
+				...apply_label(
+					create_label('Username'),
+					create_textarea('username', 1)
+				)
 			],
 			['flex-end']
 		)
 	]);
-}
-
-function create_username() {
 }
 
 export default chart_header;

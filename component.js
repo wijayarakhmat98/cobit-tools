@@ -15,37 +15,29 @@ function random_token(length = 32) {
 }
 
 function listener_click(element, callback, context = undefined) {
-	if (!context)
-		context = element;
 	if (callback)
-		element.onclick = () => callback(context);
+		element.addEventListener('click', () => callback(context ?? element));
 	return element;
 }
 
 function listener_toggle(element, callback, context = undefined) {
-	if (!context)
-		context = element;
 	if (callback)
-		element.addEventListener('toggle', () => callback(context));
+		element.addEventListener('toggle', () => callback(context ?? element));
 	return element;
 }
 
 function listener_change(element, callback, context = undefined) {
-	if (!context)
-		context = element;
 	if (callback)
-		element.onchange = () => callback(context);
+		element.addEventListener('change', () => callback(context ?? element));
 	return element;
 }
 
 function listener_resize(element, callback, context = undefined) {
-	if (!context)
-		context = element;
 	if (callback)
 		new ResizeObserver(
 			() => {
 				if (document.contains(element))
-					callback(context);
+					callback(context ?? element);
 			}
 		).observe(element);
 	return element;
@@ -67,6 +59,19 @@ function apply_class(element, classes) {
 	if (classes.length)
 		element.classList.add(...classes);
 	return element;
+}
+
+function apply_label(element1, element2) {
+	const id = random_token();
+	if (element1.nodeName == 'LABEL') {
+		apply_attribute(element1, {'for': id});
+		apply_attribute(element2, {'id': id});
+	}
+	else {
+		apply_attribute(element1, {'id': id});
+		apply_attribute(element2, {'for': id});
+	}
+	return [element1, element2]
 }
 
 function create_range(start, stop, step = 1) {
@@ -117,6 +122,17 @@ function replace_col(element, sub_col, children = [], span = true, row = undefin
 	}, attributes);
 }
 
+function create_element(tag, children = [], classes = [], style = {}, attribute = {}) {
+	let element = document.createElement(tag);
+	if (children.length)
+		element.replaceChildren(...children);
+	return apply_attribute(apply_style(apply_class(element, classes), style), attribute);
+}
+
+function create_text(text) {
+	return document.createTextNode(text);
+}
+
 function create_div(children = [], classes = [], style = {}, attribute = {}) {
 	let div = document.createElement('div');
 	for (const c of children)
@@ -151,6 +167,10 @@ function create_p(text, classes = [], style = {}, attribute = {}) {
 	const t = document.createTextNode(text);
 	p.appendChild(t);
 	return apply_attribute(apply_style(apply_class(p, classes), style), attribute);
+}
+
+function create_label(text, ...args) {
+	return create_element('lable', [create_text(text)], ...args);
 }
 
 function create_details(text1, text2, open = false, classes = [], style = {}, attribute = {}) {
@@ -200,7 +220,7 @@ function create_details_proxy(text, surrogate, element, open = false, classes = 
 	return apply_attribute(apply_style(apply_class(details, classes), style), attribute);
 }
 
-function create_radio(name, value, text, checked = false, callback = undefined, enabled = true, classes = [], style = {}, attribute = {}) {
+function create_radio(name, value, text, checked = false, classes = [], style = {}, attribute = {}) {
 	let div = document.createElement('div');
 	let label = document.createElement('label');
 	let input = document.createElement('input');
@@ -208,21 +228,55 @@ function create_radio(name, value, text, checked = false, callback = undefined, 
 	input.setAttribute('type', 'radio');
 	input.setAttribute('name', name);
 	input.setAttribute('value', value);
-	input.id = `${name} ${value}`;
 	if (checked)
 		input.setAttribute('checked', '');
-	if (!enabled)
-		input.setAttribute('disabled', '');
-	label.setAttribute('for', `${name} ${value}`);
+	apply_label(label, input);
 	div.classList.add('radio');
 	label.appendChild(t);
 	div.appendChild(label);
 	div.appendChild(input);
-	listener_change(input, callback);
 	return apply_attribute(apply_style(apply_class(div, classes), style), attribute);
 }
 
-function create_textarea(name, row = undefined, value = undefined, enabled = true, classes = [], style = {}, attribute = {}) {
+function create_toggle_radio(name, value, text, checked = false, classes = [], ...args) {
+	return create_element(
+		'label',
+		[
+			create_element('input', [], [], {
+				'display': 'none'
+			}, {
+				'type': 'radio',
+				'name': name,
+				'value': value,
+				...(checked && {'checked': ''}),
+			}),
+			create_text(text)
+		],
+		['toggle', 'toggle_radio', ...classes],
+		...args
+	);
+}
+
+function create_toggle_checkbox(name, value, text, checked = false, classes = [], ...args) {
+	return create_element(
+		'label',
+		[
+			create_element('input', [], [], {
+				'display': 'none'
+			}, {
+				'type': 'checkbox',
+				'name': name,
+				'value': value,
+				...(checked && {'checked': ''}),
+			}),
+			create_text(text)
+		],
+		['toggle', 'toggle_checkbox', ...classes],
+		...args
+	);
+}
+
+function create_textarea(name, row = undefined, value = undefined, classes = [], style = {}, attribute = {}) {
 	let textarea = document.createElement('textarea');
 	textarea.setAttribute('name', name);
 	if (row)
@@ -231,18 +285,14 @@ function create_textarea(name, row = undefined, value = undefined, enabled = tru
 		const t = document.createTextNode(value);
 		textarea.appendChild(t);
 	}
-	if (!enabled)
-		textarea.setAttribute('disabled', '');
 	return apply_attribute(apply_style(apply_class(textarea, classes), style), attribute);
 }
 
-function create_button(text, callback = undefined, enabled = true, classes = [], style = {}, attribute = {}) {
+function create_button(text, classes = [], style = {}, attribute = {}) {
 	let button = document.createElement('button');
 	const t = document.createTextNode(text);
 	button.setAttribute('type', 'button');
 	button.appendChild(t);
-	if (callback)
-		button.onclick = callback;
 	return apply_attribute(apply_style(apply_class(button, classes), style), attribute);
 }
 
@@ -275,19 +325,25 @@ export {
 	apply_attribute,
 	apply_style,
 	apply_class,
+	apply_label,
 	create_range,
 	create_grid,
 	create_area,
 	replace_content,
 	replace_row,
 	replace_col,
+	create_element,
+	create_text,
 	create_div,
 	create_row,
 	create_column,
 	create_p,
+	create_label,
 	create_details,
 	create_details_proxy,
 	create_radio,
+	create_toggle_radio,
+	create_toggle_checkbox,
 	create_textarea,
 	create_button,
 	create_svg,
