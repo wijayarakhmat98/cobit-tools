@@ -14,30 +14,41 @@ function random_token(length = 32) {
 	return T;
 }
 
-function listener_click(element, callback, context = undefined) {
-	if (callback)
-		element.addEventListener('click', () => callback(context ?? element));
+function notify(element, event, detail, options = {}) {
+	return element.dispatchEvent(new CustomEvent(event, {'detail': detail, ...options}));
+}
+
+function listen(event) {
+	return (element, callback) => {
+		if (callback)
+			element.addEventListener(event, callback);
+		return element;
+	};
+}
+
+function bubble(listener, element, event, detail, options = {}) {
+	listener(element, () => notify(element, event, detail, {'bubbles': true, ...options}));
 	return element;
 }
 
-function listener_toggle(element, callback, context = undefined) {
-	if (callback)
-		element.addEventListener('toggle', () => callback(context ?? element));
-	return element;
+function listener_click(element, callback) {
+	return listen('click')(element, callback);
 }
 
-function listener_change(element, callback, context = undefined) {
-	if (callback)
-		element.addEventListener('change', () => callback(context ?? element));
-	return element;
+function listener_toggle(element, callback) {
+	return listen('toggle')(element, callback);
 }
 
-function listener_resize(element, callback, context = undefined) {
+function listener_change(element, callback) {
+	return listen('change')(element, callback);
+}
+
+function listener_resize(element, callback) {
 	if (callback)
 		new ResizeObserver(
-			() => {
+			(...args) => {
 				if (element.isConnected)
-					callback(context ?? element);
+					callback(...args);
 			}
 		).observe(element);
 	return element;
@@ -318,6 +329,9 @@ function create_polyline(points = [], color = 'black', width = 1.0, dasharray = 
 
 export {
 	random_token,
+	notify,
+	listen,
+	bubble,
 	listener_click,
 	listener_toggle,
 	listener_change,

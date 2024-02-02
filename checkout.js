@@ -5,72 +5,126 @@ from 'master';
 
 import chart_header from 'header';
 import chart_graph from 'graph';
-import chart_control from 'control';
 import chart_sheet from 'sheet';
 import chart_gmo from 'gmo';
 
-function checkout(
-	commit,
-	history,
-	view_header,
-	view_control,
-	view_graph,
-	view_focus,
-	view_visual,
-	view_sheet,
-	view_gmo
-) {
-	const views = [view_header, view_control, view_graph, view_focus, view_visual, view_sheet, view_gmo];
-	chart_graph(view_graph, history, commit.length == 1 ? commit => view(commit, history, ...views) : undefined);
-	chart_sheet(view_sheet, commit, () => chart_gmo(view_gmo));
-	chart_gmo(view_gmo);
-	chart_header(view_header, view_graph);
-	chart_control(view_control, commit, {
-		'edit': () => edit(commit, history, ...views),
-		'discard': () => discard(commit, history, ...views),
-		'save': () => save(commit, history, ...views)
-	});
+import {
+	listen
 }
+from 'component';
 
-function view(commit, ...argv) {
-	checkout([commit], ...argv)
-}
+class checkout {
+	static state_view(commit) {
+		return {
+			mode: 'view',
+			commit: commit ?? null
+		};
+	}
 
-function edit(commit, ...argv) {
-	checkout([...commit, null], ...argv);
-}
+	static state_modify(parent, merge, alter, context) {
+		return {
+			mode: 'modify',
+			parent: parent ?? null,
+			merge: merge ?? [],
+			alter: alter ?? true,
+			context: context ?? 'parent'
+		};
+	}
 
-function discard(commit, ...argv) {
-	checkout([commit[0]], ...argv);
-}
+	constructor(
+		history, header, control, graph, focus, visual, sheet, gmo,
+		state = undefined
+	) {
+		this.history = history;
+		this.header = header;
+		this.control = control;
+		this.graph = graph;
+		this.focus = focus;
+		this.visual = visual;
+		this.sheet = sheet;
+		this.gmo = gmo;
+		this.state = state ?? checkout.state_view();
+		if (this.state.mode == 'view')
+			this.view();
+		else
+			this.modify();
+		listen('control-modify')(this.control, () => this.modify());
+		listen('control-parent')(this.control, () => this.state.context = 'parent');
+		listen('control-merge')(this.control, () => this.state.context = 'merge');
+		listen('control-save')(this.control, () => this.save());
+		listen('control-discard')(this.control, () => this.view());
+		listen('graph-select')(this.graph, ({detail: commit}) => {
+			if (this.state.mode == 'view') {
+				this.view(commit);
+			}
+			if (this.state.mode == 'modify') {
+				if (this.state.context == 'parent')
+					this.state.parent = commit;
+				if (this.state.context == 'merge') {
+					const i = this.state.merge.indexOf(commit);
+					if (i == -1)
+						this.state.merge.push(commit);
+					else
+						this.state.merge.splice(i, 1);
+				}
+				this.modify();
+			}
+		});
+	}
 
-function save(commit, history, ...argv) {
-	const new_commit = {
-		'id': history.length,
-		'parent': commit[0],
-		'merge': [],
-		'change': mst_df1.reduce((c, d) => {
-			const v = JSON.parse(document.querySelector(
-				`input[name="df1 ${d.id} value"]:checked`
-			).value);
-			if (v.from != null)
+	view(commit) {
+		if (this.state.mode == 'modify')
+			this.state = checkout.state_view(this.state.parent);
+		if (commit) this.state.commit = commit;
+		chart_graph(this.graph, this.history);
+		chart_sheet(this.sheet, [this.state.commit], () => this.gmo(this.gmo));
+		chart_gmo(this.gmo);
+		chart_header(this.header, this.graph);
+		this.control.view();
+	}
+
+	modify(parent, merge, alter, context) {
+		if (this.state.mode == 'view')
+			this.state = checkout.state_modify(this.state.commit);
+		if (parent) this.state.parent = parent;
+		if (merge) this.state.merge = merge;
+		if (alter) this.state.alter = alter;
+		if (context) this.state.context = context;
+		chart_graph(this.graph, this.history);
+		chart_sheet(this.sheet, [this.state.parent, ...(this.state.alter ? [null] : []), ...this.state.merge], () => chart_gmo(this.gmo));
+		chart_gmo(this.gmo);
+		chart_header(this.header, this.graph);
+		this.control.modify(this.state.parent, this.state.merge, this.state.alter, this.state.context);
+	}
+
+	save() {
+		const new_commit = {
+			id: this.history.length,
+			parent: this.state.parent,
+			merge: this.state.merge,
+			change: mst_df1.reduce((c, d) => {
+				const v = JSON.parse(document.querySelector(
+					`input[name="df1 ${d.id} value"]:checked`
+				).value);
+				if (v.from != null)
+					return c;
+				c.push({
+					id: d.id,
+					inherit: false,
+					value: v.value,
+					note: document.querySelector(
+						`textarea[name="df1 ${d.id} note"]`
+					).value
+				});
 				return c;
-			c.push({
-				'id': d.id,
-				'inherit': false,
-				'value': v.value,
-				'note': document.querySelector(
-					`textarea[name="df1 ${d.id} note"]`
-				).value
-			});
-			return c;
-		}, []),
-		'author': document.querySelector('textarea[name="username"]').value,
-		'description': document.querySelector('textarea[name="description"]').value,
-		'timestamp': Date.now()
-	};
-	history.push(new_commit);
-	checkout([new_commit], history, ...argv);
+			}, []),
+			author: document.querySelector('textarea[name="username"]').value,
+			description: document.querySelector('textarea[name="description"]').value,
+			timestamp: Date.now()
+		};
+		this.history.push(new_commit);
+		this.view(new_commit)
+	}
 }
 
 export default checkout;

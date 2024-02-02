@@ -1,4 +1,5 @@
 import checkout from 'checkout';
+import control from 'control';
 
 function main(
 	history,
@@ -66,23 +67,24 @@ function main(
 	};
 	history.push(commit_1, commit_2, commit_3, commit_4);
 
+	customElements.define('x-control', control);
+
 	let view_header = document.getElementById(header_id);
-	let view_control = document.getElementById(control_id);
 	let view_graph = document.getElementById(graph_id);
 	let view_focus = document.getElementById(focus_id);
 	let view_visual = document.getElementById(visual_id);
 	let view_sheet = document.getElementById(sheet_id);
 	let view_gmo = document.getElementById(gmo_id);
-	checkout(
-		[history[0], null],
+	new checkout(
 		history,
 		view_header,
-		view_control,
+		document.getElementById(control_id),
 		view_graph,
 		view_focus,
 		view_visual,
 		view_sheet,
-		view_gmo
+		view_gmo,
+		checkout.state_view(history[0])
 	);
 };
 

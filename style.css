@@ -28,7 +28,7 @@ body {
 	display: flex;
 }
 
-#view_control {
+x-control {
 	grid-area: c;
 	display: flex;
 }
@@ -66,11 +66,11 @@ body {
 	gap: 1rem;
 }
 
-#view_control > * {
+x-control > * {
 	gap: 1rem;
 }
 
-#view_control button, .toggle {
+x-control button, .toggle {
 	padding: 0 0.25rem;
 }
 

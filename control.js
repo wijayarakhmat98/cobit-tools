@@ -1,5 +1,7 @@
 import {
+	bubble,
 	listener_click,
+	listener_change,
 	apply_label,
 	replace_content,
 	create_div,
@@ -12,41 +14,47 @@ import {
 }
 from 'component';
 
-function chart_control(view, commit, callback) {
-	replace_content(view, [...(commit.length == 1 ?
-		[
+class control extends HTMLElement {
+	constructor(state = undefined) {
+		super();
+	}
+
+	view() {
+		replace_content(this, [
 			create_div(
 				[
-					listener_click(create_button('Modify'), callback.edit)
+					bubble(listener_click, create_button('Modify'), 'control-modify')
 				],
 				['flex-start']
 			)
-		]
-			:
-		[
-			create_div(
-				[
-					create_toggle_radio('mode', 'parent', 'Parent', true),
-					create_p(commit[0].id),
-					create_toggle_radio('mode', 'merge', 'Merge'),
-					create_p('[' + commit.slice(2).map(c => c.id).join(', ') + ']'),
-					create_toggle_checkbox('new', 'new', 'New', true)
-				],
-				['flex-start']
-			),
-			create_div(
-				[
-					...apply_label(
-						create_label('Description'),
-						create_textarea('description', 1)
-					),
-					listener_click(create_button('Commit'), callback.save),
-					listener_click(create_button('Discard'), callback.discard)
-				],
-				['flex-end']
-			)
-		]
-	)]);
+		]);
+	}
+
+	modify(parent, merge, alter, context) {
+		replace_content(this, [
+				create_div(
+					[
+						bubble(listener_change, create_toggle_radio('mode', 'parent', 'Parent', context == 'parent'), 'control-parent'),
+						create_p(parent.id),
+						bubble(listener_change, create_toggle_radio('mode', 'merge', 'Merge', context == 'merge'), 'control-merge'),
+						create_p('[' + merge.map(m => m.id).join(', ') + ']'),
+						create_toggle_checkbox('new', 'new', 'New', alter)
+					],
+					['flex-start']
+				),
+				create_div(
+					[
+						...apply_label(
+							create_label('Description'),
+							create_textarea('description', 1)
+						),
+						bubble(listener_click, create_button('Commit'), 'control-save'),
+						bubble(listener_click, create_button('Discard'), 'control-discard')
+					],
+					['flex-end']
+				)
+		]);
+	}
 }
 
-export default chart_control;
+export default control;

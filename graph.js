@@ -1,4 +1,5 @@
 import {
+	bubble,
 	listener_click,
 	listener_resize,
 	create_range,
@@ -45,7 +46,7 @@ function prepare(graph) {
 	return C;
 }
 
-function chart_graph(view, graph, callback) {
+function chart_graph(view, graph) {
 	let C = prepare(graph);
 	place_i(C);
 	place_j(C);
@@ -57,9 +58,7 @@ function chart_graph(view, graph, callback) {
 	const col = Math.max.apply(Math, C.map(c => c.j));
 	for (let c of C)
 		c.j = col - c.j + 1;
-	const node = C.map(c => listener_click(create_button(
-		c.id, [], create_area(c.j, c.i, 1, 1)
-	), callback ? () => callback(c.graph) : undefined));
+	const node = C.map(c => bubble(listener_click, create_button(c.id, [], create_area(c.j, c.i, 1, 1)), 'graph-select', c.graph));
 	let subgrid = {
 		...create_area(1, 1, col, row), ...create_grid('subgrid', 'subgrid')
 	};
