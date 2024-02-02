@@ -1,4 +1,4 @@
-function random_token(length = 32) {
+function random_token({length = 32} = {}) {
 	let R = '';
 	let S = '';
 	let T = '';
@@ -14,36 +14,40 @@ function random_token(length = 32) {
 	return T;
 }
 
-function notify(element, event, detail, options = {}) {
+function notify({element, event, detail, options = {}} = {}) {
 	return element.dispatchEvent(new CustomEvent(event, {detail: detail, ...options}));
 }
 
-function listen(event) {
-	return (element, callback) => {
-		if (callback)
-			element.addEventListener(event, callback);
-		return element;
-	};
-}
-
-function bubble(listener, element, event, detail, options = {}) {
-	listener(element, () => notify(element, event, detail, {bubbles: true, ...options}));
+function listen({element, event, callback} = {}) {
+	if (!element)
+		return ({element, callback}) => {
+			if (callback)
+				element.addEventListener(event, callback);
+			return element;
+		};
+	if (callback)
+		element.addEventListener(event, callback);
 	return element;
 }
 
-function listener_click(element, callback) {
-	return listen('click')(element, callback);
+function bubble({element, listener, event, detail, options = {}} = {}) {
+	listener({element: element, callback: () => notify({element: element, event: event, detail: detail, options: {bubbles: true, ...options}})});
+	return element;
 }
 
-function listener_toggle(element, callback) {
-	return listen('toggle')(element, callback);
+function listener_click({element, callback} = {}) {
+	return listen({element: element, event: 'click', callback: callback});
 }
 
-function listener_change(element, callback) {
-	return listen('change')(element, callback);
+function listener_toggle({element, callback} = {}) {
+	return listen({element: element, event: 'toggle', callback: callback});
 }
 
-function listener_resize(element, callback) {
+function listener_change({element, callback} = {}) {
+	return listen({element: element, event: 'change', callback: callback});
+}
+
+function listener_resize({element, callback} = {}) {
 	if (callback)
 		new ResizeObserver(
 			(...args) => {

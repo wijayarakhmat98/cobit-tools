@@ -29,8 +29,11 @@ from 'component';
 
 function chart_gmo({view} = {}) {
 	const x = mst_df1.map(d => {
-		const v = document.querySelector(`input[name="df1 ${d.id} value"]:checked`).value;
-		return [JSON.parse(v).value];
+		const v = document.querySelector(`input[name="df1 ${d.id} value"]:checked`);
+		if (v !== null)
+			return [JSON.parse(v.value).value];
+		else
+			return [trs_df1_baseline.find(e => e.id == d.id).value];
 	});
 	const x_base = trs_df1_baseline.map((d) => [d.value]);
 	const r_hat = calculate_gmo({x: x, x_base: x_base});

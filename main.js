@@ -84,8 +84,7 @@ function main({
 		visual: view_visual,
 		sheet: view_sheet,
 		gmo: view_gmo,
-	})
-		.restore({state: checkout.state_view({commit: history[0]})});
+	}).view();
 };
 
 export default main;

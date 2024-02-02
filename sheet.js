@@ -89,7 +89,7 @@ function create_change({name, lo, hi, checked, callback, classes = [], style = {
 	return apply_style(apply_class(create_div(
 		[
 			...create_range(lo, hi).map(
-				i => listener_change(create_radio(`${name} value`, `{"value": ${i}, "from": null}`, i, i == checked), callback)
+				i => listener_change({element: create_radio(`${name} value`, `{"value": ${i}, "from": null}`, i, i == checked), callback})
 			),
 			create_textarea(`${name} note`, 1)
 		],
@@ -106,10 +106,10 @@ function create_trace_sub_col({} = {}) {
 function create_trace({name, d, checked, callback, classes = [], style = {}} = {}) {
 	return apply_style(apply_class(create_div(
 		[
-			listener_change(create_radio(
+			listener_change({element: create_radio(
 				`${name} value`, `{"value": ${d.value}, "from": "old"}`, d.value, checked,
 				true, [], create_area(undefined, undefined, undefined, 2)
-			), callback),
+			), callback: callback}),
 			create_p(d.note, ['expand']),
 			create_p('by'),
 			create_p(d.author, ['expand']),

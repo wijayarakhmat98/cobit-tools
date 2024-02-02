@@ -25,8 +25,8 @@ class checkout {
 		return {
 			mode: 'modify',
 			parent: parent ?? null,
-			merge: merge ?? [],
 			alter: alter ?? true,
+			merge: merge ?? [],
 			context: context ?? 'parent'
 		};
 	}
@@ -43,7 +43,7 @@ class checkout {
 		this.sheet = sheet;
 		this.gmo = gmo;
 		this.state = checkout.state_view();
-		listen('graph-select')(this.graph, ({detail: commit}) => {
+		listen({element: this.graph, event: 'graph-select', callback: ({detail: commit}) => {
 			if (this.state.mode == 'view') {
 				this.view({commit: commit});
 			}
@@ -60,12 +60,13 @@ class checkout {
 					this.modify({merge: merge});
 				}
 			}
-		});
-		listen('control-modify')(this.control, () => this.modify());
-		listen('control-parent')(this.control, () => this.state.context = 'parent');
-		listen('control-merge')(this.control, () => this.state.context = 'merge');
-		listen('control-save')(this.control, () => this.save());
-		listen('control-discard')(this.control, () => this.view());
+		}});
+		listen({element: this.control, event: 'control-modify', callback: () => this.modify()});
+		listen({element: this.control, event: 'control-parent', callback: () => this.state.context = 'parent'});
+		listen({element: this.control, event: 'control-alter', callback: () => this.modify({'alter': !this.state.alter})});
+		listen({element: this.control, event: 'control-merge', callback: () => this.state.context = 'merge'});
+		listen({element: this.control, event: 'control-save', callback: () => this.save()});
+		listen({element: this.control, event: 'control-discard', callback: () => this.view()});
 	}
 
 	restore({state} = {}) {
@@ -81,21 +82,21 @@ class checkout {
 			this.state = checkout.state_view({commit: this.state.parent});
 		if (commit) this.state.commit = commit;
 		chart_graph({view: this.graph, graph: this.history});
-		chart_sheet({view: this.sheet, commit: [this.state.commit], callback: () => this.gmo(this.gmo)});
+		chart_sheet({view: this.sheet, commit: this.state.commit === null ? [] : [this.state.commit], callback: () => this.gmo(this.gmo)});
 		chart_gmo({view: this.gmo});
 		chart_header({view: this.header, view_graph: this.graph});
 		this.control.view();
 	}
 
-	modify({parent, merge, alter, context} = {}) {
+	modify({parent, alter, merge, context} = {}) {
 		if (this.state.mode == 'view')
 			this.state = checkout.state_modify({parent: this.state.commit});
-		if (parent) this.state.parent = parent;
-		if (merge) this.state.merge = merge;
-		if (alter) this.state.alter = alter;
-		if (context) this.state.context = context;
+		if (typeof parent !== 'undefined') this.state.parent = parent;
+		if (typeof alter !== 'undefined') this.state.alter = alter;
+		if (typeof merge !== 'undefined') this.state.merge = merge;
+		if (typeof context !== 'undefined') this.state.context = context;
 		chart_graph({view: this.graph, graph: this.history});
-		chart_sheet({view: this.sheet, commit: [this.state.parent, ...(this.state.alter ? [null] : []), ...this.state.merge], callback: () => chart_gmo({view: this.gmo})});
+		chart_sheet({view: this.sheet, commit: [...(this.state.parent === null ? [] : [this.state.parent]), ...(this.state.alter ? [null] : []), ...this.state.merge], callback: () => chart_gmo({view: this.gmo})});
 		chart_gmo({view: this.gmo});
 		chart_header({view: this.header, view_graph: this.graph});
 		this.control.modify({parent: this.state.parent, alter: this.state.alter, merge: this.state.merge, context: this.state.context});

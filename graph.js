@@ -58,7 +58,7 @@ function chart_graph({view, graph} = {}) {
 	const col = Math.max.apply(Math, C.map(c => c.j));
 	for (let c of C)
 		c.j = col - c.j + 1;
-	const node = C.map(c => bubble(listener_click, create_button(c.id, [], create_area(c.j, c.i, 1, 1)), 'graph-select', c.graph));
+	const node = C.map(c => bubble({element: create_button(c.id, [], create_area(c.j, c.i, 1, 1)), listener: listener_click, event: 'graph-select', detail: c.graph}));
 	let subgrid = {
 		...create_area(1, 1, col, row), ...create_grid('subgrid', 'subgrid')
 	};
@@ -67,7 +67,7 @@ function chart_graph({view, graph} = {}) {
 		create_column(col, [view_link, create_div(node, [], subgrid)], false, 'subgrid', '1fr'),
 		create_column(1, C.map(c => create_p(c.description, ['expand'])))
 	]);
-	listener_resize(view_link, () => chart_link({view: view_link, row: row, col: col, C: C, node: node}));
+	listener_resize({element: view_link, callback: () => chart_link({view: view_link, row: row, col: col, C: C, node: node})});
 }
 
 function chart_link({view, row, col, C, node} = {}) {

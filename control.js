@@ -23,7 +23,7 @@ class control extends HTMLElement {
 		replace_content(this, [
 			create_div(
 				[
-					bubble(listener_click, create_button('Modify'), 'control-modify')
+					bubble({element: create_button('Modify'), listener: listener_click, event: 'control-modify'})
 				],
 				['flex-start']
 			)
@@ -34,11 +34,11 @@ class control extends HTMLElement {
 		replace_content(this, [
 				create_div(
 					[
-						bubble(listener_change, create_toggle_radio('mode', 'parent', 'Parent', context == 'parent'), 'control-parent'),
-						create_p(parent.id),
-						bubble(listener_change, create_toggle_radio('mode', 'merge', 'Merge', context == 'merge'), 'control-merge'),
+						bubble({element: create_toggle_radio('mode', 'parent', 'Parent', context == 'parent'), listener: listener_change, event: 'control-parent'}),
+						create_p(parent == null ? 'None' : parent.id),
+						bubble({element: create_toggle_radio('mode', 'merge', 'Merge', context == 'merge'), listener: listener_change, event: 'control-merge'}),
 						create_p('[' + merge.map(m => m.id).join(', ') + ']'),
-						create_toggle_checkbox('new', 'new', 'New', alter)
+						bubble({element: create_toggle_checkbox('new', 'new', 'New', alter), listener: listener_click, event: 'control-alter'})
 					],
 					['flex-start']
 				),
@@ -48,8 +48,8 @@ class control extends HTMLElement {
 							create_label('Description'),
 							create_textarea('description', 1)
 						),
-						bubble(listener_click, create_button('Commit'), 'control-save'),
-						bubble(listener_click, create_button('Discard'), 'control-discard')
+						bubble({element: create_button('Commit'), listener: listener_click, event: 'control-save'}),
+						bubble({element: create_button('Discard'), listener: listener_click, event: 'control-discard'})
 					],
 					['flex-end']
 				)
