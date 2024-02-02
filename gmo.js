@@ -27,17 +27,17 @@ import {
 }
 from 'component';
 
-function chart_gmo(view) {
+function chart_gmo({view} = {}) {
 	const x = mst_df1.map(d => {
 		const v = document.querySelector(`input[name="df1 ${d.id} value"]:checked`).value;
-		return [JSON.parse(v)['value']];
+		return [JSON.parse(v).value];
 	});
 	const x_base = trs_df1_baseline.map((d) => [d.value]);
-	const r_hat = calculate_gmo(x, x_base);
-	draw_gmo(view, r_hat);
+	const r_hat = calculate_gmo({x: x, x_base: x_base});
+	draw_gmo({view: view, r_hat: r_hat});
 }
 
-function calculate_gmo(x, x_base) {
+function calculate_gmo({x, x_base} = {}) {
 	const c = matrix_sum_element(x_base) / matrix_sum_element(x);
 	const y = matrix_multiply(trs_df1_map_matrix, x);
 	const y_base = matrix_multiply(trs_df1_map_matrix, x_base);
@@ -46,7 +46,7 @@ function calculate_gmo(x, x_base) {
 	return r_hat;
 }
 
-function draw_gmo(view, r_hat) {
+function draw_gmo({view, r_hat} = {}) {
 	replace_content(view,
 		[
 			create_div(
@@ -81,7 +81,7 @@ function draw_gmo(view, r_hat) {
 				}),
 				['view_gmo_bar'], {
 				...create_area(2, 1, 1, mst_gmo.length),
-				'display': 'grid',
+				display: 'grid',
 				'grid-template-rows': 'subgrid',
 				'grid-template-columns': 'repeat(200, 1fr)'
 			})

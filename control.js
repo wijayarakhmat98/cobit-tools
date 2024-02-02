@@ -15,11 +15,11 @@ import {
 from 'component';
 
 class control extends HTMLElement {
-	constructor(state = undefined) {
+	constructor({} = {}) {
 		super();
 	}
 
-	view() {
+	view({} = {}) {
 		replace_content(this, [
 			create_div(
 				[
@@ -30,7 +30,7 @@ class control extends HTMLElement {
 		]);
 	}
 
-	modify(parent, merge, alter, context) {
+	modify({parent, alter, merge, context} = {}) {
 		replace_content(this, [
 				create_div(
 					[

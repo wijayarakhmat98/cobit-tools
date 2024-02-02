@@ -8,7 +8,7 @@ import {
 }
 from 'component';
 
-function chart_header(view, view_graph) {
+function chart_header({view, view_graph} = {}) {
 	replace_content(view, [
 		create_div(
 			[

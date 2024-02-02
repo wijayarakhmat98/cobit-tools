@@ -16,20 +16,20 @@ import {
 }
 from 'component';
 
-function prepare(graph) {
+function prepare({graph} = {}) {
 	let C = graph.map(g => ({
-		'graph': g,
-		'id': g.id,
-		'description': g.description,
-		'timestamp': g.timestamp,
-		'i': undefined,
-		'j': undefined,
-		'parents': (g.parent == null ? [] : [g.parent]).concat(g.merge),
-		'merge_parent': [],
-		'children': [],
-		'merge_children': [],
-		'branch_children': [],
-		'explored': false
+		graph: g,
+		id: g.id,
+		description: g.description,
+		timestamp: g.timestamp,
+		i: undefined,
+		j: undefined,
+		parents: (g.parent == null ? [] : [g.parent]).concat(g.merge),
+		merge_parent: [],
+		children: [],
+		merge_children: [],
+		branch_children: [],
+		explored: false
 	}));
 	for (let c of C) {
 		c.parents = c.parents.map(d => C[C.findIndex(e => e.id == d.id)]);
@@ -46,10 +46,10 @@ function prepare(graph) {
 	return C;
 }
 
-function chart_graph(view, graph) {
-	let C = prepare(graph);
-	place_i(C);
-	place_j(C);
+function chart_graph({view, graph} = {}) {
+	let C = prepare({graph: graph});
+	place_i({C: C});
+	place_j({C: C});
 	for (let c of C) {
 		c.i += 1;
 		c.j += 1;
@@ -67,15 +67,15 @@ function chart_graph(view, graph) {
 		create_column(col, [view_link, create_div(node, [], subgrid)], false, 'subgrid', '1fr'),
 		create_column(1, C.map(c => create_p(c.description, ['expand'])))
 	]);
-	listener_resize(view_link, () => chart_link(view_link, row, col, C, node));
+	listener_resize(view_link, () => chart_link({view: view_link, row: row, col: col, C: C, node: node}));
 }
 
-function chart_link(view, row, col, C, node) {
+function chart_link({view, row, col, C, node} = {}) {
 	const row_div = create_range(1, row).map(i => create_div([], [],
-		{'width': 'auto', 'height': 'auto', ...create_area(1, undefined, col, undefined)})
+		{width: 'auto', height: 'auto', ...create_area(1, undefined, col, undefined)})
 	);
 	const col_div = create_range(1, col).map(i => create_div([], [],
-		{'width': 'auto', 'height': 'auto', ...create_area(undefined, 1, undefined, row)})
+		{width: 'auto', height: 'auto', ...create_area(undefined, 1, undefined, row)})
 	);
 	replace_content(view, col_div);
 	const rw = col_div.map(div => div.getBoundingClientRect().width);
@@ -84,18 +84,18 @@ function chart_link(view, row, col, C, node) {
 	const nj = C.reduce((nj, c, i) => {
 		const css = window.getComputedStyle(node[i]);
 		nj[c.j - 1] = {
-			'ml': parseInt(css['margin-left']),
-			'bw': node[i].getBoundingClientRect().width,
-			'mr': parseInt(css['margin-right'])
+			ml: parseInt(css['margin-left']),
+			bw: node[i].getBoundingClientRect().width,
+			mr: parseInt(css['margin-right'])
 		};
 		return nj;
 	}, []);
 	const ni = C.reduce((ni, c, i) => {
 		const css = window.getComputedStyle(node[i]);
 		ni[c.i - 1] = {
-			'mt': parseInt(css['margin-top']),
-			'bh': node[i].getBoundingClientRect().height,
-			'mb': parseInt(css['margin-bottom'])
+			mt: parseInt(css['margin-top']),
+			bh: node[i].getBoundingClientRect().height,
+			mb: parseInt(css['margin-bottom'])
 		};
 		return ni;
 	}, []);
@@ -103,70 +103,70 @@ function chart_link(view, row, col, C, node) {
 		...C.flatMap(c => {
 			const l = Math.min.apply(Math, [c, ...c.branch_children].map(d => d.j));
 			const w = Math.max.apply(Math, [c, ...c.branch_children].map(d => d.j)) - l + 1;
-			return w == 1 ? [] : create_horizontal_fit(l, c.i, w, 1, rw, rh, nj, ni);
+			return w == 1 ? [] : create_horizontal_fit({x: l, y: c.i, w: w, h: 1, rw: rw, rh: rh, nj: nj, ni: ni});
 		}),
 		...C.flatMap(c => c.branch_children.map(d =>
-			create_vertical_fit(d.j, d.i, 1, c.i - d.i + 1, rw, rh, nj, ni)
+			create_vertical_fit({x: d.j, y: d.i, w: 1, h: c.i - d.i + 1, rw: rw, rh: rh, nj: nj, ni: ni})
 		)),
 		...C.flatMap(c => {
 			const l = Math.min.apply(Math, [c, ...c.merge_parent].map(d => d.j));
 			const w = Math.max.apply(Math, [c, ...c.merge_parent].map(d => d.j)) - l + 1;
-			return w == 1 ? [] : create_horizontal_fit(l, c.i, w, 1, rw, rh, nj, ni, 'black', 1.0, [4, 4]);
+			return w == 1 ? [] : create_horizontal_fit({x: l, y: c.i, w: w, h: 1, rw: rw, rh: rh, nj: nj, ni: ni, color: 'black', width: 1.0, dasharray: [4, 4]});
 		}),
 		...C.flatMap(c => c.merge_parent.map(d =>
-			create_vertical_fit(d.j, c.i, 1, d.i - c.i + 1, rw, rh, nj, ni, 'black', 1.0, [4, 4])
+			create_vertical_fit({x: d.j, y: c.i, w: 1, h: d.i - c.i + 1, rw: rw, rh: rh, nj: nj, ni: ni, color: 'black', width: 1.0, dasharray: [4, 4]})
 		)),
 	]);
 }
 
-function create_svg_fit(x, y, w, h, sw, sh, children) {
+function create_svg_fit({x, y, w, h, sw, sh, children} = {}) {
 	return create_div(
 		[create_svg([0, 0, sw, sh], children, [], {
 			'min-width': '100%',
 			'min-height': '100%',
-			'width': 0,
-			'height': 0
+			width: 0,
+			height: 0
 		})], [], {
-			'width': 'auto',
-			'height': 'auto',
+			width: 'auto',
+			height: 'auto',
 			...create_area(x, y, w, h)
 		}
 	);
 }
 
-function create_horizontal_fit(x, y, w, h, rw, rh, nj, ni, color = 'black', width = 1.0, dasharray = []) {
+function create_horizontal_fit({x, y, w, h, rw, rh, nj, ni, color = 'black', width = 1.0, dasharray = []} = {}) {
 	const fx = x - 1, lx = x + w - 2;
 	const fy = y - 1, ly = y + h - 2;
-	return create_svg_fit(
-		x, y, w, h,
-		rw.slice(fx, lx + 1).reduce((sum, x) => sum += x, 0.0),
-		rh.slice(fy, ly + 1).reduce((sum, x) => sum += x, 0.0),
-		[create_polyline([
+	return create_svg_fit({
+		x: x, y: y, w: w, h: h,
+		sw: rw.slice(fx, lx + 1).reduce((sum, x) => sum += x, 0.0),
+		sh: rh.slice(fy, ly + 1).reduce((sum, x) => sum += x, 0.0),
+		children: [create_polyline([
 			nj[fx].ml + 0.5 * nj[fx].bw - 0.5 * width,
 			ni[fy].mt + 0.5 * ni[fy].bh,
 			rw.slice(fx, lx).reduce((sum, x) => sum += x, 0.0) + nj[lx].ml + 0.5 * nj[lx].bw + 0.5 * width,
 			ni[fy].mt + 0.5 * ni[fy].bh
 		], color, width, dasharray)]
-	);
+	});
 }
 
-function create_vertical_fit(x, y, w, h, rw, rh, nj, ni, color = 'black', width = 1.0, dasharray = []) {
+function create_vertical_fit({x, y, w, h, rw, rh, nj, ni, color = 'black', width = 1.0, dasharray = []} = {}) {
 	const fx = x - 1, lx = x + w - 2;
 	const fy = y - 1, ly = y + h - 2;
-	return create_svg_fit(
-		x, y, w, h,
-		rw.slice(fx, lx + 1).reduce((sum, x) => sum += x, 0.0),
-		rh.slice(fy, ly + 1).reduce((sum, x) => sum += x, 0.0),
-		[create_polyline([
+	return create_svg_fit({
+		x: x, y: y, w: w, h: h,
+		sw: rw.slice(fx, lx + 1).reduce((sum, x) => sum += x, 0.0),
+		sh: rh.slice(fy, ly + 1).reduce((sum, x) => sum += x, 0.0),
+		children: [create_polyline([
 			nj[fx].ml + 0.5 * nj[fx].bw,
 			ni[fy].mt + 0.5 * ni[fy].bh - 0.5 * width,
 			nj[fx].ml + 0.5 * nj[fx].bw,
 			rh.slice(fy, ly).reduce((sum, x) => sum += x, 0.0) + ni[ly].mt + 0.5 * ni[ly].bh + 0.5 * width
 		], color, width, dasharray)]
-	);
+	});
 }
 
-function J(c, F) {
+function J({c, F} = {}) {
 	if (c.merge_children.length == 0)
 		return [];
 	let Jc = [];
@@ -180,28 +180,28 @@ function J(c, F) {
 	return Jc;
 }
 
-function place_i(C) {
+function place_i({C} = {}) {
 	C.sort((c, d) => c.timestamp < d.timestamp ? 1 : -1);
-	function dfs(c) {
+	function dfs({c} = {}) {
 		if (!c.explored) {
 			c.explored = true;
 			for (let d of c.children)
-				dfs(d);
+				dfs({c: d});
 			c.i = i;
 			i += 1;
 		}
 	}
 	let i = 0;
 	for (let c of C)
-		dfs(c);
+		dfs({c: c});
 }
 
-function place_j(C) {
+function place_j({C} = {}) {
 	C.sort((c, d) => c.i > d.i ? 1 : -1);
 	let F = [];
 	let B = [];
 	for (const c of C) {
-		let  Jc = J(c, F);
+		let  Jc = J({c: c, F: F});
 		let nJc = c.merge_children.length ? [] : c.branch_children.filter(d => !Jc.includes(d.j));
 		let  D_ = [];
 		if (nJc.length > 0) {

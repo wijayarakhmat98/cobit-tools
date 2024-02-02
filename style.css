@@ -84,6 +84,10 @@ x-control button, .toggle {
 	column-gap: 0.5rem;
 }
 
+#view_sheet .baseline {
+	text-align: center;
+}
+
 #view_gmo :has(> details) {
 	column-gap: 0.5rem;
 }

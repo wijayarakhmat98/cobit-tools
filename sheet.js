@@ -23,7 +23,7 @@ import {
 }
 from 'component';
 
-function chart_sheet(view, commit, callback) {
+function chart_sheet({view, commit, callback} = {}) {
 	replace_row(view, 1 + mst_df1.length,
 		[
 			create_column(1, [
@@ -32,12 +32,12 @@ function chart_sheet(view, commit, callback) {
 			]),
 			...commit.slice().reverse().map(s => s == null ?
 				create_column(
-					create_change_sub_col(trs_df1_lo, trs_df1_hi),
+					create_change_sub_col({lo: trs_df1_lo, hi: trs_df1_hi}),
 					[
 						create_p('Change'),
-						...mst_df1.map(d => create_change(
-							`df1 ${d.id}`, trs_df1_lo, trs_df1_hi, undefined, callback
-						))
+						...mst_df1.map(d => create_change({
+							name: `df1 ${d.id}`, lo: trs_df1_lo, hi: trs_df1_hi, checked: undefined, callback: callback
+						}))
 					]
 				)
 				:
@@ -45,9 +45,9 @@ function chart_sheet(view, commit, callback) {
 					create_trace_sub_col(),
 					[
 						create_p(`Viewing commit ${s.id}`),
-						...create_snapshot(s, mst_df1, trs_df1_baseline).map(d => create_trace(
-							`df1 ${d.id}`, d, true, callback
-						))
+						...create_snapshot({commit: s, mst_df: mst_df1, trs_df_baseline: trs_df1_baseline}).map(d => create_trace({
+							name: `df1 ${d.id}`, d: d, checked: true, callback: callback
+						}))
 					]
 				)
 			),
@@ -59,7 +59,7 @@ function chart_sheet(view, commit, callback) {
 	);
 }
 
-function create_snapshot(commit, mst_df, trs_df_baseline, classes = [], style = {}) {
+function create_snapshot({commit, mst_df, trs_df_baseline, classes = [], style = {}} = {}) {
 	return apply_style(apply_class(mst_df.map(d => {
 		let p, c;
 		for (p = commit; p.parent;)
@@ -71,21 +71,21 @@ function create_snapshot(commit, mst_df, trs_df_baseline, classes = [], style = 
 			else
 				p = p.parent
 		return {
-			'id': d.id,
-			'value': c ? c.value : trs_df_baseline.find(e => e.id == d.id).value,
-			'note': c ? c.note : 'Baseline',
-			'author': p.author,
-			'commit': p.id,
-			'description': p.description
+			id: d.id,
+			value: c ? c.value : trs_df_baseline.find(e => e.id == d.id).value,
+			note: c ? c.note : 'Baseline',
+			author: p.author,
+			commit: p.id,
+			description: p.description
 		};
 	}), classes), style);
 }
 
-function create_change_sub_col(lo, hi) {
+function create_change_sub_col({lo, hi} = {}) {
 	return hi - lo + 2;
 }
 
-function create_change(name, lo, hi, checked, callback, classes = [], style = {}) {
+function create_change({name, lo, hi, checked, callback, classes = [], style = {}} = {}) {
 	return apply_style(apply_class(create_div(
 		[
 			...create_range(lo, hi).map(
@@ -99,11 +99,11 @@ function create_change(name, lo, hi, checked, callback, classes = [], style = {}
 	), classes), style);
 }
 
-function create_trace_sub_col() {
+function create_trace_sub_col({} = {}) {
 	return 6;
 }
 
-function create_trace(name, d, checked, callback, classes = [], style = {}) {
+function create_trace({name, d, checked, callback, classes = [], style = {}} = {}) {
 	return apply_style(apply_class(create_div(
 		[
 			listener_change(create_radio(
@@ -111,9 +111,9 @@ function create_trace(name, d, checked, callback, classes = [], style = {}) {
 				true, [], create_area(undefined, undefined, undefined, 2)
 			), callback),
 			create_p(d.note, ['expand']),
-			create_p('by', ['trace_by']),
+			create_p('by'),
 			create_p(d.author, ['expand']),
-			create_p('from', ['trace_from']),
+			create_p('from'),
 			create_p(d.commit, ['expand']),
 			create_p(d.description, ['expand', 'description'], create_area(undefined, undefined, 5, undefined))
 		],

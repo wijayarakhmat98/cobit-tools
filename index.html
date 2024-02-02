@@ -11,8 +11,8 @@
 	<link rel="modulepreloaded" href="main.js">
 	<link rel="modulepreloaded" href="checkout.js">
 	<link rel="modulepreloaded" href="header.js">
-	<link rel="modulepreloaded" href="control.js">
 	<link rel="modulepreloaded" href="graph.js">
+	<link rel="modulepreloaded" href="control.js">
 	<link rel="modulepreloaded" href="sheet.js">
 	<link rel="modulepreloaded" href="gmo.js">
 	<script type="importmap">
@@ -24,8 +24,8 @@
 				"main": "./main.js",
 				"checkout": "./checkout.js",
 				"header": "./header.js",
-				"control": "./control.js",
 				"graph": "./graph.js",
+				"control": "./control.js",
 				"sheet": "./sheet.js",
 				"gmo": "./gmo.js"
 			}
@@ -34,24 +34,24 @@
 	<script type="module">
 		import main from 'main';
 		let history = [{
-			'id': 0,
-			'parent': null,
-			'merge': [],
-			'change': [],
-			'author': 'System',
-			'description': '',
-			'timestamp': 0
+			id: 0,
+			parent: null,
+			merge: [],
+			change: [],
+			author: 'System',
+			description: '',
+			timestamp: 0
 		}];
-		main(
-			history,
-			'view_header',
-			'view_control',
-			'view_graph',
-			'view_focus',
-			'view_visual',
-			'view_sheet',
-			'view_gmo'
-		);
+		main({
+			history: history,
+			header_id: 'view_header',
+			graph_id: 'view_graph',
+			control_id: 'view_control',
+			focus_id: 'view_focus',
+			visual_id: 'view_visual',
+			sheet_id: 'view_sheet',
+			gmo_id: 'view_gmo'
+		});
 	</script>
 </head>
 <body>

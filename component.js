@@ -15,7 +15,7 @@ function random_token(length = 32) {
 }
 
 function notify(element, event, detail, options = {}) {
-	return element.dispatchEvent(new CustomEvent(event, {'detail': detail, ...options}));
+	return element.dispatchEvent(new CustomEvent(event, {detail: detail, ...options}));
 }
 
 function listen(event) {
@@ -27,7 +27,7 @@ function listen(event) {
 }
 
 function bubble(listener, element, event, detail, options = {}) {
-	listener(element, () => notify(element, event, detail, {'bubbles': true, ...options}));
+	listener(element, () => notify(element, event, detail, {bubbles: true, ...options}));
 	return element;
 }
 
@@ -75,23 +75,23 @@ function apply_class(element, classes) {
 function apply_label(element1, element2) {
 	const id = random_token();
 	if (element1.nodeName == 'LABEL') {
-		apply_attribute(element1, {'for': id});
-		apply_attribute(element2, {'id': id});
+		apply_attribute(element1, {for: id});
+		apply_attribute(element2, {id: id});
 	}
 	else {
-		apply_attribute(element1, {'id': id});
-		apply_attribute(element2, {'for': id});
+		apply_attribute(element1, {id: id});
+		apply_attribute(element2, {for: id});
 	}
 	return [element1, element2]
 }
 
 function create_range(start, stop, step = 1) {
-	return Array.from({'length': (stop - start) / step + 1}, (_, i) => start + i * step);
+	return Array.from({length: (stop - start) / step + 1}, (_, i) => start + i * step);
 }
 
 function create_grid(row, col, unit = 'auto') {
 	return {
-		'display': 'grid',
+		display: 'grid',
 		...(row && {'grid-template-rows': row == 'subgrid' ? row : `repeat(${row}, ${unit})`}),
 		...(col && {'grid-template-columns': col == 'subgrid' ? col : `repeat(${col}, ${unit})`})
 	};
@@ -215,18 +215,18 @@ function create_details_proxy(text, surrogate, element, open = false, classes = 
 				details.setAttribute('open', '');
 		});
 	let link = element.map(e => ({
-		'element': e,
-		'display': e.style['display']
+		element: e,
+		display: e.style.display
 	}));
 	for (let e of element)
 		if (!open)
-			e.style['display'] = 'none';
+			e.style.display = 'none';
 	listener_toggle(details, () => {
 		for (let l of link)
 			if (details.hasAttribute('open'))
-				l.element.style['display'] = l.display;
+				l.element.style.display = l.display;
 			else
-				l.element.style['display'] = 'none';
+				l.element.style.display = 'none';
 	});
 	return apply_attribute(apply_style(apply_class(details, classes), style), attribute);
 }
@@ -254,12 +254,12 @@ function create_toggle_radio(name, value, text, checked = false, classes = [], .
 		'label',
 		[
 			create_element('input', [], [], {
-				'display': 'none'
+				display: 'none'
 			}, {
-				'type': 'radio',
-				'name': name,
-				'value': value,
-				...(checked && {'checked': ''}),
+				type: 'radio',
+				name: name,
+				value: value,
+				...(checked && {checked: ''}),
 			}),
 			create_text(text)
 		],
@@ -273,12 +273,12 @@ function create_toggle_checkbox(name, value, text, checked = false, classes = []
 		'label',
 		[
 			create_element('input', [], [], {
-				'display': 'none'
+				display: 'none'
 			}, {
-				'type': 'checkbox',
-				'name': name,
-				'value': value,
-				...(checked && {'checked': ''}),
+				type: 'checkbox',
+				name: name,
+				value: value,
+				...(checked && {checked: ''}),
 			}),
 			create_text(text)
 		],
