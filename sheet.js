@@ -101,7 +101,7 @@ function create_change_sub_col({lo, hi} = {}) {
 function create_change({name, lo, hi, checked, callback, style = {}, ...args} = {}) {
 	return create_div({
 		children: [
-			...create_range(lo, hi).map(
+			...create_range({start: lo, stop: hi}).map(
 				i => listener_change({
 					element: create_radio({
 						text: i,

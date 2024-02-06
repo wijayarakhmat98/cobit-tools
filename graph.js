@@ -83,10 +83,10 @@ function chart_graph({view, graph} = {}) {
 }
 
 function chart_link({view, row, col, C, node} = {}) {
-	const row_div = create_range(1, row).map(
+	const row_div = create_range({stop: row}).map(
 		i => create_div({style: {width: 'auto', height: 'auto', ...create_area(1, undefined, col, undefined)}})
 	);
-	const col_div = create_range(1, col).map(
+	const col_div = create_range({stop: col}).map(
 		i => create_div({style: {width: 'auto', height: 'auto', ...create_area(undefined, 1, undefined, row)}})
 	);
 	replace_content({element: view, children: col_div});

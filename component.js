@@ -108,7 +108,7 @@ function apply_label({label, input, order, token} = {}) {
 	return order == 'input' ? [input, label] : [label, input]
 }
 
-function create_range(start, stop, step = 1) {
+function create_range({start = 1, stop, step = 1} = {}) {
 	return Array.from({length: (stop - start) / step + 1}, (_, i) => start + i * step);
 }
 
