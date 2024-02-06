@@ -34,18 +34,18 @@ class control extends HTMLElement {
 		replace_content(this, [
 				create_div(
 					[
-						bubble({element: create_toggle_radio('mode', 'parent', 'Parent', context == 'parent'), listener: listener_change, event: 'control-parent'}),
+						bubble({element: create_toggle_radio({text: 'Parent', checked: context == 'parent'}), listener: listener_change, event: 'control-parent'}),
 						create_p(parent == null ? 'None' : parent.id),
-						bubble({element: create_toggle_radio('mode', 'merge', 'Merge', context == 'merge'), listener: listener_change, event: 'control-merge'}),
+						bubble({element: create_toggle_radio({text: 'Merge', checked: context == 'merge'}), listener: listener_change, event: 'control-merge'}),
 						create_p('[' + merge.map(m => m.id).join(', ') + ']'),
-						bubble({element: create_toggle_checkbox('new', 'new', 'New', alter), listener: listener_click, event: 'control-alter'})
+						bubble({element: create_toggle_checkbox({text: 'New', checked: alter}), listener: listener_click, event: 'control-alter'})
 					],
 					['flex-start']
 				),
 				create_div(
 					[
 						...apply_label(
-							create_label('Description'),
+							create_label({text: 'Description'}),
 							create_textarea('description', 1)
 						),
 						bubble({element: create_button('Commit'), listener: listener_click, event: 'control-save'}),

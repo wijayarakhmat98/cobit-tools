@@ -19,7 +19,7 @@ function chart_header({view, view_graph} = {}) {
 		create_div(
 			[
 				...apply_label(
-					create_label('Username'),
+					create_label({text: 'Username'}),
 					create_textarea('username', 1)
 				)
 			],

@@ -137,14 +137,14 @@ function replace_col(element, sub_col, children = [], span = true, row = undefin
 	}, attributes);
 }
 
-function create_element(tag, children = [], classes = [], style = {}, attribute = {}) {
+function create_element({tag, children = [], classes = [], style = {}, attribute = {}} = {}) {
 	let element = document.createElement(tag);
 	if (children.length)
 		element.replaceChildren(...children);
 	return apply_attribute(apply_style(apply_class(element, classes), style), attribute);
 }
 
-function create_text(text) {
+function create_text({text} = {}) {
 	return document.createTextNode(text);
 }
 
@@ -184,8 +184,8 @@ function create_p(text, classes = [], style = {}, attribute = {}) {
 	return apply_attribute(apply_style(apply_class(p, classes), style), attribute);
 }
 
-function create_label(text, ...args) {
-	return create_element('lable', [create_text(text)], ...args);
+function create_label({text, ...args} = {}) {
+	return create_element({tag: 'lable', children: [create_text({text: text})], ...args});
 }
 
 function create_details(text1, text2, open = false, classes = [], style = {}, attribute = {}) {
@@ -253,42 +253,46 @@ function create_radio(name, value, text, checked = false, classes = [], style = 
 	return apply_attribute(apply_style(apply_class(div, classes), style), attribute);
 }
 
-function create_toggle_radio(name, value, text, checked = false, classes = [], ...args) {
-	return create_element(
-		'label',
-		[
-			create_element('input', [], [], {
-				display: 'none'
-			}, {
-				type: 'radio',
-				name: name,
-				value: value,
-				...(checked && {checked: ''}),
+function create_toggle_radio({text, checked = false, classes = [], ...args} = {}) {
+	return create_element({
+		tag: 'label',
+		children: [
+			create_element({
+				tag: 'input',
+				style: {
+					display: 'none'
+				},
+				attribute: {
+					type: 'radio',
+					...(checked && {checked: ''}),
+				}
 			}),
-			create_text(text)
+			create_text({text: text})
 		],
-		['toggle', 'toggle_radio', ...classes],
+		classes: ['toggle', 'toggle_radio', ...classes],
 		...args
-	);
+	});
 }
 
-function create_toggle_checkbox(name, value, text, checked = false, classes = [], ...args) {
-	return create_element(
-		'label',
-		[
-			create_element('input', [], [], {
-				display: 'none'
-			}, {
-				type: 'checkbox',
-				name: name,
-				value: value,
-				...(checked && {checked: ''}),
+function create_toggle_checkbox({text, checked = false, classes = [], ...args} = {}) {
+	return create_element({
+		tag: 'label',
+		children: [
+			create_element({
+				tag: 'input',
+				style: {
+					display: 'none'
+				},
+				attribute: {
+					type: 'checkbox',
+					...(checked && {checked: ''}),
+				}
 			}),
-			create_text(text)
+			create_text({text: text})
 		],
-		['toggle', 'toggle_checkbox', ...classes],
+		classes: ['toggle', 'toggle_checkbox', ...classes],
 		...args
-	);
+	});
 }
 
 function create_textarea(name, row = undefined, value = undefined, classes = [], style = {}, attribute = {}) {
