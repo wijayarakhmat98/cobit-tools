@@ -35,9 +35,9 @@ class control extends HTMLElement {
 				create_div({
 					children: [
 						bubble({element: create_toggle_radio({text: 'Parent', name: 'context', checked: context == 'parent'}), listener: listener_change, event: 'control-parent'}),
-						create_p(parent == null ? 'None' : parent.id),
+						create_p({text: parent == null ? 'None' : parent.id}),
 						bubble({element: create_toggle_radio({text: 'Merge', name: 'context', checked: context == 'merge'}), listener: listener_change, event: 'control-merge'}),
-						create_p('[' + merge.map(m => m.id).join(', ') + ']'),
+						create_p({text: '[' + merge.map(m => m.id).join(', ') + ']'}),
 						bubble({element: create_toggle_checkbox({text: 'New', checked: alter}), listener: listener_click, event: 'control-alter'})
 					],
 					classes: ['flex-start']

@@ -29,7 +29,7 @@ function chart_sheet({view, commit, callback} = {}) {
 			create_column({
 				sub_col: 1,
 				children: [
-					create_p('Enterprise Strategy'),
+					create_p({text: 'Enterprise Strategy'}),
 					...mst_df1.map(d => create_details(d.dimension, d.explanation))
 				]
 			}),
@@ -37,7 +37,7 @@ function chart_sheet({view, commit, callback} = {}) {
 				create_column({
 					sub_col: create_change_sub_col({lo: trs_df1_lo, hi: trs_df1_hi}),
 					children: [
-						create_p('Change'),
+						create_p({text: 'Change'}),
 						...mst_df1.map(d => create_change({
 							name: `df1 ${d.id}`, lo: trs_df1_lo, hi: trs_df1_hi, checked: undefined, callback: callback
 						}))
@@ -47,7 +47,7 @@ function chart_sheet({view, commit, callback} = {}) {
 				create_column({
 					sub_col: create_trace_sub_col(),
 					children: [
-						create_p(`Viewing commit ${s.id}`),
+						create_p({text: `Viewing commit ${s.id}`}),
 						...create_snapshot({commit: s, mst_df: mst_df1, trs_df_baseline: trs_df1_baseline}).map(d => create_trace({
 							name: `df1 ${d.id}`, d: d, checked: true, callback: callback
 						}))
@@ -57,8 +57,8 @@ function chart_sheet({view, commit, callback} = {}) {
 			create_column({
 				sub_col: 1,
 				children: [
-					create_p('Baseline'),
-					...trs_df1_baseline.map(d => create_p(d.value, ['baseline']))
+					create_p({text: 'Baseline'}),
+					...trs_df1_baseline.map(d => create_p({text: d.value, classes: ['baseline']}))
 				]
 			}),
 		]
@@ -118,12 +118,12 @@ function create_trace({name, d, checked, callback, style = {}, ...args} = {}) {
 				`${name} value`, `{"value": ${d.value}, "from": "old"}`, d.value, checked,
 				true, [], create_area(undefined, undefined, undefined, 2)
 			), callback: callback}),
-			create_p(d.note, ['expand']),
-			create_p('by'),
-			create_p(d.author, ['expand']),
-			create_p('from'),
-			create_p(d.commit, ['expand']),
-			create_p(d.description, ['expand', 'description'], create_area(undefined, undefined, 5, undefined))
+			create_p({text: d.note, classes: ['expand']}),
+			create_p({text: 'by'}),
+			create_p({text: d.author, classes: ['expand']}),
+			create_p({text: 'from'}),
+			create_p({text: d.commit, classes: ['expand']}),
+			create_p({text: d.description, classes: ['expand', 'description'], style: create_area(undefined, undefined, 5, undefined)})
 		],
 		style: {
 			...create_grid(2, 'subgrid'),

@@ -54,8 +54,8 @@ function draw_gmo({view, r_hat} = {}) {
 		[
 			create_div({
 				children: mst_gmo.map(d => {
-					const x = create_p(d.explanation, ['details'], create_area(1, undefined, 2, undefined));
-					const y = create_p(d.dimension, ['summary']);
+					const x = create_p({text: d.explanation, classes: ['details'], style: create_area(1, undefined, 2, undefined)});
+					const y = create_p({text: d.dimension, classes: ['summary']});
 					const z = create_details_proxy(d.code, [y], [x]);
 					return create_div({
 						children: [z, y, x],
@@ -75,11 +75,11 @@ function draw_gmo({view, r_hat} = {}) {
 				children: matrix_flatten(r_hat).map(r => {
 					let bar;
 					if (r < 0)
-						bar = create_p(r, ['neg'], create_area(101 + r, 1, -r, 1));
+						bar = create_p({text: r, classes: ['neg'], style: create_area(101 + r, 1, -r, 1)});
 					if (r == 0)
-						bar = create_p(r, ['zer'], create_area(1, 1, 200, 1));
+						bar = create_p({text: r, classes: ['zer'], style: create_area(1, 1, 200, 1)});
 					if (r > 0)
-						bar = create_p(r, ['pos'], create_area(101, 1, r, 1))
+						bar = create_p({text: r, classes: ['pos'], style: create_area(101, 1, r, 1)})
 					return create_div({
 						children: [bar],
 						style: {

@@ -65,7 +65,7 @@ function chart_graph({view, graph} = {}) {
 	let view_link = create_div({style: subgrid});
 	replace_row(view, row, [
 		create_column({row: 'subgrid', sub_col: col, unit: '1fr', span: false, children: [view_link, create_div({children: node, style: subgrid})]}),
-		create_column({sub_col: 1, children: C.map(c => create_p(c.description, ['expand']))})
+		create_column({sub_col: 1, children: C.map(c => create_p({text: c.description, classes: ['expand']}))})
 	]);
 	listener_resize({element: view_link, callback: () => chart_link({view: view_link, row: row, col: col, C: C, node: node})});
 }

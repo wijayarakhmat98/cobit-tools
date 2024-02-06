@@ -170,11 +170,8 @@ function create_column({row = 'subgrid', sub_col, children = [], span = true, un
 	return create_div({children: children, style: {...create_grid(row, sub_col, unit), ...style}, ...args});
 }
 
-function create_p(text, classes = [], style = {}, attribute = {}) {
-	let p = document.createElement('p');
-	const t = document.createTextNode(text);
-	p.appendChild(t);
-	return apply_attribute(apply_style(apply_class(p, classes), style), attribute);
+function create_p({text, ...args} = {}) {
+	return create_element({tag: 'p', children: [create_text({text: text})], ...args});
 }
 
 function create_label({text, ...args} = {}) {
