@@ -111,21 +111,25 @@ function chart_link({view, row, col, C, node} = {}) {
 		...C.flatMap(c => {
 			const l = Math.min.apply(Math, [c, ...c.merge_parent].map(d => d.j));
 			const w = Math.max.apply(Math, [c, ...c.merge_parent].map(d => d.j)) - l + 1;
-			return w == 1 ? [] : create_horizontal_fit({x: l, y: c.i, w: w, h: 1, rw: rw, rh: rh, nj: nj, ni: ni, color: 'black', width: 1.0, dasharray: [4, 4]});
+			return w == 1 ? [] : create_horizontal_fit({x: l, y: c.i, w: w, h: 1, rw: rw, rh: rh, nj: nj, ni: ni, dasharray: [4, 4]});
 		}),
 		...C.flatMap(c => c.merge_parent.map(d =>
-			create_vertical_fit({x: d.j, y: c.i, w: 1, h: d.i - c.i + 1, rw: rw, rh: rh, nj: nj, ni: ni, color: 'black', width: 1.0, dasharray: [4, 4]})
+			create_vertical_fit({x: d.j, y: c.i, w: 1, h: d.i - c.i + 1, rw: rw, rh: rh, nj: nj, ni: ni, dasharray: [4, 4]})
 		)),
 	]);
 }
 
 function create_svg_fit({x, y, w, h, sw, sh, children} = {}) {
 	return create_div(
-		[create_svg([0, 0, sw, sh], children, [], {
-			'min-width': '100%',
-			'min-height': '100%',
-			width: 0,
-			height: 0
+		[create_svg({
+			viewbox: [0, 0, sw, sh],
+			children: children,
+			style: {
+				'min-width': '100%',
+				'min-height': '100%',
+				width: 0,
+				height: 0
+			}
 		})], [], {
 			width: 'auto',
 			height: 'auto',
@@ -134,35 +138,41 @@ function create_svg_fit({x, y, w, h, sw, sh, children} = {}) {
 	);
 }
 
-function create_horizontal_fit({x, y, w, h, rw, rh, nj, ni, color = 'black', width = 1.0, dasharray = []} = {}) {
+function create_horizontal_fit({x, y, w, h, rw, rh, nj, ni, width = 1.0, ...args} = {}) {
 	const fx = x - 1, lx = x + w - 2;
 	const fy = y - 1, ly = y + h - 2;
 	return create_svg_fit({
 		x: x, y: y, w: w, h: h,
 		sw: rw.slice(fx, lx + 1).reduce((sum, x) => sum += x, 0.0),
 		sh: rh.slice(fy, ly + 1).reduce((sum, x) => sum += x, 0.0),
-		children: [create_polyline([
-			nj[fx].ml + 0.5 * nj[fx].bw - 0.5 * width,
-			ni[fy].mt + 0.5 * ni[fy].bh,
-			rw.slice(fx, lx).reduce((sum, x) => sum += x, 0.0) + nj[lx].ml + 0.5 * nj[lx].bw + 0.5 * width,
-			ni[fy].mt + 0.5 * ni[fy].bh
-		], color, width, dasharray)]
+		children: [create_polyline({
+			points: [
+				nj[fx].ml + 0.5 * nj[fx].bw - 0.5 * width,
+				ni[fy].mt + 0.5 * ni[fy].bh,
+				rw.slice(fx, lx).reduce((sum, x) => sum += x, 0.0) + nj[lx].ml + 0.5 * nj[lx].bw + 0.5 * width,
+				ni[fy].mt + 0.5 * ni[fy].bh
+			],
+			...args
+		})]
 	});
 }
 
-function create_vertical_fit({x, y, w, h, rw, rh, nj, ni, color = 'black', width = 1.0, dasharray = []} = {}) {
+function create_vertical_fit({x, y, w, h, rw, rh, nj, ni, width = 1.0, ...args} = {}) {
 	const fx = x - 1, lx = x + w - 2;
 	const fy = y - 1, ly = y + h - 2;
 	return create_svg_fit({
 		x: x, y: y, w: w, h: h,
 		sw: rw.slice(fx, lx + 1).reduce((sum, x) => sum += x, 0.0),
 		sh: rh.slice(fy, ly + 1).reduce((sum, x) => sum += x, 0.0),
-		children: [create_polyline([
-			nj[fx].ml + 0.5 * nj[fx].bw,
-			ni[fy].mt + 0.5 * ni[fy].bh - 0.5 * width,
-			nj[fx].ml + 0.5 * nj[fx].bw,
-			rh.slice(fy, ly).reduce((sum, x) => sum += x, 0.0) + ni[ly].mt + 0.5 * ni[ly].bh + 0.5 * width
-		], color, width, dasharray)]
+		children: [create_polyline({
+			points: [
+				nj[fx].ml + 0.5 * nj[fx].bw,
+				ni[fy].mt + 0.5 * ni[fy].bh - 0.5 * width,
+				nj[fx].ml + 0.5 * nj[fx].bw,
+				rh.slice(fy, ly).reduce((sum, x) => sum += x, 0.0) + ni[ly].mt + 0.5 * ni[ly].bh + 0.5 * width
+			],
+			...args
+		})]
 	});
 }
 

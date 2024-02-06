@@ -137,8 +137,8 @@ function replace_col(element, sub_col, children = [], span = true, row = undefin
 	}, attributes);
 }
 
-function create_element({tag, children = [], classes = [], style = {}, attribute = {}} = {}) {
-	let element = document.createElement(tag);
+function create_element({namespace = undefined, tag, children = [], classes = [], style = {}, attribute = {}} = {}) {
+	let element = namespace ? document.createElementNS(namespace, tag) : document.createElement(tag);
 	if (children.length)
 		element.replaceChildren(...children);
 	return apply_attribute(apply_style(apply_class(element, classes), style), attribute);
@@ -315,24 +315,32 @@ function create_button(text, classes = [], style = {}, attribute = {}) {
 	return apply_attribute(apply_style(apply_class(button, classes), style), attribute);
 }
 
-function create_svg(viewbox, children = [], classes = [], style = [], attribute = {}) {
-	let svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-	svg.setAttribute('viewBox', viewbox.join(' '));
-	for (const c of children)
-		svg.appendChild(c);
-	return apply_attribute(apply_style(apply_class(svg, classes), style), attribute);
+function create_svg({viewbox, attribute = {}, ...args} = {}) {
+	return create_element({
+		namespace: 'http://www.w3.org/2000/svg',
+		tag: 'svg',
+		attribute: {
+			viewBox: viewbox.join(' '),
+			...attribute
+		},
+		...args
+	});
 }
 
-function create_polyline(points = [], color = 'black', width = 1.0, dasharray = [], attribute = {}) {
-	let polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
-	if (points.length)
-		polyline.setAttribute('points', points.join(' '));
-	polyline.setAttribute('fill', 'none');
-	polyline.setAttribute('stroke', color);
-	polyline.setAttribute('stroke-width', width);
-	if (dasharray.length)
-		polyline.setAttribute('stroke-dasharray', dasharray.join(' '));
-	return apply_attribute(polyline, attribute);
+function create_polyline({points = [], color = 'black', width = 1.0, dasharray = [], attribute = {}, ...args} = {}) {
+	return create_element({
+		namespace: 'http://www.w3.org/2000/svg',
+		tag: 'polyline',
+		attribute: {
+			...(points.length && {points: points.join(' ')}),
+			fill: 'none',
+			stroke: color,
+			'stroke-width': width,
+			...(dasharray.length && {'stroke-dasharray': dasharray.join(' ')}),
+			...attribute
+		},
+		...args
+	});
 }
 
 export {
