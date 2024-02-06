@@ -8,8 +8,6 @@ from 'master';
 
 import {
 	listener_change,
-	apply_style,
-	apply_class,
 	create_range,
 	create_grid,
 	create_area,
@@ -24,8 +22,10 @@ import {
 from 'component';
 
 function chart_sheet({view, commit, callback} = {}) {
-	replace_row(view, 1 + mst_df1.length,
-		[
+	replace_row({
+		element: view,
+		sub_row: 1 + mst_df1.length,
+		children: [
 			create_column({
 				sub_col: 1,
 				children: [
@@ -48,8 +48,15 @@ function chart_sheet({view, commit, callback} = {}) {
 					sub_col: create_trace_sub_col(),
 					children: [
 						create_p({text: `Viewing commit ${s.id}`}),
-						...create_snapshot({commit: s, mst_df: mst_df1, trs_df_baseline: trs_df1_baseline}).map(d => create_trace({
-							name: `df1 ${d.id}`, d: d, checked: true, callback: callback
+						...create_snapshot({
+							commit: s,
+							mst_df: mst_df1,
+							trs_df_baseline: trs_df1_baseline
+						}).map(d => create_trace({
+							name: `df1 ${d.id}`,
+							d: d,
+							checked: true,
+							callback: callback
 						}))
 					]
 				})
@@ -62,11 +69,11 @@ function chart_sheet({view, commit, callback} = {}) {
 				]
 			}),
 		]
-	);
+	});
 }
 
-function create_snapshot({commit, mst_df, trs_df_baseline, classes = [], style = {}} = {}) {
-	return apply_style(apply_class(mst_df.map(d => {
+function create_snapshot({commit, mst_df, trs_df_baseline} = {}) {
+	return mst_df.map(d => {
 		let p, c;
 		for (p = commit; p.parent;)
 			if (c = p.change.find(e => e.id == d.id))
@@ -84,7 +91,7 @@ function create_snapshot({commit, mst_df, trs_df_baseline, classes = [], style =
 			commit: p.id,
 			description: p.description
 		};
-	}), classes), style);
+	});
 }
 
 function create_change_sub_col({lo, hi} = {}) {

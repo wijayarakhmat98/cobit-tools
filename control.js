@@ -20,18 +20,23 @@ class control extends HTMLElement {
 	}
 
 	view({} = {}) {
-		replace_content(this, [
-			create_div({
-				children: [
-					bubble({element: create_button({text: 'Modify'}), listener: listener_click, event: 'control-modify'})
-				],
-				classes: ['flex-start']
-			})
-		]);
+		replace_content({
+			element: this,
+			children: [
+				create_div({
+					children: [
+						bubble({element: create_button({text: 'Modify'}), listener: listener_click, event: 'control-modify'})
+					],
+					classes: ['flex-start']
+				})
+			]
+		});
 	}
 
 	modify({parent, alter, merge, context} = {}) {
-		replace_content(this, [
+		replace_content({
+			element: this,
+			children: [
 				create_div({
 					children: [
 						bubble({element: create_toggle_radio({text: 'Parent', name: 'context', checked: context == 'parent'}), listener: listener_change, event: 'control-parent'}),
@@ -54,7 +59,8 @@ class control extends HTMLElement {
 					],
 					classes: ['flex-end']
 				})
-		]);
+			]
+		});
 	}
 }
 

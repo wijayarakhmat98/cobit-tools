@@ -50,8 +50,9 @@ function calculate_gmo({x, x_base} = {}) {
 }
 
 function draw_gmo({view, r_hat} = {}) {
-	replace_content(view,
-		[
+	replace_content({
+		element: view,
+		children: [
 			create_div({
 				children: mst_gmo.map(d => {
 					const x = create_p({text: d.explanation, classes: ['details'], style: create_area(1, undefined, 2, undefined)});
@@ -97,8 +98,8 @@ function draw_gmo({view, r_hat} = {}) {
 				}
 			})
 		],
-		[], create_grid(mst_gmo.length, 2)
-	);
+		style: create_grid(mst_gmo.length, 2)
+	});
 }
 
 export default chart_gmo;

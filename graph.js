@@ -71,10 +71,14 @@ function chart_graph({view, graph} = {}) {
 		...create_area(1, 1, col, row), ...create_grid('subgrid', 'subgrid')
 	};
 	let view_link = create_div({style: subgrid});
-	replace_row(view, row, [
-		create_column({row: 'subgrid', sub_col: col, unit: '1fr', span: false, children: [view_link, create_div({children: node, style: subgrid})]}),
-		create_column({sub_col: 1, children: C.map(c => create_p({text: c.description, classes: ['expand']}))})
-	]);
+	replace_row({
+		element: view,
+		sub_row: row,
+		children: [
+			create_column({row: 'subgrid', sub_col: col, unit: '1fr', span: false, children: [view_link, create_div({children: node, style: subgrid})]}),
+			create_column({sub_col: 1, children: C.map(c => create_p({text: c.description, classes: ['expand']}))})
+		]
+	});
 	listener_resize({element: view_link, callback: () => chart_link({view: view_link, row: row, col: col, C: C, node: node})});
 }
 
@@ -85,9 +89,9 @@ function chart_link({view, row, col, C, node} = {}) {
 	const col_div = create_range(1, col).map(
 		i => create_div({style: {width: 'auto', height: 'auto', ...create_area(undefined, 1, undefined, row)}})
 	);
-	replace_content(view, col_div);
+	replace_content({element: view, children: col_div});
 	const rw = col_div.map(div => div.getBoundingClientRect().width);
-	replace_content(view, row_div);
+	replace_content({element: view, children: row_div});
 	const rh = row_div.map(div => div.getBoundingClientRect().height);
 	const nj = C.reduce((nj, c, i) => {
 		const css = window.getComputedStyle(node[i]);
@@ -107,24 +111,27 @@ function chart_link({view, row, col, C, node} = {}) {
 		};
 		return ni;
 	}, []);
-	replace_content(view, [
-		...C.flatMap(c => {
-			const l = Math.min.apply(Math, [c, ...c.branch_children].map(d => d.j));
-			const w = Math.max.apply(Math, [c, ...c.branch_children].map(d => d.j)) - l + 1;
-			return w == 1 ? [] : create_horizontal_fit({x: l, y: c.i, w: w, h: 1, rw: rw, rh: rh, nj: nj, ni: ni});
-		}),
-		...C.flatMap(c => c.branch_children.map(d =>
-			create_vertical_fit({x: d.j, y: d.i, w: 1, h: c.i - d.i + 1, rw: rw, rh: rh, nj: nj, ni: ni})
-		)),
-		...C.flatMap(c => {
-			const l = Math.min.apply(Math, [c, ...c.merge_parent].map(d => d.j));
-			const w = Math.max.apply(Math, [c, ...c.merge_parent].map(d => d.j)) - l + 1;
-			return w == 1 ? [] : create_horizontal_fit({x: l, y: c.i, w: w, h: 1, rw: rw, rh: rh, nj: nj, ni: ni, dasharray: [4, 4]});
-		}),
-		...C.flatMap(c => c.merge_parent.map(d =>
-			create_vertical_fit({x: d.j, y: c.i, w: 1, h: d.i - c.i + 1, rw: rw, rh: rh, nj: nj, ni: ni, dasharray: [4, 4]})
-		)),
-	]);
+	replace_content({
+		element: view,
+		children: [
+			...C.flatMap(c => {
+				const l = Math.min.apply(Math, [c, ...c.branch_children].map(d => d.j));
+				const w = Math.max.apply(Math, [c, ...c.branch_children].map(d => d.j)) - l + 1;
+				return w == 1 ? [] : create_horizontal_fit({x: l, y: c.i, w: w, h: 1, rw: rw, rh: rh, nj: nj, ni: ni});
+			}),
+			...C.flatMap(c => c.branch_children.map(d =>
+				create_vertical_fit({x: d.j, y: d.i, w: 1, h: c.i - d.i + 1, rw: rw, rh: rh, nj: nj, ni: ni})
+			)),
+			...C.flatMap(c => {
+				const l = Math.min.apply(Math, [c, ...c.merge_parent].map(d => d.j));
+				const w = Math.max.apply(Math, [c, ...c.merge_parent].map(d => d.j)) - l + 1;
+				return w == 1 ? [] : create_horizontal_fit({x: l, y: c.i, w: w, h: 1, rw: rw, rh: rh, nj: nj, ni: ni, dasharray: [4, 4]});
+			}),
+			...C.flatMap(c => c.merge_parent.map(d =>
+				create_vertical_fit({x: d.j, y: c.i, w: 1, h: d.i - c.i + 1, rw: rw, rh: rh, nj: nj, ni: ni, dasharray: [4, 4]})
+			)),
+		]
+	});
 }
 
 function create_svg_fit({x, y, w, h, sw, sh, children} = {}) {

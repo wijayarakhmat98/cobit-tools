@@ -68,28 +68,43 @@ function listener_resize({element, callback} = {}) {
 	return element;
 }
 
-function apply_attribute(element, attribute) {
-	for (const [name, value] of Object.entries(attribute))
-		element.setAttribute(name, value);
-	return element;
-}
-
-function apply_style(element, style) {
-	for (const [name, value] of Object.entries(style))
-		element.style[name] = value;
-	return element;
-}
-
-function apply_class(element, classes) {
+function smear({
+	element,
+	replace_children = undefined,
+	children = [],
+	remove_children = [],
+	classes = [],
+	remove_classes = [],
+	style = {},
+	remove_style = [],
+	attribute = {},
+	remove_attribute = []
+} = {}) {
+	if (replace_children)
+		element.replaceChildren(...replace_children);
+	for (const c of children)
+		element.appendChild(c);
+	for (const c of remove_children)
+		element.removeChild(c);
 	if (classes.length)
 		element.classList.add(...classes);
+	if (remove_classes.length)
+		element.classList.remove(...remove_classes);
+	for (const [name, value] of Object.entries(style))
+		element.style[name] = value;
+	for (const s of remove_style)
+		element.style.removeProperty(s);
+	for (const [name, value] of Object.entries(attribute))
+		element.setAttribute(name, value);
+	for (const a of remove_attribute)
+		element.removeAttribute(a);
 	return element;
 }
 
 function apply_label({label, input, order, token} = {}) {
 	const id = token ?? random_token();
-	apply_attribute(label, {for: id});
-	apply_attribute(input, {id: id});
+	smear({element: label, attribute: {for: id}});
+	smear({element: input, attribute: {id: id}});
 	return order == 'input' ? [input, label] : [label, input]
 }
 
@@ -114,38 +129,49 @@ function create_area(x, y, w, h) {
 	};
 }
 
-function replace_content(element, children = [], classes = [], style = {}, attribute = {}) {
-	element.replaceChildren(...children);
-	return apply_attribute(apply_style(apply_class(element, classes), style), attribute);
+function replace_content({element, children, ...args} = {}) {
+	return smear({element: element, replace_children: children, ...args});
 }
 
-function replace_row(element, sub_row, children = [], span = true, col = undefined, unit = 'auto', classes = [], style = {}, attribute = {}) {
+function replace_row({element, sub_row, col = undefined, children = [], span = true, unit = 'auto', style = {}, ...args} = {}) {
 	if (span) {
 		const col_style = create_area(undefined, 1, undefined, sub_row);
 		for (let c of children)
-			apply_style(c, col_style);
+			smear({element: c, style: col_style});
 	}
-	return replace_content(element, children, classes, {
-		...create_grid(sub_row, col, unit), ...style
-	}, attribute);
+	return replace_content({
+		element: element,
+		children: children,
+		style: {
+			...create_grid(sub_row, col, unit),
+			...style
+		},
+		...args
+	});
 }
 
-function replace_col(element, sub_col, children = [], span = true, row = undefined, unit = 'auto', classes = [], style = [], attribute = {}) {
+function replace_col({element, row = undefined, sub_col, children = [], span = true, unit = 'auto', style = {}, ...args} = {}) {
 	if (span) {
 		const row_style = create_area(1, undefined, sub_col, undefined);
 		for (let c of children)
-			apply_style(c, row_style);
+			smear({element: c, style: row_style});
 	}
-	return replace_content(element, children, classes, {
-		...create_grid(row, sub_col, unit), ...style
-	}, attributes);
+	return replace_content({
+		element: element,
+		children: children,
+		style: {
+			...create_grid(row, sub_col, unit),
+			...style
+		},
+		...args
+	});
 }
 
-function create_element({namespace = undefined, tag, children = [], classes = [], style = {}, attribute = {}} = {}) {
-	let element = namespace ? document.createElementNS(namespace, tag) : document.createElement(tag);
-	if (children.length)
-		element.replaceChildren(...children);
-	return apply_attribute(apply_style(apply_class(element, classes), style), attribute);
+function create_element({namespace = undefined, tag, ...args} = {}) {
+	return smear({
+		element: namespace ? document.createElementNS(namespace, tag) : document.createElement(tag),
+		...args
+	});
 }
 
 function create_text({text} = {}) {
@@ -160,7 +186,7 @@ function create_row({sub_row, col = 'subgrid', children = [], span = true, unit 
 	if (span) {
 		const col_style = create_area(undefined, 1, undefined, sub_row);
 		for (let c of children)
-			apply_style(c, col_style);
+			smear({element: c, style: col_style});
 	}
 	return create_div({children: children, style: {...create_grid(sub_row, col, unit), ...style}, ...args});
 }
@@ -169,7 +195,7 @@ function create_column({row = 'subgrid', sub_col, children = [], span = true, un
 	if (span) {
 		const row_style = create_area(1, undefined, sub_col, undefined);
 		for (let c of children)
-			apply_style(c, row_style);
+			smear({element: c, style: row_style});
 	}
 	return create_div({children: children, style: {...create_grid(row, sub_col, unit), ...style}, ...args});
 }
@@ -371,9 +397,7 @@ export {
 	listener_toggle,
 	listener_change,
 	listener_resize,
-	apply_attribute,
-	apply_style,
-	apply_class,
+	smear,
 	apply_label,
 	create_range,
 	create_grid,
