@@ -34,9 +34,9 @@ class control extends HTMLElement {
 		replace_content(this, [
 				create_div({
 					children: [
-						bubble({element: create_toggle_radio({text: 'Parent', checked: context == 'parent'}), listener: listener_change, event: 'control-parent'}),
+						bubble({element: create_toggle_radio({text: 'Parent', name: 'context', checked: context == 'parent'}), listener: listener_change, event: 'control-parent'}),
 						create_p(parent == null ? 'None' : parent.id),
-						bubble({element: create_toggle_radio({text: 'Merge', checked: context == 'merge'}), listener: listener_change, event: 'control-merge'}),
+						bubble({element: create_toggle_radio({text: 'Merge', name: 'context', checked: context == 'merge'}), listener: listener_change, event: 'control-merge'}),
 						create_p('[' + merge.map(m => m.id).join(', ') + ']'),
 						bubble({element: create_toggle_checkbox({text: 'New', checked: alter}), listener: listener_click, event: 'control-alter'})
 					],

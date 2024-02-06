@@ -246,7 +246,7 @@ function create_radio(name, value, text, checked = false, classes = [], style = 
 	return apply_attribute(apply_style(apply_class(div, classes), style), attribute);
 }
 
-function create_toggle_radio({text, checked = false, classes = [], ...args} = {}) {
+function create_toggle_radio({text, checked = false, name, value, classes = [], ...args} = {}) {
 	return create_element({
 		tag: 'label',
 		children: [
@@ -258,6 +258,8 @@ function create_toggle_radio({text, checked = false, classes = [], ...args} = {}
 				attribute: {
 					type: 'radio',
 					...(checked && {checked: ''}),
+					...(name && {name: name}),
+					...(typeof value !== 'undefined' && {value: value})
 				}
 			}),
 			create_text({text: text})
@@ -267,7 +269,7 @@ function create_toggle_radio({text, checked = false, classes = [], ...args} = {}
 	});
 }
 
-function create_toggle_checkbox({text, checked = false, classes = [], ...args} = {}) {
+function create_toggle_checkbox({text, checked = false, name, value, classes = [], ...args} = {}) {
 	return create_element({
 		tag: 'label',
 		children: [
@@ -279,6 +281,8 @@ function create_toggle_checkbox({text, checked = false, classes = [], ...args} =
 				attribute: {
 					type: 'checkbox',
 					...(checked && {checked: ''}),
+					...(name && {name: name}),
+					...(typeof value !== 'undefined' && {value: value})
 				}
 			}),
 			create_text({text: text})
