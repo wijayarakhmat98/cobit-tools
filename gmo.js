@@ -52,24 +52,27 @@ function calculate_gmo({x, x_base} = {}) {
 function draw_gmo({view, r_hat} = {}) {
 	replace_content(view,
 		[
-			create_div(
-				mst_gmo.map(d => {
+			create_div({
+				children: mst_gmo.map(d => {
 					const x = create_p(d.explanation, ['details'], create_area(1, undefined, 2, undefined));
 					const y = create_p(d.dimension, ['summary']);
 					const z = create_details_proxy(d.code, [y], [x]);
-					return create_div([z, y, x], [], {
-						...create_area(1, undefined, 2, undefined),
-						...create_grid(2, 'subgrid')
+					return create_div({
+						children: [z, y, x],
+						style: {
+							...create_area(1, undefined, 2, undefined),
+							...create_grid(2, 'subgrid')
+						}
 					});
 				}),
-				[], {
+				style: {
 					...create_area(1, 1, 1, mst_gmo.length),
 					...create_grid('subgrid', 2)
 				}
-			),
-			create_div([], ['view_gmo_bar'], create_area(2, 1, 1, mst_gmo.length)),
-			create_div(
-				matrix_flatten(r_hat).map(r => {
+			}),
+			create_div({classes: ['view_gmo_bar'], style: create_area(2, 1, 1, mst_gmo.length)}),
+			create_div({
+				children: matrix_flatten(r_hat).map(r => {
 					let bar;
 					if (r < 0)
 						bar = create_p(r, ['neg'], create_area(101 + r, 1, -r, 1));
@@ -77,16 +80,21 @@ function draw_gmo({view, r_hat} = {}) {
 						bar = create_p(r, ['zer'], create_area(1, 1, 200, 1));
 					if (r > 0)
 						bar = create_p(r, ['pos'], create_area(101, 1, r, 1))
-					return create_div([bar], [], {
-						...create_area(1, undefined, 200, undefined),
-						...create_grid(1, 'subgrid')
+					return create_div({
+						children: [bar],
+						style: {
+							...create_area(1, undefined, 200, undefined),
+							...create_grid(1, 'subgrid')
+						}
 					});
 				}),
-				['view_gmo_bar'], {
-				...create_area(2, 1, 1, mst_gmo.length),
-				display: 'grid',
-				'grid-template-rows': 'subgrid',
-				'grid-template-columns': 'repeat(200, 1fr)'
+				classes: ['view_gmo_bar'],
+				style: {
+					...create_area(2, 1, 1, mst_gmo.length),
+					display: 'grid',
+					'grid-template-rows': 'subgrid',
+					'grid-template-columns': 'repeat(200, 1fr)'
+				}
 			})
 		],
 		[], create_grid(mst_gmo.length, 2)

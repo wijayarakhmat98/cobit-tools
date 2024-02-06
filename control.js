@@ -21,29 +21,29 @@ class control extends HTMLElement {
 
 	view({} = {}) {
 		replace_content(this, [
-			create_div(
-				[
+			create_div({
+				children: [
 					bubble({element: create_button('Modify'), listener: listener_click, event: 'control-modify'})
 				],
-				['flex-start']
-			)
+				classes: ['flex-start']
+			})
 		]);
 	}
 
 	modify({parent, alter, merge, context} = {}) {
 		replace_content(this, [
-				create_div(
-					[
+				create_div({
+					children: [
 						bubble({element: create_toggle_radio({text: 'Parent', checked: context == 'parent'}), listener: listener_change, event: 'control-parent'}),
 						create_p(parent == null ? 'None' : parent.id),
 						bubble({element: create_toggle_radio({text: 'Merge', checked: context == 'merge'}), listener: listener_change, event: 'control-merge'}),
 						create_p('[' + merge.map(m => m.id).join(', ') + ']'),
 						bubble({element: create_toggle_checkbox({text: 'New', checked: alter}), listener: listener_click, event: 'control-alter'})
 					],
-					['flex-start']
-				),
-				create_div(
-					[
+					classes: ['flex-start']
+				}),
+				create_div({
+					children: [
 						...apply_label(
 							create_label({text: 'Description'}),
 							create_textarea('description', 1)
@@ -51,8 +51,8 @@ class control extends HTMLElement {
 						bubble({element: create_button('Commit'), listener: listener_click, event: 'control-save'}),
 						bubble({element: create_button('Discard'), listener: listener_click, event: 'control-discard'})
 					],
-					['flex-end']
-				)
+					classes: ['flex-end']
+				})
 		]);
 	}
 }

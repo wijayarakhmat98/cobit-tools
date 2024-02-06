@@ -10,21 +10,21 @@ from 'component';
 
 function chart_header({view, view_graph} = {}) {
 	replace_content(view, [
-		create_div(
-			[
+		create_div({
+			children: [
 				create_details_proxy('Tree', [], [view_graph], true)
 			],
-			['flex-start']
-		),
-		create_div(
-			[
+			classes: ['flex-start']
+		}),
+		create_div({
+			children: [
 				...apply_label(
 					create_label({text: 'Username'}),
 					create_textarea('username', 1)
 				)
 			],
-			['flex-end']
-		)
+			classes: ['flex-end']
+		})
 	]);
 }
 

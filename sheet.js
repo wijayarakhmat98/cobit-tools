@@ -26,35 +26,41 @@ from 'component';
 function chart_sheet({view, commit, callback} = {}) {
 	replace_row(view, 1 + mst_df1.length,
 		[
-			create_column(1, [
-				create_p('Enterprise Strategy'),
-				...mst_df1.map(d => create_details(d.dimension, d.explanation))
-			]),
+			create_column({
+				sub_col: 1,
+				children: [
+					create_p('Enterprise Strategy'),
+					...mst_df1.map(d => create_details(d.dimension, d.explanation))
+				]
+			}),
 			...commit.slice().reverse().map(s => s == null ?
-				create_column(
-					create_change_sub_col({lo: trs_df1_lo, hi: trs_df1_hi}),
-					[
+				create_column({
+					sub_col: create_change_sub_col({lo: trs_df1_lo, hi: trs_df1_hi}),
+					children: [
 						create_p('Change'),
 						...mst_df1.map(d => create_change({
 							name: `df1 ${d.id}`, lo: trs_df1_lo, hi: trs_df1_hi, checked: undefined, callback: callback
 						}))
 					]
-				)
+				})
 				:
-				create_column(
-					create_trace_sub_col(),
-					[
+				create_column({
+					sub_col: create_trace_sub_col(),
+					children: [
 						create_p(`Viewing commit ${s.id}`),
 						...create_snapshot({commit: s, mst_df: mst_df1, trs_df_baseline: trs_df1_baseline}).map(d => create_trace({
 							name: `df1 ${d.id}`, d: d, checked: true, callback: callback
 						}))
 					]
-				)
+				})
 			),
-			create_column(1, [
-				create_p('Baseline'),
-				...trs_df1_baseline.map(d => create_p(d.value, ['baseline']))
-			]),
+			create_column({
+				sub_col: 1,
+				children: [
+					create_p('Baseline'),
+					...trs_df1_baseline.map(d => create_p(d.value, ['baseline']))
+				]
+			}),
 		]
 	);
 }
@@ -85,27 +91,29 @@ function create_change_sub_col({lo, hi} = {}) {
 	return hi - lo + 2;
 }
 
-function create_change({name, lo, hi, checked, callback, classes = [], style = {}} = {}) {
-	return apply_style(apply_class(create_div(
-		[
+function create_change({name, lo, hi, checked, callback, style = {}, ...args} = {}) {
+	return create_div({
+		children: [
 			...create_range(lo, hi).map(
 				i => listener_change({element: create_radio(`${name} value`, `{"value": ${i}, "from": null}`, i, i == checked), callback})
 			),
 			create_textarea(`${name} note`, 1)
 		],
-		[], {
-			...create_grid(undefined, 'subgrid')
-		}
-	), classes), style);
+		style: {
+			...create_grid(undefined, 'subgrid'),
+			...style
+		},
+		...args
+	});
 }
 
 function create_trace_sub_col({} = {}) {
 	return 6;
 }
 
-function create_trace({name, d, checked, callback, classes = [], style = {}} = {}) {
-	return apply_style(apply_class(create_div(
-		[
+function create_trace({name, d, checked, callback, style = {}, ...args} = {}) {
+	return create_div({
+		children: [
 			listener_change({element: create_radio(
 				`${name} value`, `{"value": ${d.value}, "from": "old"}`, d.value, checked,
 				true, [], create_area(undefined, undefined, undefined, 2)
@@ -117,10 +125,12 @@ function create_trace({name, d, checked, callback, classes = [], style = {}} = {
 			create_p(d.commit, ['expand']),
 			create_p(d.description, ['expand', 'description'], create_area(undefined, undefined, 5, undefined))
 		],
-		[], {
-			...create_grid(2, 'subgrid')
-		}
-	), classes), style);
+		style: {
+			...create_grid(2, 'subgrid'),
+			...style
+		},
+		...args
+	});
 }
 
 export default chart_sheet;

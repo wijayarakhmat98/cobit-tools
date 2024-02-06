@@ -148,33 +148,26 @@ function create_text({text} = {}) {
 	return document.createTextNode(text);
 }
 
-function create_div(children = [], classes = [], style = {}, attribute = {}) {
-	let div = document.createElement('div');
-	for (const c of children)
-		div.appendChild(c);
-	return apply_attribute(apply_style(apply_class(div, classes), style), attribute);
+function create_div({...args} = {}) {
+	return create_element({tag: 'div', ...args});
 }
 
-function create_row(sub_row, children = [], span = true, col = 'subgrid', unit = 'auto', classes = [], style = {}, attribute = {}) {
+function create_row({sub_row, col = 'subgrid', children = [], span = true, unit = 'auto', style = {}, ...args} = {}) {
 	if (span) {
 		const col_style = create_area(undefined, 1, undefined, sub_row);
 		for (let c of children)
 			apply_style(c, col_style);
 	}
-	return create_div(children, classes, {
-		...create_grid(sub_row, col, unit), ...style
-	}, attribute);
+	return create_div({children: children, style: {...create_grid(sub_row, col, unit), ...style}, ...args});
 }
 
-function create_column(sub_col, children = [], span = true, row = 'subgrid', unit = 'auto', classes = [], style = {}, attribute = {}) {
+function create_column({row = 'subgrid', sub_col, children = [], span = true, unit = 'auto', style = {}, ...args} = {}) {
 	if (span) {
 		const row_style = create_area(1, undefined, sub_col, undefined);
 		for (let c of children)
 			apply_style(c, row_style);
 	}
-	return create_div(children, classes, {
-		...create_grid(row, sub_col, unit), ...style
-	}, attribute);
+	return create_div({children: children, style: {...create_grid(row, sub_col, unit), ...style}, ...args});
 }
 
 function create_p(text, classes = [], style = {}, attribute = {}) {

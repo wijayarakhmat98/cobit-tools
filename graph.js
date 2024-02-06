@@ -62,20 +62,20 @@ function chart_graph({view, graph} = {}) {
 	let subgrid = {
 		...create_area(1, 1, col, row), ...create_grid('subgrid', 'subgrid')
 	};
-	let view_link = create_div([], [], subgrid);
+	let view_link = create_div({style: subgrid});
 	replace_row(view, row, [
-		create_column(col, [view_link, create_div(node, [], subgrid)], false, 'subgrid', '1fr'),
-		create_column(1, C.map(c => create_p(c.description, ['expand'])))
+		create_column({row: 'subgrid', sub_col: col, unit: '1fr', span: false, children: [view_link, create_div({children: node, style: subgrid})]}),
+		create_column({sub_col: 1, children: C.map(c => create_p(c.description, ['expand']))})
 	]);
 	listener_resize({element: view_link, callback: () => chart_link({view: view_link, row: row, col: col, C: C, node: node})});
 }
 
 function chart_link({view, row, col, C, node} = {}) {
-	const row_div = create_range(1, row).map(i => create_div([], [],
-		{width: 'auto', height: 'auto', ...create_area(1, undefined, col, undefined)})
+	const row_div = create_range(1, row).map(
+		i => create_div({style: {width: 'auto', height: 'auto', ...create_area(1, undefined, col, undefined)}})
 	);
-	const col_div = create_range(1, col).map(i => create_div([], [],
-		{width: 'auto', height: 'auto', ...create_area(undefined, 1, undefined, row)})
+	const col_div = create_range(1, col).map(
+		i => create_div({style: {width: 'auto', height: 'auto', ...create_area(undefined, 1, undefined, row)}})
 	);
 	replace_content(view, col_div);
 	const rw = col_div.map(div => div.getBoundingClientRect().width);
@@ -120,22 +120,25 @@ function chart_link({view, row, col, C, node} = {}) {
 }
 
 function create_svg_fit({x, y, w, h, sw, sh, children} = {}) {
-	return create_div(
-		[create_svg({
-			viewbox: [0, 0, sw, sh],
-			children: children,
-			style: {
-				'min-width': '100%',
-				'min-height': '100%',
-				width: 0,
-				height: 0
-			}
-		})], [], {
+	return create_div({
+		children: [
+			create_svg({
+				viewbox: [0, 0, sw, sh],
+				children: children,
+				style: {
+					'min-width': '100%',
+					'min-height': '100%',
+					width: 0,
+					height: 0
+				}
+			})
+		],
+		style: {
 			width: 'auto',
 			height: 'auto',
 			...create_area(x, y, w, h)
 		}
-	);
+	});
 }
 
 function create_horizontal_fit({x, y, w, h, rw, rh, nj, ni, width = 1.0, ...args} = {}) {
