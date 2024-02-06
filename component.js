@@ -308,24 +308,29 @@ function create_toggle_checkbox({text, checked = false, name, value, classes = [
 	});
 }
 
-function create_textarea(name, row = undefined, value = undefined, classes = [], style = {}, attribute = {}) {
-	let textarea = document.createElement('textarea');
-	textarea.setAttribute('name', name);
-	if (row)
-		textarea.setAttribute('rows', row);
-	if (value) {
-		const t = document.createTextNode(value);
-		textarea.appendChild(t);
-	}
-	return apply_attribute(apply_style(apply_class(textarea, classes), style), attribute);
+function create_textarea({name, row, value, attribute = {}, ...args} = {}) {
+	return create_element({
+		tag: 'textarea',
+		...(value && {children: [create_text({text: value})]}),
+		attribute: {
+			...(name && {name: name}),
+			...(row && {rows: row}),
+			...attribute
+		},
+		...args
+	});
 }
 
-function create_button(text, classes = [], style = {}, attribute = {}) {
-	let button = document.createElement('button');
-	const t = document.createTextNode(text);
-	button.setAttribute('type', 'button');
-	button.appendChild(t);
-	return apply_attribute(apply_style(apply_class(button, classes), style), attribute);
+function create_button({text, attribute = {}, ...args} = {}) {
+	return create_element({
+		tag: 'button',
+		children: [create_text({text: text})],
+		attribute: {
+			type: 'button',
+			...attribute
+		},
+		...args
+	});
 }
 
 function create_svg({viewbox, attribute = {}, ...args} = {}) {

@@ -58,7 +58,15 @@ function chart_graph({view, graph} = {}) {
 	const col = Math.max.apply(Math, C.map(c => c.j));
 	for (let c of C)
 		c.j = col - c.j + 1;
-	const node = C.map(c => bubble({element: create_button(c.id, [], create_area(c.j, c.i, 1, 1)), listener: listener_click, event: 'graph-select', detail: c.graph}));
+	const node = C.map(c => bubble({
+		element: create_button({
+			text: c.id,
+			style: create_area(c.j, c.i, 1, 1)
+		}),
+		listener: listener_click,
+		event: 'graph-select',
+		detail: c.graph
+	}));
 	let subgrid = {
 		...create_area(1, 1, col, row), ...create_grid('subgrid', 'subgrid')
 	};

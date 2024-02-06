@@ -20,7 +20,7 @@ function chart_header({view, view_graph} = {}) {
 			children: [
 				...apply_label({
 					label: create_label({text: 'Username'}),
-					input: create_textarea('username', 1),
+					input: create_textarea({text: 'username', row: 1}),
 					order: 'label'
 				})
 			],

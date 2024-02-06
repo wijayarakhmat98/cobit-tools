@@ -105,7 +105,7 @@ function create_change({name, lo, hi, checked, callback, style = {}, ...args} = 
 					callback: callback
 				})
 			),
-			create_textarea(`${name} note`, 1)
+			create_textarea({name: `${name} note`, row: 1})
 		],
 		style: {
 			...create_grid(undefined, 'subgrid'),

@@ -23,7 +23,7 @@ class control extends HTMLElement {
 		replace_content(this, [
 			create_div({
 				children: [
-					bubble({element: create_button('Modify'), listener: listener_click, event: 'control-modify'})
+					bubble({element: create_button({text: 'Modify'}), listener: listener_click, event: 'control-modify'})
 				],
 				classes: ['flex-start']
 			})
@@ -46,11 +46,11 @@ class control extends HTMLElement {
 					children: [
 						...apply_label({
 							label: create_label({text: 'Description'}),
-							input: create_textarea('description', 1),
+							input: create_textarea({name: 'description', row: 1}),
 							order: 'label'
 						}),
-						bubble({element: create_button('Commit'), listener: listener_click, event: 'control-save'}),
-						bubble({element: create_button('Discard'), listener: listener_click, event: 'control-discard'})
+						bubble({element: create_button({text: 'Commit'}), listener: listener_click, event: 'control-save'}),
+						bubble({element: create_button({text: 'Discard'}), listener: listener_click, event: 'control-discard'})
 					],
 					classes: ['flex-end']
 				})
