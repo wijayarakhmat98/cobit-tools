@@ -179,7 +179,7 @@ function create_p({text, ...args} = {}) {
 }
 
 function create_label({text, ...args} = {}) {
-	return create_element({tag: 'lable', children: [create_text({text: text})], ...args});
+	return create_element({tag: 'label', children: [create_text({text: text})], ...args});
 }
 
 function create_details({summary, detail, open = false, attribute = {}, ...args} = {}) {
@@ -243,7 +243,7 @@ function create_details_proxy({summary, surrogate_summary = [], surrogate_detail
 	return primary_summary;
 }
 
-function create_radio({text, checked = false, name, value, ...args} = {}) {
+function create_radio({text, checked = false, name, value, classes = [], ...args} = {}) {
 	return create_div({
 		children: apply_label({
 			label: create_label({text: text}),
@@ -258,6 +258,7 @@ function create_radio({text, checked = false, name, value, ...args} = {}) {
 			}),
 			order: 'label'
 		}),
+		classes: ['radio', ...classes],
 		...args
 	});
 }
