@@ -43,7 +43,7 @@ class checkout {
 		this.sheet = sheet;
 		this.gmo = gmo;
 		this.state = checkout.state_view();
-		listen({element: this.graph, event: 'graph-select', callback: ({detail: commit}) => {
+		listen({element: this.graph, event: 'graph-select', callback: ({detail: commit} = {}) => {
 			if (this.state.mode == 'view') {
 				this.view({commit: commit});
 			}
@@ -61,12 +61,13 @@ class checkout {
 				}
 			}
 		}});
-		listen({element: this.control, event: 'control-modify', callback: () => this.modify()});
-		listen({element: this.control, event: 'control-parent', callback: () => this.state.context = 'parent'});
-		listen({element: this.control, event: 'control-alter', callback: () => this.modify({'alter': !this.state.alter})});
-		listen({element: this.control, event: 'control-merge', callback: () => this.state.context = 'merge'});
-		listen({element: this.control, event: 'control-save', callback: () => this.save()});
-		listen({element: this.control, event: 'control-discard', callback: () => this.view()});
+		listen({element: this.control})
+			({event: 'control-modify', callback: () => this.modify()})
+			({event: 'control-parent', callback: () => this.state.context = 'parent'})
+			({event: 'control-alter', callback: () => this.modify({'alter': !this.state.alter})})
+			({event: 'control-merge', callback: () => this.state.context = 'merge'})
+			({event: 'control-save', callback: () => this.save()})
+			({event: 'control-discard', callback: () => this.view()});
 	}
 
 	restore({state} = {}) {

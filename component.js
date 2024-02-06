@@ -19,12 +19,22 @@ function notify({element, event, detail, options = {}} = {}) {
 }
 
 function listen({element, event, callback} = {}) {
-	if (!element)
-		return ({element, callback}) => {
+	if (!element) {
+		const _ = ({element, callback} = {}) => {
 			if (callback)
 				element.addEventListener(event, callback);
-			return element;
+			return _;
 		};
+		return _;
+	}
+	if (!event) {
+		const _ = ({event, callback} = {}) => {
+			if (callback)
+				element.addEventListener(event, callback);
+			return _;
+		}
+		return _;
+	}
 	if (callback)
 		element.addEventListener(event, callback);
 	return element;
@@ -202,12 +212,12 @@ function create_details_proxy(text, surrogate, element, open = false, classes = 
 	summary.appendChild(t);
 	details.appendChild(summary);
 	for (let s of surrogate)
-		listener_click(s, () => {
+		listener_click({element: s, callback: () => {
 			if (details.hasAttribute('open'))
 				details.removeAttribute('open');
 			else
 				details.setAttribute('open', '');
-		});
+		}});
 	let link = element.map(e => ({
 		element: e,
 		display: e.style.display
@@ -215,13 +225,13 @@ function create_details_proxy(text, surrogate, element, open = false, classes = 
 	for (let e of element)
 		if (!open)
 			e.style.display = 'none';
-	listener_toggle(details, () => {
+	listener_toggle({element: details, callback: () => {
 		for (let l of link)
 			if (details.hasAttribute('open'))
 				l.element.style.display = l.display;
 			else
 				l.element.style.display = 'none';
-	});
+	}});
 	return apply_attribute(apply_style(apply_class(details, classes), style), attribute);
 }
 
