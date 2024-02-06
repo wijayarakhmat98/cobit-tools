@@ -44,10 +44,11 @@ class control extends HTMLElement {
 				}),
 				create_div({
 					children: [
-						...apply_label(
-							create_label({text: 'Description'}),
-							create_textarea('description', 1)
-						),
+						...apply_label({
+							label: create_label({text: 'Description'}),
+							input: create_textarea('description', 1),
+							order: 'label'
+						}),
 						bubble({element: create_button('Commit'), listener: listener_click, event: 'control-save'}),
 						bubble({element: create_button('Discard'), listener: listener_click, event: 'control-discard'})
 					],

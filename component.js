@@ -86,17 +86,11 @@ function apply_class(element, classes) {
 	return element;
 }
 
-function apply_label(element1, element2) {
-	const id = random_token();
-	if (element1.nodeName == 'LABEL') {
-		apply_attribute(element1, {for: id});
-		apply_attribute(element2, {id: id});
-	}
-	else {
-		apply_attribute(element1, {id: id});
-		apply_attribute(element2, {for: id});
-	}
-	return [element1, element2]
+function apply_label({label, input, order, token} = {}) {
+	const id = token ?? random_token();
+	apply_attribute(label, {for: id});
+	apply_attribute(input, {id: id});
+	return order == 'input' ? [input, label] : [label, input]
 }
 
 function create_range(start, stop, step = 1) {
@@ -249,22 +243,23 @@ function create_details_proxy({summary, surrogate_summary = [], surrogate_detail
 	return primary_summary;
 }
 
-function create_radio(name, value, text, checked = false, classes = [], style = {}, attribute = {}) {
-	let div = document.createElement('div');
-	let label = document.createElement('label');
-	let input = document.createElement('input');
-	const t = document.createTextNode(text);
-	input.setAttribute('type', 'radio');
-	input.setAttribute('name', name);
-	input.setAttribute('value', value);
-	if (checked)
-		input.setAttribute('checked', '');
-	apply_label(label, input);
-	div.classList.add('radio');
-	label.appendChild(t);
-	div.appendChild(label);
-	div.appendChild(input);
-	return apply_attribute(apply_style(apply_class(div, classes), style), attribute);
+function create_radio({text, checked = false, name, value, ...args} = {}) {
+	return create_div({
+		children: apply_label({
+			label: create_label({text: text}),
+			input: create_element({
+				tag: 'input',
+				attribute: {
+					type: 'radio',
+					...(checked && {checked: ''}),
+					...(name && {name: name}),
+					...(typeof value !== 'undefined' && {value: value})
+				}
+			}),
+			order: 'label'
+		}),
+		...args
+	});
 }
 
 function create_toggle_radio({text, checked = false, name, value, classes = [], ...args} = {}) {

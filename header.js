@@ -18,10 +18,11 @@ function chart_header({view, view_graph} = {}) {
 		}),
 		create_div({
 			children: [
-				...apply_label(
-					create_label({text: 'Username'}),
-					create_textarea('username', 1)
-				)
+				...apply_label({
+					label: create_label({text: 'Username'}),
+					input: create_textarea('username', 1),
+					order: 'label'
+				})
 			],
 			classes: ['flex-end']
 		})
