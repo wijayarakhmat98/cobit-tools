@@ -188,51 +188,65 @@ function create_label({text, ...args} = {}) {
 	return create_element({tag: 'lable', children: [create_text({text: text})], ...args});
 }
 
-function create_details(text1, text2, open = false, classes = [], style = {}, attribute = {}) {
-	let details = document.createElement('details');
-	let summary = document.createElement('summary');
-	let p = document.createElement('p');
-	const t1 = document.createTextNode(text1);
-	const t2 = document.createTextNode(text2);
-	if (open)
-		details.setAttribute('open', '');
-	summary.appendChild(t1);
-	p.appendChild(t2);
-	details.appendChild(summary);
-	details.appendChild(p);
-	return apply_attribute(apply_style(apply_class(details, classes), style), attribute);
+function create_details({summary, detail, open = false, attribute = {}, ...args} = {}) {
+	return create_element({
+		tag: 'details',
+		children: [
+			create_element({tag: 'summary', children: [create_text({text: summary})]}),
+			create_p({text: detail})
+		],
+		attribute: {
+			...(open && {open: ''}),
+			...attribute
+		},
+		...args
+	});
 }
 
-function create_details_proxy(text, surrogate, element, open = false, classes = [], style = {}, attribute = {}) {
-	let details = document.createElement('details');
-	let summary = document.createElement('summary');
-	const t = document.createTextNode(text);
-	if (open)
-		details.setAttribute('open', '');
-	summary.appendChild(t);
-	details.appendChild(summary);
-	for (let s of surrogate)
-		listener_click({element: s, callback: () => {
-			if (details.hasAttribute('open'))
-				details.removeAttribute('open');
+function create_details_proxy({summary, surrogate_summary = [], surrogate_detail = [], open = false, attribute = {}, ...args} = {}) {
+	let primary_summary = create_element({
+		tag: 'details',
+		children: [
+			create_element({tag: 'summary', children: [create_text({text: summary})]})
+		],
+		attribute: {
+			...(open && {open: ''}),
+			...attribute
+		},
+		...args
+	});
+	for (let ss of surrogate_summary)
+		listener_click({
+			element: ss,
+			callback: () => {
+				if (primary_summary.hasAttribute('open'))
+					primary_summary.removeAttribute('open');
+				else
+					primary_summary.setAttribute('open', '');
+			}
+		});
+	surrogate_detail = surrogate_detail.map(sd => ({element: sd}));
+	if (!open)
+		for (let sd of surrogate_detail) {
+			sd.display = sd.element.style.display;
+			sd.element.style.display = 'none';
+		}
+	listener_toggle({
+		element: primary_summary,
+		callback: () => {
+			if (primary_summary.hasAttribute('open'))
+				for (let sd of surrogate_detail) {
+					if (sd.element.style.display == 'none')
+						sd.element.style.display = sd.display;
+				}
 			else
-				details.setAttribute('open', '');
-		}});
-	let link = element.map(e => ({
-		element: e,
-		display: e.style.display
-	}));
-	for (let e of element)
-		if (!open)
-			e.style.display = 'none';
-	listener_toggle({element: details, callback: () => {
-		for (let l of link)
-			if (details.hasAttribute('open'))
-				l.element.style.display = l.display;
-			else
-				l.element.style.display = 'none';
-	}});
-	return apply_attribute(apply_style(apply_class(details, classes), style), attribute);
+				for (let sd of surrogate_detail) {
+					sd.display = sd.element.style.display;
+					sd.element.style.display = 'none';
+				}
+		}
+	});
+	return primary_summary;
 }
 
 function create_radio(name, value, text, checked = false, classes = [], style = {}, attribute = {}) {

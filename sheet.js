@@ -30,7 +30,7 @@ function chart_sheet({view, commit, callback} = {}) {
 				sub_col: 1,
 				children: [
 					create_p({text: 'Enterprise Strategy'}),
-					...mst_df1.map(d => create_details(d.dimension, d.explanation))
+					...mst_df1.map(d => create_details({summary: d.dimension, detail: d.explanation}))
 				]
 			}),
 			...commit.slice().reverse().map(s => s == null ?

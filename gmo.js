@@ -56,7 +56,7 @@ function draw_gmo({view, r_hat} = {}) {
 				children: mst_gmo.map(d => {
 					const x = create_p({text: d.explanation, classes: ['details'], style: create_area(1, undefined, 2, undefined)});
 					const y = create_p({text: d.dimension, classes: ['summary']});
-					const z = create_details_proxy(d.code, [y], [x]);
+					const z = create_details_proxy({summary: d.code, surrogate_summary: [y], surrogate_detail: [x]});
 					return create_div({
 						children: [z, y, x],
 						style: {

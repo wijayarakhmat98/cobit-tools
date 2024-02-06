@@ -12,7 +12,7 @@ function chart_header({view, view_graph} = {}) {
 	replace_content(view, [
 		create_div({
 			children: [
-				create_details_proxy('Tree', [], [view_graph], true)
+				create_details_proxy({summary: 'Tree', surrogate_detail: [view_graph], open: true})
 			],
 			classes: ['flex-start']
 		}),
