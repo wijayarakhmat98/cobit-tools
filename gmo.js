@@ -41,11 +41,11 @@ function chart_gmo({view} = {}) {
 }
 
 function calculate_gmo({x, x_base} = {}) {
-	const c = matrix_sum_element(x_base) / matrix_sum_element(x);
-	const y = matrix_multiply(trs_df1_map_matrix, x);
-	const y_base = matrix_multiply(trs_df1_map_matrix, x_base);
-	const r = matrix_scalar_multiply(c, matrix_element_multiply(y, matrix_reciprocal(y_base)));
-	const r_hat = matrix_element_map(r, e => Math.round(20 * e) * 5 - 100);
+	const c = matrix_sum_element({A: x_base}) / matrix_sum_element({A: x});
+	const y = matrix_multiply({A: trs_df1_map_matrix, B: x});
+	const y_base = matrix_multiply({A: trs_df1_map_matrix, B: x_base});
+	const r = matrix_scalar_multiply({c: c, A: matrix_element_multiply({A: y, B: matrix_reciprocal({A: y_base})})});
+	const r_hat = matrix_element_map({A: r, callback: e => Math.round(20 * e) * 5 - 100});
 	return r_hat;
 }
 
@@ -72,7 +72,7 @@ function draw_gmo({view, r_hat} = {}) {
 			}),
 			create_div({classes: ['view_gmo_bar'], style: create_area(2, 1, 1, mst_gmo.length)}),
 			create_div({
-				children: matrix_flatten(r_hat).map(r => {
+				children: matrix_flatten({A: r_hat}).map(r => {
 					let bar;
 					if (r < 0)
 						bar = create_p({text: r, classes: ['neg'], style: create_area(101 + r, 1, -r, 1)});
