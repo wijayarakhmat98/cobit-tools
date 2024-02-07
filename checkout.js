@@ -3,7 +3,6 @@ import {
 }
 from 'master';
 
-import chart_header from 'header';
 import chart_gmo from 'gmo';
 
 import {
@@ -106,15 +105,15 @@ class checkout {
 			});
 		if (typeof commit !== 'undefined') this.state.commit = commit;
 		if (typeof focus !== 'undefined') this.state.focus = focus;
+		this.header.view({view_graph: this.graph});
 		this.graph.view({graph: this.history});
+		this.control.view();
+		this.focus.view({focus: this.state.focus});
 		this.sheet.view({
 			commit: this.state.commit,
 			callback: () => this.gmo(this.gmo)
 		});
 		chart_gmo({view: this.gmo});
-		chart_header({view: this.header, view_graph: this.graph});
-		this.control.view();
-		this.focus.view({focus: this.state.focus});
 	}
 
 	modify({parent, alter, merge, context, focus} = {}) {
@@ -130,7 +129,10 @@ class checkout {
 		if (typeof merge !== 'undefined') this.state.merge = merge;
 		if (typeof context !== 'undefined') this.state.context = context;
 		if (typeof focus !== 'undefined') this.state.focus = focus;
+		this.header.view({view_graph: this.graph});
 		this.graph.view({graph: this.history});
+		this.control.modify({parent: this.state.parent, alter: this.state.alter, merge: this.state.merge, context: this.state.context});
+		this.focus.view({focus: this.state.focus});
 		this.sheet.modify({
 			parent: this.state.parent,
 			alter: this.state.alter,
@@ -138,9 +140,6 @@ class checkout {
 			callback: () => chart_gmo({view: this.gmo})
 		});
 		chart_gmo({view: this.gmo});
-		chart_header({view: this.header, view_graph: this.graph});
-		this.control.modify({parent: this.state.parent, alter: this.state.alter, merge: this.state.merge, context: this.state.context});
-		this.focus.view({focus: this.state.focus});
 	}
 
 	save({} = {}) {

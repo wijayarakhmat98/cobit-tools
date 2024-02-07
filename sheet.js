@@ -23,16 +23,27 @@ from 'component';
 
 class sheet extends HTMLElement {
 	static state_view({} = {}) {
+		return {};
 	}
 
 	static state_modify({} = {}) {
+		return {};
 	}
 
 	constructor({} = {}) {
 		super();
+		this.state = undefined;
+	}
+
+	restore({state, load = true} = {}) {
+		this.state = state;
+		if (load)
+			this.view();
 	}
 
 	view({commit, callback} = {}) {
+		if (!this.state)
+			this.state = sheet.state_view();
 		replace_row({
 			element: this,
 			sub_row: 1 + mst_df1.length,
@@ -72,6 +83,8 @@ class sheet extends HTMLElement {
 	}
 
 	modify({parent, alter, merge, callback} = {}) {
+		if (!this.state)
+			this.state = sheet.state_modify();
 		replace_row({
 			element: this,
 			sub_row: 1 + mst_df1.length,

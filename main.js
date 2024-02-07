@@ -1,4 +1,5 @@
 import checkout from 'checkout';
+import header from 'header';
 import graph from 'graph';
 import control from 'control';
 import focus from 'focus';
@@ -70,6 +71,7 @@ function main({
 	};
 	history.push(commit_1, commit_2, commit_3, commit_4);
 
+	customElements.define('x-header', header);
 	customElements.define('x-graph', graph);
 	customElements.define('x-control', control);
 	customElements.define('x-focus', focus);
@@ -84,7 +86,7 @@ function main({
 		visual: document.getElementById(visual_id),
 		sheet: document.getElementById(sheet_id),
 		gmo: document.getElementById(gmo_id),
-	}).view();
+	}).modify();
 };
 
 export default main;

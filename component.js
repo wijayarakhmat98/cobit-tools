@@ -68,6 +68,30 @@ function listener_resize({element, callback} = {}) {
 	return element;
 }
 
+function listener_mutation({element, callback, options = {}} = {}) {
+	if (!element) {
+		const _ = ({element, callback} = {}) => {
+			if (callback)
+				new MutationObserver(
+					(...args) => {
+						if (element.isConnected)
+							callback(...args)
+					}
+				).observe(element, options);
+			return _;
+		};
+		return _;
+	}
+	if (callback)
+		new MutationObserver(
+			(...args) => {
+				if (element.isConnected)
+					callback(...args)
+			}
+		).observe(element, options);
+	return element;
+}
+
 function smear({
 	element,
 	replace_children = undefined,
@@ -101,11 +125,11 @@ function smear({
 	return element;
 }
 
-function apply_label({label, input, order, token} = {}) {
+function apply_label({label, input, order = 'label', token} = {}) {
 	const id = token ?? random_token();
 	smear({element: label, attribute: {for: id}});
 	smear({element: input, attribute: {id: id}});
-	return order == 'input' ? [input, label] : [label, input]
+	return order == 'label' ? [label, input] : [input, label];
 }
 
 function create_range({start = 1, stop, step = 1} = {}) {
@@ -254,32 +278,50 @@ function create_details_proxy({summary, surrogate_summary = [], surrogate_detail
 			element: ss,
 			callback: () => {
 				if (primary_summary.hasAttribute('open'))
-					primary_summary.removeAttribute('open');
+					smear({element: primary_summary, remove_attribute: ['open']});
 				else
-					primary_summary.setAttribute('open', '');
+					smear({element: primary_summary, attribute: {'open': ''}});
 			}
 		});
 	surrogate_detail = surrogate_detail.map(sd => ({element: sd}));
-	if (!open)
-		for (let sd of surrogate_detail) {
+	function show_detail({sd, re = false} = {}) {
+		if (!re)
+			sd.mode = 'show';
+		if (sd.element.style.display == 'none' && sd.mode == 'show')
+			smear({element: sd.element, style: {display: sd.display}});
+	}
+	function hide_detail({sd, re = false} = {}) {
+		if (!re)
+			sd.mode = 'hide';
+		if (sd.element.style.display != 'none' && sd.mode == 'hide') {
 			sd.display = sd.element.style.display;
-			sd.element.style.display = 'none';
+			smear({element: sd.element, style: {display: 'none'}});
 		}
+	}
+	if (!open)
+		for (let sd of surrogate_detail)
+			hide_detail({sd: sd});
 	listener_toggle({
 		element: primary_summary,
 		callback: () => {
 			if (primary_summary.hasAttribute('open'))
-				for (let sd of surrogate_detail) {
-					if (sd.element.style.display == 'none')
-						sd.element.style.display = sd.display;
-				}
+				for (let sd of surrogate_detail)
+					show_detail({sd: sd});
 			else
-				for (let sd of surrogate_detail) {
-					sd.display = sd.element.style.display;
-					sd.element.style.display = 'none';
-				}
+				for (let sd of surrogate_detail)
+					hide_detail({sd: sd});
 		}
 	});
+	for (let sd of surrogate_detail) {
+		listener_mutation({
+			element: sd.element,
+			options: {attributes: true},
+			callback: () => {
+				if (primary_summary.isConnected)
+					hide_detail({sd: sd, re: true});
+			}
+		});
+	}
 	return primary_summary;
 }
 
@@ -295,8 +337,7 @@ function create_radio({text, checked = false, name, value, classes = [], ...args
 					...(name && {name: name}),
 					...(typeof value !== 'undefined' && {value: value})
 				}
-			}),
-			order: 'label'
+			})
 		}),
 		classes: ['radio', ...classes],
 		...args
@@ -411,6 +452,7 @@ export {
 	listener_toggle,
 	listener_change,
 	listener_resize,
+	listener_mutation,
 	smear,
 	apply_label,
 	create_range,
