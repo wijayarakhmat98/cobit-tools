@@ -61,14 +61,14 @@ function chart_graph({view, graph} = {}) {
 	const node = C.map(c => bubble({
 		element: create_button({
 			text: c.id,
-			style: create_area(c.j, c.i, 1, 1)
+			style: create_area({x: c.j, y: c.i, w: 1, h: 1})
 		}),
 		listener: listener_click,
 		event: 'graph-select',
 		detail: c.graph
 	}));
 	let subgrid = {
-		...create_area(1, 1, col, row), ...create_grid('subgrid', 'subgrid')
+		...create_area({x: 1, y: 1, w: col, h: row}), ...create_grid({row: 'subgrid', col: 'subgrid'})
 	};
 	let view_link = create_div({style: subgrid});
 	replace_row({
@@ -84,10 +84,10 @@ function chart_graph({view, graph} = {}) {
 
 function chart_link({view, row, col, C, node} = {}) {
 	const row_div = create_range({stop: row}).map(
-		i => create_div({style: {width: 'auto', height: 'auto', ...create_area(1, undefined, col, undefined)}})
+		i => create_div({style: {width: 'auto', height: 'auto', ...create_area({x: 1, w: col})}})
 	);
 	const col_div = create_range({stop: col}).map(
-		i => create_div({style: {width: 'auto', height: 'auto', ...create_area(undefined, 1, undefined, row)}})
+		i => create_div({style: {width: 'auto', height: 'auto', ...create_area({y: 1, h: row})}})
 	);
 	replace_content({element: view, children: col_div});
 	const rw = col_div.map(div => div.getBoundingClientRect().width);
@@ -151,7 +151,7 @@ function create_svg_fit({x, y, w, h, sw, sh, children} = {}) {
 		style: {
 			width: 'auto',
 			height: 'auto',
-			...create_area(x, y, w, h)
+			...create_area({x: x, y: y, w: w, h: h})
 		}
 	});
 }

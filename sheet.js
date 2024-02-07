@@ -39,7 +39,11 @@ function chart_sheet({view, commit, callback} = {}) {
 					children: [
 						create_p({text: 'Change'}),
 						...mst_df1.map(d => create_change({
-							name: `df1 ${d.id}`, lo: trs_df1_lo, hi: trs_df1_hi, checked: undefined, callback: callback
+							name: `df1 ${d.id}`,
+							lo: trs_df1_lo,
+							hi: trs_df1_hi,
+							checked: undefined,
+							callback: callback
 						}))
 					]
 				})
@@ -115,7 +119,7 @@ function create_change({name, lo, hi, checked, callback, style = {}, ...args} = 
 			create_textarea({name: `${name} note`, row: 1})
 		],
 		style: {
-			...create_grid(undefined, 'subgrid'),
+			...create_grid({col: 'subgrid'}),
 			...style
 		},
 		...args
@@ -135,7 +139,7 @@ function create_trace({name, d, checked, callback, style = {}, ...args} = {}) {
 					checked: checked,
 					name: `${name} value`,
 					value: `{"value": ${d.value}, "from": "old"}`,
-					style: create_area(undefined, undefined, undefined, 2)
+					style: create_area({h: 2})
 				}),
 				callback: callback
 			}),
@@ -144,10 +148,10 @@ function create_trace({name, d, checked, callback, style = {}, ...args} = {}) {
 			create_p({text: d.author, classes: ['expand']}),
 			create_p({text: 'from'}),
 			create_p({text: d.commit, classes: ['expand']}),
-			create_p({text: d.description, classes: ['expand', 'description'], style: create_area(undefined, undefined, 5, undefined)})
+			create_p({text: d.description, classes: ['expand', 'description'], style: create_area({w: 5})})
 		],
 		style: {
-			...create_grid(2, 'subgrid'),
+			...create_grid({row: 2, col: 'subgrid'}),
 			...style
 		},
 		...args

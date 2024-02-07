@@ -69,21 +69,15 @@ function main({
 
 	customElements.define('x-control', control);
 
-	let view_header = document.getElementById(header_id);
-	let view_graph = document.getElementById(graph_id);
-	let view_focus = document.getElementById(focus_id);
-	let view_visual = document.getElementById(visual_id);
-	let view_sheet = document.getElementById(sheet_id);
-	let view_gmo = document.getElementById(gmo_id);
 	new checkout({
 		history: history,
-		header: view_header,
-		graph: view_graph,
+		header: document.getElementById(header_id),
+		graph: document.getElementById(graph_id),
 		control: document.getElementById(control_id),
-		focus: view_focus,
-		visual: view_visual,
-		sheet: view_sheet,
-		gmo: view_gmo,
+		focus: document.getElementById(focus_id),
+		visual: document.getElementById(visual_id),
+		sheet: document.getElementById(sheet_id),
+		gmo: document.getElementById(gmo_id),
 	}).view();
 };
 

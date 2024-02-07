@@ -112,7 +112,7 @@ function create_range({start = 1, stop, step = 1} = {}) {
 	return Array.from({length: (stop - start) / step + 1}, (_, i) => start + i * step);
 }
 
-function create_grid(row, col, unit = 'auto') {
+function create_grid({row = undefined, col = undefined, unit = 'auto'} = {}) {
 	return {
 		display: 'grid',
 		...(row && {'grid-template-rows': row == 'subgrid' ? row : `repeat(${row}, ${unit})`}),
@@ -120,7 +120,7 @@ function create_grid(row, col, unit = 'auto') {
 	};
 }
 
-function create_area(x, y, w, h) {
+function create_area({x = undefined, y = undefined, w = undefined, h = undefined} = {}) {
 	return {
 		...(x && {'grid-column-start': x}),
 		...(y && {'grid-row-start': y}),
@@ -135,7 +135,7 @@ function replace_content({element, children, ...args} = {}) {
 
 function replace_row({element, sub_row, col = undefined, children = [], span = true, unit = 'auto', style = {}, ...args} = {}) {
 	if (span) {
-		const col_style = create_area(undefined, 1, undefined, sub_row);
+		const col_style = create_area({y: 1, h: sub_row});
 		for (let c of children)
 			smear({element: c, style: col_style});
 	}
@@ -143,7 +143,7 @@ function replace_row({element, sub_row, col = undefined, children = [], span = t
 		element: element,
 		children: children,
 		style: {
-			...create_grid(sub_row, col, unit),
+			...create_grid({row: sub_row, col: col, unit: unit}),
 			...style
 		},
 		...args
@@ -152,7 +152,7 @@ function replace_row({element, sub_row, col = undefined, children = [], span = t
 
 function replace_col({element, row = undefined, sub_col, children = [], span = true, unit = 'auto', style = {}, ...args} = {}) {
 	if (span) {
-		const row_style = create_area(1, undefined, sub_col, undefined);
+		const row_style = create_area({x: 1, w: sub_col});
 		for (let c of children)
 			smear({element: c, style: row_style});
 	}
@@ -160,7 +160,7 @@ function replace_col({element, row = undefined, sub_col, children = [], span = t
 		element: element,
 		children: children,
 		style: {
-			...create_grid(row, sub_col, unit),
+			...create_grid({row: row, col: sub_col, unit: unit}),
 			...style
 		},
 		...args
@@ -184,20 +184,34 @@ function create_div({...args} = {}) {
 
 function create_row({sub_row, col = 'subgrid', children = [], span = true, unit = 'auto', style = {}, ...args} = {}) {
 	if (span) {
-		const col_style = create_area(undefined, 1, undefined, sub_row);
+		const col_style = create_area({y: 1, h: sub_row});
 		for (let c of children)
 			smear({element: c, style: col_style});
 	}
-	return create_div({children: children, style: {...create_grid(sub_row, col, unit), ...style}, ...args});
+	return create_div({
+		children: children,
+		style: {
+			...create_grid({row: sub_row, col: col, unit: unit}),
+			...style
+		},
+		...args
+	});
 }
 
 function create_column({row = 'subgrid', sub_col, children = [], span = true, unit = 'auto', style = {}, ...args} = {}) {
 	if (span) {
-		const row_style = create_area(1, undefined, sub_col, undefined);
+		const row_style = create_area({x: 1, w: sub_col});
 		for (let c of children)
 			smear({element: c, style: row_style});
 	}
-	return create_div({children: children, style: {...create_grid(row, sub_col, unit), ...style}, ...args});
+	return create_div({
+		children: children,
+		style: {
+			...create_grid({row: row, col: sub_col, unit: unit}),
+			...style
+		},
+		...args
+	});
 }
 
 function create_p({text, ...args} = {}) {
