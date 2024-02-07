@@ -48,7 +48,7 @@ x-graph {
 	grid-area: v;
 }
 
-#view_sheet {
+x-sheet {
 	grid-area: s;
 	width: max-content;
 	justify-self: center;
@@ -80,11 +80,11 @@ x-graph button {
 	margin: 0.25rem;
 }
 
-#view_sheet > div {
+x-sheet > div {
 	column-gap: 0.5rem;
 }
 
-#view_sheet .baseline {
+x-sheet .baseline {
 	text-align: center;
 }
 

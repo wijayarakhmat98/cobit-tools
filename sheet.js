@@ -21,37 +21,72 @@ import {
 }
 from 'component';
 
-function chart_sheet({view, commit, callback} = {}) {
-	replace_row({
-		element: view,
-		sub_row: 1 + mst_df1.length,
-		children: [
-			create_column({
-				sub_col: 1,
-				children: [
-					create_p({text: 'Enterprise Strategy'}),
-					...mst_df1.map(d => create_details({summary: d.dimension, detail: d.explanation}))
-				]
-			}),
-			...commit.slice().reverse().map(s => s == null ?
+class sheet extends HTMLElement {
+	static state_view({} = {}) {
+	}
+
+	static state_modify({} = {}) {
+	}
+
+	constructor({} = {}) {
+		super();
+	}
+
+	view({commit, callback} = {}) {
+		replace_row({
+			element: this,
+			sub_row: 1 + mst_df1.length,
+			children: [
 				create_column({
-					sub_col: create_change_sub_col({lo: trs_df1_lo, hi: trs_df1_hi}),
+					sub_col: 1,
 					children: [
-						create_p({text: 'Change'}),
-						...mst_df1.map(d => create_change({
+						create_p({text: 'Enterprise Strategy'}),
+						...mst_df1.map(d => create_details({summary: d.dimension, detail: d.explanation}))
+					]
+				}),
+				...(commit === null ? [] : [create_column({
+					sub_col: create_trace_sub_col(),
+					children: [
+						create_p({text: `Viewing commit ${commit.id}`}),
+						...create_snapshot({
+							commit: commit,
+							mst_df: mst_df1,
+							trs_df_baseline: trs_df1_baseline
+						}).map(d => create_trace({
 							name: `df1 ${d.id}`,
-							lo: trs_df1_lo,
-							hi: trs_df1_hi,
-							checked: undefined,
+							d: d,
+							checked: true,
 							callback: callback
 						}))
 					]
-				})
-				:
+				})]),
 				create_column({
+					sub_col: 1,
+					children: [
+						create_p({text: 'Baseline'}),
+						...trs_df1_baseline.map(d => create_p({text: d.value, classes: ['baseline']}))
+					]
+				}),
+			]
+		});
+	}
+
+	modify({parent, alter, merge, callback} = {}) {
+		replace_row({
+			element: this,
+			sub_row: 1 + mst_df1.length,
+			children: [
+				create_column({
+					sub_col: 1,
+					children: [
+						create_p({text: 'Enterprise Strategy'}),
+						...mst_df1.map(d => create_details({summary: d.dimension, detail: d.explanation}))
+					]
+				}),
+				...merge.map(s => create_column({
 					sub_col: create_trace_sub_col(),
 					children: [
-						create_p({text: `Viewing commit ${s.id}`}),
+						create_p({text: `Merging commit ${s.id}`}),
 						...create_snapshot({
 							commit: s,
 							mst_df: mst_df1,
@@ -63,17 +98,46 @@ function chart_sheet({view, commit, callback} = {}) {
 							callback: callback
 						}))
 					]
-				})
-			),
-			create_column({
-				sub_col: 1,
-				children: [
-					create_p({text: 'Baseline'}),
-					...trs_df1_baseline.map(d => create_p({text: d.value, classes: ['baseline']}))
-				]
-			}),
-		]
-	});
+				})),
+				...(!alter ? [] : [create_column({
+					sub_col: create_change_sub_col({lo: trs_df1_lo, hi: trs_df1_hi}),
+					children: [
+						create_p({text: 'Change'}),
+						...mst_df1.map(d => create_change({
+							name: `df1 ${d.id}`,
+							lo: trs_df1_lo,
+							hi: trs_df1_hi,
+							checked: undefined,
+							callback: callback
+						}))
+					]
+				})]),
+				...(parent === null ? [] : [create_column({
+					sub_col: create_trace_sub_col(),
+					children: [
+						create_p({text: `Parent commit ${parent.id}`}),
+						...create_snapshot({
+							commit: parent,
+							mst_df: mst_df1,
+							trs_df_baseline: trs_df1_baseline
+						}).map(d => create_trace({
+							name: `df1 ${d.id}`,
+							d: d,
+							checked: true,
+							callback: callback
+						}))
+					]
+				})]),
+				create_column({
+					sub_col: 1,
+					children: [
+						create_p({text: 'Baseline'}),
+						...trs_df1_baseline.map(d => create_p({text: d.value, classes: ['baseline']}))
+					]
+				}),
+			]
+		});
+	}
 }
 
 function create_snapshot({commit, mst_df, trs_df_baseline} = {}) {
@@ -158,4 +222,4 @@ function create_trace({name, d, checked, callback, style = {}, ...args} = {}) {
 	});
 }
 
-export default chart_sheet;
+export default sheet;

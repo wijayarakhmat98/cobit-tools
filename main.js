@@ -1,6 +1,7 @@
 import checkout from 'checkout';
 import graph from 'graph';
 import control from 'control';
+import sheet from 'sheet';
 
 function main({
 	history,
@@ -70,6 +71,7 @@ function main({
 
 	customElements.define('x-graph', graph);
 	customElements.define('x-control', control);
+	customElements.define('x-sheet', sheet);
 
 	new checkout({
 		history: history,

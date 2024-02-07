@@ -4,7 +4,6 @@ import {
 from 'master';
 
 import chart_header from 'header';
-import chart_sheet from 'sheet';
 import chart_gmo from 'gmo';
 
 import {
@@ -44,17 +43,26 @@ class checkout {
 		this.state = checkout.state_view();
 		listen({element: this.graph, event: 'graph-select', callback: ({detail: commit} = {}) => {
 			if (this.state.mode == 'view') {
-				this.view({commit: commit});
+				if (this.state.commit === commit)
+					this.view({commit: null});
+				else
+					this.view({commit: commit});
 			}
 			if (this.state.mode == 'modify') {
 				if (this.state.context == 'parent')
-					this.modify({parent: commit});
+					if (this.state.parent == commit)
+						this.modify({parent: null});
+					else {
+						if (!this.state.merge.includes(commit))
+							this.modify({parent: commit});
+					}
 				if (this.state.context == 'merge') {
 					let merge = this.state.merge;
 					const i = merge.indexOf(commit);
-					if (i == -1)
-						merge.push(commit)
-					else
+					if (i == -1) {
+						if (this.state.parent != commit)
+							merge.push(commit)
+					} else
 						merge.splice(i, 1);
 					this.modify({merge: merge});
 				}
@@ -80,9 +88,12 @@ class checkout {
 	view({commit} = {}) {
 		if (this.state.mode == 'modify')
 			this.state = checkout.state_view({commit: this.state.parent});
-		if (commit) this.state.commit = commit;
+		if (typeof commit !== 'undefined') this.state.commit = commit;
 		this.graph.view({graph: this.history});
-		chart_sheet({view: this.sheet, commit: this.state.commit === null ? [] : [this.state.commit], callback: () => this.gmo(this.gmo)});
+		this.sheet.view({
+			commit: this.state.commit,
+			callback: () => this.gmo(this.gmo)
+		});
 		chart_gmo({view: this.gmo});
 		chart_header({view: this.header, view_graph: this.graph});
 		this.control.view();
@@ -96,7 +107,12 @@ class checkout {
 		if (typeof merge !== 'undefined') this.state.merge = merge;
 		if (typeof context !== 'undefined') this.state.context = context;
 		this.graph.view({graph: this.history});
-		chart_sheet({view: this.sheet, commit: [...(this.state.parent === null ? [] : [this.state.parent]), ...(this.state.alter ? [null] : []), ...this.state.merge], callback: () => chart_gmo({view: this.gmo})});
+		this.sheet.modify({
+			parent: this.state.parent,
+			alter: this.state.alter,
+			merge: this.state.merge,
+			callback: () => chart_gmo({view: this.gmo})
+		});
 		chart_gmo({view: this.gmo});
 		chart_header({view: this.header, view_graph: this.graph});
 		this.control.modify({parent: this.state.parent, alter: this.state.alter, merge: this.state.merge, context: this.state.context});
