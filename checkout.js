@@ -168,7 +168,7 @@ class checkout {
 			timestamp: Date.now()
 		};
 		this.history.push(new_commit);
-		this.view(new_commit)
+		this.view({commit: new_commit})
 	}
 }
 

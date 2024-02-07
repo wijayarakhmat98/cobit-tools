@@ -4,6 +4,11 @@
 	box-sizing: border-box;
 }
 
+input, select, button {
+	font-family: inherit;
+	font-size: inherit;
+}
+
 html {
 	min-width: 100%;
 	min-height: 100%;
