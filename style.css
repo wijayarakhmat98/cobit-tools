@@ -33,7 +33,7 @@ x-control {
 	display: flex;
 }
 
-#view_graph {
+x-graph {
 	grid-area: g;
 	width: max-content;
 	height: fit-content;
@@ -74,7 +74,7 @@ x-control button, .toggle {
 	padding: 0 0.25rem;
 }
 
-#view_graph button {
+x-graph button {
 	aspect-ratio: 1 / 1;
 	min-width: 1rem;
 	margin: 0.25rem;

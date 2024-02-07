@@ -4,7 +4,6 @@ import {
 from 'master';
 
 import chart_header from 'header';
-import chart_graph from 'graph';
 import chart_sheet from 'sheet';
 import chart_gmo from 'gmo';
 
@@ -82,7 +81,7 @@ class checkout {
 		if (this.state.mode == 'modify')
 			this.state = checkout.state_view({commit: this.state.parent});
 		if (commit) this.state.commit = commit;
-		chart_graph({view: this.graph, graph: this.history});
+		this.graph.view({graph: this.history});
 		chart_sheet({view: this.sheet, commit: this.state.commit === null ? [] : [this.state.commit], callback: () => this.gmo(this.gmo)});
 		chart_gmo({view: this.gmo});
 		chart_header({view: this.header, view_graph: this.graph});
@@ -96,7 +95,7 @@ class checkout {
 		if (typeof alter !== 'undefined') this.state.alter = alter;
 		if (typeof merge !== 'undefined') this.state.merge = merge;
 		if (typeof context !== 'undefined') this.state.context = context;
-		chart_graph({view: this.graph, graph: this.history});
+		this.graph.view({graph: this.history});
 		chart_sheet({view: this.sheet, commit: [...(this.state.parent === null ? [] : [this.state.parent]), ...(this.state.alter ? [null] : []), ...this.state.merge], callback: () => chart_gmo({view: this.gmo})});
 		chart_gmo({view: this.gmo});
 		chart_header({view: this.header, view_graph: this.graph});

@@ -1,4 +1,5 @@
 import checkout from 'checkout';
+import graph from 'graph';
 import control from 'control';
 
 function main({
@@ -67,6 +68,7 @@ function main({
 	};
 	history.push(commit_1, commit_2, commit_3, commit_4);
 
+	customElements.define('x-graph', graph);
 	customElements.define('x-control', control);
 
 	new checkout({

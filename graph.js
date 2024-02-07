@@ -46,40 +46,46 @@ function prepare({graph} = {}) {
 	return C;
 }
 
-function chart_graph({view, graph} = {}) {
-	let C = prepare({graph: graph});
-	place_i({C: C});
-	place_j({C: C});
-	for (let c of C) {
-		c.i += 1;
-		c.j += 1;
+class graph extends HTMLElement {
+	constructor({} = {}) {
+		super();
 	}
-	const row = Math.max.apply(Math, C.map(c => c.i));
-	const col = Math.max.apply(Math, C.map(c => c.j));
-	for (let c of C)
-		c.j = col - c.j + 1;
-	const node = C.map(c => bubble({
-		element: create_button({
-			text: c.id,
-			style: create_area({x: c.j, y: c.i, w: 1, h: 1})
-		}),
-		listener: listener_click,
-		event: 'graph-select',
-		detail: c.graph
-	}));
-	let subgrid = {
-		...create_area({x: 1, y: 1, w: col, h: row}), ...create_grid({row: 'subgrid', col: 'subgrid'})
-	};
-	let view_link = create_div({style: subgrid});
-	replace_row({
-		element: view,
-		sub_row: row,
-		children: [
-			create_column({row: 'subgrid', sub_col: col, unit: '1fr', span: false, children: [view_link, create_div({children: node, style: subgrid})]}),
-			create_column({sub_col: 1, children: C.map(c => create_p({text: c.description, classes: ['expand']}))})
-		]
-	});
-	listener_resize({element: view_link, callback: () => chart_link({view: view_link, row: row, col: col, C: C, node: node})});
+
+	view({graph} = {}) {
+		let C = prepare({graph: graph});
+		place_i({C: C});
+		place_j({C: C});
+		for (let c of C) {
+			c.i += 1;
+			c.j += 1;
+		}
+		const row = Math.max.apply(Math, C.map(c => c.i));
+		const col = Math.max.apply(Math, C.map(c => c.j));
+		for (let c of C)
+			c.j = col - c.j + 1;
+		const node = C.map(c => bubble({
+			element: create_button({
+				text: c.id,
+				style: create_area({x: c.j, y: c.i, w: 1, h: 1})
+			}),
+			listener: listener_click,
+			event: 'graph-select',
+			detail: c.graph
+		}));
+		let subgrid = {
+			...create_area({x: 1, y: 1, w: col, h: row}), ...create_grid({row: 'subgrid', col: 'subgrid'})
+		};
+		let view_link = create_div({style: subgrid});
+		replace_row({
+			element: this,
+			sub_row: row,
+			children: [
+				create_column({row: 'subgrid', sub_col: col, unit: '1fr', span: false, children: [view_link, create_div({children: node, style: subgrid})]}),
+				create_column({sub_col: 1, children: C.map(c => create_p({text: c.description, classes: ['expand']}))})
+			]
+		});
+		listener_resize({element: view_link, callback: () => chart_link({view: view_link, row: row, col: col, C: C, node: node})});
+	}
 }
 
 function chart_link({view, row, col, C, node} = {}) {
@@ -253,4 +259,4 @@ function place_j({C} = {}) {
 	}
 }
 
-export default chart_graph;
+export default graph;
