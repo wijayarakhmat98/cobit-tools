@@ -1,6 +1,7 @@
 import checkout from 'checkout';
 import graph from 'graph';
 import control from 'control';
+import focus from 'focus';
 import sheet from 'sheet';
 
 function main({
@@ -71,6 +72,7 @@ function main({
 
 	customElements.define('x-graph', graph);
 	customElements.define('x-control', control);
+	customElements.define('x-focus', focus);
 	customElements.define('x-sheet', sheet);
 
 	new checkout({
