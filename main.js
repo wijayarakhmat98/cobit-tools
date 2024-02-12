@@ -4,6 +4,7 @@ import graph from 'graph';
 import control from 'control';
 import focus from 'focus';
 import sheet from 'sheet';
+import gmo from 'gmo';
 
 function main({
 	history,
@@ -76,6 +77,7 @@ function main({
 	customElements.define('x-control', control);
 	customElements.define('x-focus', focus);
 	customElements.define('x-sheet', sheet);
+	customElements.define('x-gmo', gmo);
 
 	new checkout({
 		history: history,

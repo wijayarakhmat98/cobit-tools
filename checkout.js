@@ -3,8 +3,6 @@ import {
 }
 from 'master';
 
-import chart_gmo from 'gmo';
-
 import {
 	listen
 }
@@ -113,7 +111,7 @@ class checkout {
 			commit: this.state.commit,
 			callback: () => this.gmo(this.gmo)
 		});
-		chart_gmo({view: this.gmo});
+		this.gmo.view();
 	}
 
 	modify({parent, alter, merge, context, focus} = {}) {
@@ -137,9 +135,9 @@ class checkout {
 			parent: this.state.parent,
 			alter: this.state.alter,
 			merge: this.state.merge,
-			callback: () => chart_gmo({view: this.gmo})
+			callback: () => this.gmo.view()
 		});
-		chart_gmo({view: this.gmo});
+		this.gmo.view();
 	}
 
 	save({} = {}) {
