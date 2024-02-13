@@ -171,23 +171,19 @@ class checkout {
 			parent: this.state.parent,
 			merge: this.state.merge,
 			change: mst_df1.reduce((c, d) => {
-				const v = JSON.parse(document.querySelector(
-					`input[name="df1 ${d.id} value"]:checked`
-				).value);
+				const v = this.state.x[d.id - 1][0];
 				if (v.from != null)
 					return c;
 				c.push({
 					id: d.id,
 					inherit: false,
-					value: v.value,
-					note: document.querySelector(
-						`textarea[name="df1 ${d.id} note"]`
-					).value
+					value: v,
+					note: this.sheet.state.note[d.id - 1]
 				});
 				return c;
 			}, []),
-			author: document.querySelector('textarea[name="username"]').value,
-			description: document.querySelector('textarea[name="description"]').value,
+			author: this.header.state.username,
+			description: this.control.state.description,
 			timestamp: Date.now()
 		};
 		this.history.push(new_commit);

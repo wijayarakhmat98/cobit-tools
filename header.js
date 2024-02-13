@@ -13,7 +13,7 @@ from 'component';
 class header extends HTMLElement {
 	static state_view({username, state_graph} = {}) {
 		return {
-			state_graph: state_graph ?? 'closed',
+			state_graph: state_graph ?? 'open',
 			username: username ?? undefined
 		};
 	}

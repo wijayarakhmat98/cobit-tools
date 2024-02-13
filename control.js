@@ -15,11 +15,38 @@ import {
 from 'component';
 
 class control extends HTMLElement {
+	static state_view({} = {}) {
+		return {
+			mode: 'view'
+		};
+	}
+
+	static state_modify({description} = {}) {
+		return {
+			mode: 'modify',
+			description: description ?? undefined
+		}
+	}
+
 	constructor({} = {}) {
 		super();
 	}
 
+	restore({state, load = true} = {}) {
+		this.state = state;
+		if (load) {
+			if (this.state.mode == 'view')
+				this.view();
+			if (this.state.mode == 'modify')
+				this.modify();
+		}
+	}
+
 	view({} = {}) {
+		if (!this.state)
+			this.state = control.state_view();
+		if (this.state.mode == 'modify')
+			this.state = control.state_view();
 		replace_content({
 			element: this,
 			children: [
@@ -34,6 +61,17 @@ class control extends HTMLElement {
 	}
 
 	modify({parent, alter, merge, context} = {}) {
+		if (!this.state)
+			this.state = control.state_modify();
+		if (this.state.mode == 'view')
+			this.state = control.state_modify();
+		const description = create_textarea({name: 'description', row: 1, value: this.state.description});
+		listener_change({
+			element: description,
+			callback: () => {
+				this.state.description = description.value;
+			}
+		});
 		replace_content({
 			element: this,
 			children: [
@@ -51,7 +89,7 @@ class control extends HTMLElement {
 					children: [
 						...apply_label({
 							label: create_label({text: 'Description'}),
-							input: create_textarea({name: 'description', row: 1}),
+							input: description,
 							order: 'label'
 						}),
 						bubble({element: create_button({text: 'Commit'}), listener: listener_click, event: 'control-save'}),

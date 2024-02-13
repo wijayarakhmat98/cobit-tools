@@ -7,6 +7,8 @@ import {
 from 'master';
 
 import {
+	notify,
+	listen,
 	bubble,
 	listener_change,
 	create_range,
@@ -23,27 +25,45 @@ import {
 from 'component';
 
 class sheet extends HTMLElement {
-	static state_view({} = {}) {
-		return {};
+	static state_view({mode} = {}) {
+		return {
+			mode: 'view'
+		};
 	}
 
-	static state_modify({} = {}) {
-		return {};
+	static state_modify({mode, note} = {}) {
+		return {
+			mode: 'modify',
+			note: note ?? mst_df1.map(() => undefined)
+		};
 	}
 
 	constructor({} = {}) {
 		super();
 		this.state = undefined;
+		listen({
+			element: this,
+			event: 'sheet-note',
+			callback: ({detail} = {}) => {
+				this.state.note[detail.id - 1] = detail.note;
+			}
+		});
 	}
 
 	restore({state, load = true} = {}) {
 		this.state = state;
-		if (load)
-			this.view();
+		if (load) {
+			if (this.state.mode == 'view')
+				this.view();
+			if (this.state.mode == 'modify')
+				this.modify();
+		}
 	}
 
 	view({commit} = {}) {
 		if (!this.state)
+			this.state = sheet.state_view();
+		if (this.state.mode == 'modify')
 			this.state = sheet.state_view();
 		replace_row({
 			element: this,
@@ -85,6 +105,8 @@ class sheet extends HTMLElement {
 	modify({parent, alter, merge} = {}) {
 		if (!this.state)
 			this.state = sheet.state_modify();
+		if (this.state.mode == 'view')
+			this.state = sheet.state_modify();
 		replace_row({
 			element: this,
 			sub_row: 1 + mst_df1.length,
@@ -118,7 +140,8 @@ class sheet extends HTMLElement {
 							d: d,
 							lo: trs_df1_lo,
 							hi: trs_df1_hi,
-							checked: undefined
+							checked: undefined,
+							note_value: this.state.note[d.id - 1]
 						}))
 					]
 				})]),
@@ -151,14 +174,17 @@ class sheet extends HTMLElement {
 function create_snapshot({commit, mst_df, trs_df_baseline} = {}) {
 	return mst_df.map(d => {
 		let p, c;
-		for (p = commit; p.parent;)
+		for (p = commit;;)
 			if (c = p.change.find(e => e.id == d.id))
 				if (c.inherit)
 					p = c.from;
 				else
 					break;
 			else
-				p = p.parent
+				if (p.parent)
+					p = p.parent;
+				else
+					break;
 		return {
 			id: d.id,
 			value: c ? c.value : trs_df_baseline.find(e => e.id == d.id).value,
@@ -174,7 +200,24 @@ function create_change_sub_col({lo, hi} = {}) {
 	return hi - lo + 2;
 }
 
-function create_change({d, lo, hi, checked, style = {}, ...args} = {}) {
+function create_change({d, lo, hi, checked, note_value, style = {}, ...args} = {}) {
+	const note = create_textarea({row: 1, value: note_value});
+	listener_change({
+		element: note,
+		callback: () => {
+			notify({
+				element: note,
+				event: 'sheet-note',
+				detail: {
+					id: d.id,
+					note: note.value
+				},
+				options: {
+					bubbles: true
+				}
+			});
+		}
+	});
 	return create_div({
 		children: [
 			...create_range({start: lo, stop: hi}).map(
@@ -192,7 +235,7 @@ function create_change({d, lo, hi, checked, style = {}, ...args} = {}) {
 					}
 				})
 			),
-			create_textarea({row: 1})
+			note
 		],
 		style: {
 			...create_grid({col: 'subgrid'}),
