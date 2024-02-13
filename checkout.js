@@ -1,7 +1,19 @@
 import {
-	mst_df1
+	mst_df1,
+	trs_df1_baseline,
+	trs_df1_map_matrix
 }
 from 'master';
+
+import {
+	matrix_sum_element,
+	matrix_reciprocal,
+	matrix_scalar_multiply,
+	matrix_multiply,
+	matrix_element_multiply,
+	matrix_element_map
+}
+from 'matrix';
 
 import {
 	listen
@@ -9,22 +21,24 @@ import {
 from 'component';
 
 class checkout {
-	static state_view({commit, focus} = {}) {
+	static state_view({commit, focus, x} = {}) {
 		return {
 			mode: 'view',
 			commit: commit ?? null,
-			focus: focus ?? 'DF1'
+			focus: focus ?? 'DF1',
+			x: x ?? [[3], [3], [3], [3]]
 		};
 	}
 
-	static state_modify({parent, merge, alter, context, focus} = {}) {
+	static state_modify({parent, merge, alter, context, focus, x} = {}) {
 		return {
 			mode: 'modify',
 			parent: parent ?? null,
 			alter: alter ?? true,
 			merge: merge ?? [],
 			context: context ?? 'parent',
-			focus: focus ?? 'DF1'
+			focus: focus ?? 'DF1',
+			x: x ?? [[3], [3], [3], [3]]
 		};
 	}
 
@@ -81,6 +95,14 @@ class checkout {
 				this.state.focus = focus
 			}
 		});
+		listen({
+			element: this.sheet,
+			event: 'sheet-select',
+			callback: ({detail} = {}) => {
+				this.state.x[detail.id - 1][0] = detail.value;
+				this.gmo_view();
+			}
+		});
 	}
 
 	restore({state, load = true} = {}) {
@@ -107,11 +129,8 @@ class checkout {
 		this.graph.view({graph: this.history});
 		this.control.view();
 		this.focus.view({focus: this.state.focus});
-		this.sheet.view({
-			commit: this.state.commit,
-			callback: () => this.gmo(this.gmo)
-		});
-		this.gmo.view();
+		this.sheet.view({commit: this.state.commit});
+		this.gmo_view();
 	}
 
 	modify({parent, alter, merge, context, focus} = {}) {
@@ -134,10 +153,16 @@ class checkout {
 		this.sheet.modify({
 			parent: this.state.parent,
 			alter: this.state.alter,
-			merge: this.state.merge,
-			callback: () => this.gmo.view()
+			merge: this.state.merge
 		});
-		this.gmo.view();
+		this.gmo_view();
+	}
+
+	gmo_view({} = {}) {
+		const x = this.state.x;
+		const x_base = trs_df1_baseline.map((d) => [d.value]);
+		const r_hat = calculate_gmo({x: x, x_base: x_base});
+		this.gmo.view({r_hat: r_hat});
 	}
 
 	save({} = {}) {
@@ -168,6 +193,15 @@ class checkout {
 		this.history.push(new_commit);
 		this.view({commit: new_commit})
 	}
+}
+
+function calculate_gmo({x, x_base} = {}) {
+	const c = matrix_sum_element({A: x_base}) / matrix_sum_element({A: x});
+	const y = matrix_multiply({A: trs_df1_map_matrix, B: x});
+	const y_base = matrix_multiply({A: trs_df1_map_matrix, B: x_base});
+	const r = matrix_scalar_multiply({c: c, A: matrix_element_multiply({A: y, B: matrix_reciprocal({A: y_base})})});
+	const r_hat = matrix_element_map({A: r, callback: e => Math.round(20 * e) * 5 - 100});
+	return r_hat;
 }
 
 export default checkout;

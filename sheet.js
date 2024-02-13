@@ -7,6 +7,7 @@ import {
 from 'master';
 
 import {
+	bubble,
 	listener_change,
 	create_range,
 	create_grid,
@@ -41,7 +42,7 @@ class sheet extends HTMLElement {
 			this.view();
 	}
 
-	view({commit, callback} = {}) {
+	view({commit} = {}) {
 		if (!this.state)
 			this.state = sheet.state_view();
 		replace_row({
@@ -64,10 +65,9 @@ class sheet extends HTMLElement {
 							mst_df: mst_df1,
 							trs_df_baseline: trs_df1_baseline
 						}).map(d => create_trace({
-							name: `df1 ${d.id}`,
+							id: d.id,
 							d: d,
-							checked: true,
-							callback: callback
+							checked: true
 						}))
 					]
 				})]),
@@ -82,7 +82,7 @@ class sheet extends HTMLElement {
 		});
 	}
 
-	modify({parent, alter, merge, callback} = {}) {
+	modify({parent, alter, merge} = {}) {
 		if (!this.state)
 			this.state = sheet.state_modify();
 		replace_row({
@@ -105,10 +105,9 @@ class sheet extends HTMLElement {
 							mst_df: mst_df1,
 							trs_df_baseline: trs_df1_baseline
 						}).map(d => create_trace({
-							name: `df1 ${d.id}`,
+							id: d.id,
 							d: d,
-							checked: true,
-							callback: callback
+							checked: true
 						}))
 					]
 				})),
@@ -117,11 +116,10 @@ class sheet extends HTMLElement {
 					children: [
 						create_p({text: 'Change'}),
 						...mst_df1.map(d => create_change({
-							name: `df1 ${d.id}`,
+							id: d.id,
 							lo: trs_df1_lo,
 							hi: trs_df1_hi,
-							checked: undefined,
-							callback: callback
+							checked: undefined
 						}))
 					]
 				})]),
@@ -134,10 +132,9 @@ class sheet extends HTMLElement {
 							mst_df: mst_df1,
 							trs_df_baseline: trs_df1_baseline
 						}).map(d => create_trace({
-							name: `df1 ${d.id}`,
+							id: d.id,
 							d: d,
-							checked: true,
-							callback: callback
+							checked: true
 						}))
 					]
 				})]),
@@ -166,7 +163,6 @@ function create_snapshot({commit, mst_df, trs_df_baseline} = {}) {
 				p = p.parent
 		return {
 			id: d.id,
-			value: c ? c.value : trs_df_baseline.find(e => e.id == d.id).value,
 			note: c ? c.note : 'Baseline',
 			author: p.author,
 			commit: p.id,
@@ -179,21 +175,25 @@ function create_change_sub_col({lo, hi} = {}) {
 	return hi - lo + 2;
 }
 
-function create_change({name, lo, hi, checked, callback, style = {}, ...args} = {}) {
+function create_change({id, lo, hi, checked, style = {}, ...args} = {}) {
 	return create_div({
 		children: [
 			...create_range({start: lo, stop: hi}).map(
-				i => listener_change({
+				i => bubble({
 					element: create_radio({
 						text: i,
 						checked: i == checked,
-						name: `${name} value`,
-						value: `{"value": ${i}, "from": null}`
+						name: `${id} value`,
 					}),
-					callback: callback
+					listener: listener_change,
+					event: 'sheet-select',
+					detail: {
+						id: id,
+						value: i
+					}
 				})
 			),
-			create_textarea({name: `${name} note`, row: 1})
+			create_textarea({row: 1})
 		],
 		style: {
 			...create_grid({col: 'subgrid'}),
@@ -207,18 +207,16 @@ function create_trace_sub_col({} = {}) {
 	return 6;
 }
 
-function create_trace({name, d, checked, callback, style = {}, ...args} = {}) {
+function create_trace({id, d, checked, style = {}, ...args} = {}) {
 	return create_div({
 		children: [
 			listener_change({
 				element: create_radio({
 					text: d.value,
 					checked: checked,
-					name: `${name} value`,
-					value: `{"value": ${d.value}, "from": "old"}`,
+					name: `${id} value`,
 					style: create_area({h: 2})
-				}),
-				callback: callback
+				})
 			}),
 			create_p({text: d.note, classes: ['expand']}),
 			create_p({text: 'by'}),
