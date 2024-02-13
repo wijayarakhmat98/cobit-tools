@@ -105,7 +105,6 @@ class sheet extends HTMLElement {
 							mst_df: mst_df1,
 							trs_df_baseline: trs_df1_baseline
 						}).map(d => create_trace({
-							id: d.id,
 							d: d,
 							checked: true
 						}))
@@ -116,7 +115,7 @@ class sheet extends HTMLElement {
 					children: [
 						create_p({text: 'Change'}),
 						...mst_df1.map(d => create_change({
-							id: d.id,
+							d: d,
 							lo: trs_df1_lo,
 							hi: trs_df1_hi,
 							checked: undefined
@@ -132,7 +131,6 @@ class sheet extends HTMLElement {
 							mst_df: mst_df1,
 							trs_df_baseline: trs_df1_baseline
 						}).map(d => create_trace({
-							id: d.id,
 							d: d,
 							checked: true
 						}))
@@ -163,6 +161,7 @@ function create_snapshot({commit, mst_df, trs_df_baseline} = {}) {
 				p = p.parent
 		return {
 			id: d.id,
+			value: c ? c.value : trs_df_baseline.find(e => e.id == d.id).value,
 			note: c ? c.note : 'Baseline',
 			author: p.author,
 			commit: p.id,
@@ -175,7 +174,7 @@ function create_change_sub_col({lo, hi} = {}) {
 	return hi - lo + 2;
 }
 
-function create_change({id, lo, hi, checked, style = {}, ...args} = {}) {
+function create_change({d, lo, hi, checked, style = {}, ...args} = {}) {
 	return create_div({
 		children: [
 			...create_range({start: lo, stop: hi}).map(
@@ -183,12 +182,12 @@ function create_change({id, lo, hi, checked, style = {}, ...args} = {}) {
 					element: create_radio({
 						text: i,
 						checked: i == checked,
-						name: `${id} value`,
+						name: `${d.id} value`,
 					}),
 					listener: listener_change,
 					event: 'sheet-select',
 					detail: {
-						id: id,
+						id: d.id,
 						value: i
 					}
 				})
@@ -207,16 +206,22 @@ function create_trace_sub_col({} = {}) {
 	return 6;
 }
 
-function create_trace({id, d, checked, style = {}, ...args} = {}) {
+function create_trace({d, checked, style = {}, ...args} = {}) {
 	return create_div({
 		children: [
-			listener_change({
+			bubble({
 				element: create_radio({
 					text: d.value,
 					checked: checked,
-					name: `${id} value`,
+					name: `${d.id} value`,
 					style: create_area({h: 2})
-				})
+				}),
+				listener: listener_change,
+				event: 'sheet-select',
+				detail: {
+					id: d.id,
+					value: d.value
+				}
 			}),
 			create_p({text: d.note, classes: ['expand']}),
 			create_p({text: 'by'}),
