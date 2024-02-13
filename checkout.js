@@ -1,8 +1,8 @@
 import {
-	trs_df1_baseline,
 	trs_df1_map_matrix,
 	facet,
-	aspect
+	aspect,
+	baseline
 }
 from 'master';
 
@@ -131,7 +131,7 @@ class checkout {
 		this.graph.view({graph: this.history});
 		this.control.view();
 		this.focus.view({focus: this.state.focus});
-		this.sheet.view({commit: this.state.commit, aspect: this.mst_df()});
+		this.sheet.view({commit: this.state.commit, aspect: this.mst_df(), baseline: this.trs_df_baseline()});
 		this.gmo_view();
 	}
 
@@ -156,7 +156,8 @@ class checkout {
 			parent: this.state.parent,
 			alter: this.state.alter,
 			merge: this.state.merge,
-			aspect: this.mst_df()
+			aspect: this.mst_df(),
+			baseline: this.trs_df_baseline()
 		});
 		this.gmo_view();
 	}
@@ -164,21 +165,33 @@ class checkout {
 	mst_df({} = {}) {
 		const focus_ = facet.filter(f => f.code == this.state.focus)[0].id;
 		const mst_df = aspect.reduce((a, r) => {
-			if (r.fct_id == focus_) {
+			if (r.fct_id == focus_)
 				a.push({
 					id: r.id,
 					dimension: r.name,
 					explanation: 'place holder'
 				})
-			}
 			return a;
 		}, []);
 		return mst_df;
 	}
 
+	trs_df_baseline({} = {}) {
+		const focus_ = facet.filter(f => f.code == this.state.focus)[0].id;
+		const trs_df_baseline = baseline.reduce((a, r) => {
+			if (r.fct_id == focus_)
+				a.push({
+					id: r.asp_id,
+					value: r.baseline
+				})
+			return a;
+		}, []);
+		return trs_df_baseline;
+	}
+
 	gmo_view({} = {}) {
 		const x = this.state.x;
-		const x_base = trs_df1_baseline.map((d) => [d.value]);
+		const x_base = this.trs_df_baseline().map((d) => [d.value]);
 		const r_hat = calculate_gmo({x: x, x_base: x_base});
 		this.gmo.view({r_hat: r_hat});
 	}

@@ -1,5 +1,4 @@
 import {
-	trs_df1_baseline,
 	trs_df1_lo,
 	trs_df1_hi
 }
@@ -59,7 +58,7 @@ class sheet extends HTMLElement {
 		}
 	}
 
-	view({commit, aspect} = {}) {
+	view({commit, aspect, baseline} = {}) {
 		if (!this.state)
 			this.state = sheet.state_view();
 		if (this.state.mode == 'modify')
@@ -82,7 +81,7 @@ class sheet extends HTMLElement {
 						...create_snapshot({
 							commit: commit,
 							aspect: aspect,
-							trs_df_baseline: trs_df1_baseline
+							baseline: baseline,
 						}).map(d => create_trace({
 							id: d.id,
 							d: d,
@@ -94,14 +93,14 @@ class sheet extends HTMLElement {
 					sub_col: 1,
 					children: [
 						create_p({text: 'Baseline'}),
-						...trs_df1_baseline.map(d => create_p({text: d.value, classes: ['baseline']}))
+						...baseline.map(d => create_p({text: d.value, classes: ['baseline']}))
 					]
 				}),
 			]
 		});
 	}
 
-	modify({parent, alter, merge, aspect} = {}) {
+	modify({parent, alter, merge, aspect, baseline} = {}) {
 		if (!this.state)
 			this.state = sheet.state_modify({aspect: aspect});
 		if (this.state.mode == 'view')
@@ -124,7 +123,7 @@ class sheet extends HTMLElement {
 						...create_snapshot({
 							commit: s,
 							aspect: aspect,
-							trs_df_baseline: trs_df1_baseline
+							baseline: baseline,
 						}).map(d => create_trace({
 							d: d,
 							checked: true
@@ -151,7 +150,7 @@ class sheet extends HTMLElement {
 						...create_snapshot({
 							commit: parent,
 							aspect: aspect,
-							trs_df_baseline: trs_df1_baseline
+							baseline: baseline,
 						}).map(d => create_trace({
 							d: d,
 							checked: true
@@ -162,7 +161,7 @@ class sheet extends HTMLElement {
 					sub_col: 1,
 					children: [
 						create_p({text: 'Baseline'}),
-						...trs_df1_baseline.map(d => create_p({text: d.value, classes: ['baseline']}))
+						...baseline.map(d => create_p({text: d.value, classes: ['baseline']}))
 					]
 				}),
 			]
@@ -170,7 +169,7 @@ class sheet extends HTMLElement {
 	}
 }
 
-function create_snapshot({commit, aspect, trs_df_baseline} = {}) {
+function create_snapshot({commit, aspect, baseline} = {}) {
 	return aspect.map(d => {
 		let p, c;
 		for (p = commit;;)
@@ -186,7 +185,7 @@ function create_snapshot({commit, aspect, trs_df_baseline} = {}) {
 					break;
 		return {
 			id: d.id,
-			value: c ? c.value : trs_df_baseline.find(e => e.id == d.id).value,
+			value: c ? c.value : baseline.find(e => e.id == d.id).value,
 			note: c ? c.note : 'Baseline',
 			author: p.author,
 			commit: p.id,
