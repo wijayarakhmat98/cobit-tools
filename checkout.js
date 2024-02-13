@@ -1,7 +1,8 @@
 import {
-	mst_df1,
 	trs_df1_baseline,
-	trs_df1_map_matrix
+	trs_df1_map_matrix,
+	facet,
+	aspect
 }
 from 'master';
 
@@ -37,7 +38,7 @@ class checkout {
 			alter: alter ?? true,
 			merge: merge ?? [],
 			context: context ?? 'parent',
-			focus: focus ?? 'DF1',
+			focus: focus ?? 'df1',
 			x: x ?? [[3], [3], [3], [3]]
 		};
 	}
@@ -92,7 +93,8 @@ class checkout {
 			element: this.focus,
 			event: 'focus-change',
 			callback: ({detail: focus} = {}) => {
-				this.state.focus = focus
+				this.state.focus = focus;
+				this.restore({state: this.state});
 			}
 		});
 		listen({
@@ -129,7 +131,7 @@ class checkout {
 		this.graph.view({graph: this.history});
 		this.control.view();
 		this.focus.view({focus: this.state.focus});
-		this.sheet.view({commit: this.state.commit});
+		this.sheet.view({commit: this.state.commit, aspect: this.mst_df()});
 		this.gmo_view();
 	}
 
@@ -153,9 +155,25 @@ class checkout {
 		this.sheet.modify({
 			parent: this.state.parent,
 			alter: this.state.alter,
-			merge: this.state.merge
+			merge: this.state.merge,
+			aspect: this.mst_df()
 		});
 		this.gmo_view();
+	}
+
+	mst_df({} = {}) {
+		const focus_ = facet.filter(f => f.code == this.state.focus)[0].id;
+		const mst_df = aspect.reduce((a, r) => {
+			if (r.fct_id == focus_) {
+				a.push({
+					id: r.id,
+					dimension: r.name,
+					explanation: 'place holder'
+				})
+			}
+			return a;
+		}, []);
+		return mst_df;
 	}
 
 	gmo_view({} = {}) {
@@ -170,7 +188,7 @@ class checkout {
 			id: this.history.length,
 			parent: this.state.parent,
 			merge: this.state.merge,
-			change: mst_df1.reduce((c, d) => {
+			change: this.mst_df().reduce((c, d) => {
 				const v = this.state.x[d.id - 1][0];
 				if (v.from != null)
 					return c;

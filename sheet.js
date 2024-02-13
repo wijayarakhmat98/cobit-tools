@@ -1,5 +1,4 @@
 import {
-	mst_df1,
 	trs_df1_baseline,
 	trs_df1_lo,
 	trs_df1_hi
@@ -25,16 +24,16 @@ import {
 from 'component';
 
 class sheet extends HTMLElement {
-	static state_view({mode} = {}) {
+	static state_view({} = {}) {
 		return {
 			mode: 'view'
 		};
 	}
 
-	static state_modify({mode, note} = {}) {
+	static state_modify({aspect, note} = {}) {
 		return {
 			mode: 'modify',
-			note: note ?? mst_df1.map(() => undefined)
+			note: note ?? aspect.map(() => undefined)
 		};
 	}
 
@@ -60,20 +59,20 @@ class sheet extends HTMLElement {
 		}
 	}
 
-	view({commit} = {}) {
+	view({commit, aspect} = {}) {
 		if (!this.state)
 			this.state = sheet.state_view();
 		if (this.state.mode == 'modify')
 			this.state = sheet.state_view();
 		replace_row({
 			element: this,
-			sub_row: 1 + mst_df1.length,
+			sub_row: 1 + aspect.length,
 			children: [
 				create_column({
 					sub_col: 1,
 					children: [
 						create_p({text: 'Enterprise Strategy'}),
-						...mst_df1.map(d => create_details({summary: d.dimension, detail: d.explanation}))
+						...aspect.map(d => create_details({summary: d.dimension, detail: d.explanation}))
 					]
 				}),
 				...(commit === null ? [] : [create_column({
@@ -82,7 +81,7 @@ class sheet extends HTMLElement {
 						create_p({text: `Viewing commit ${commit.id}`}),
 						...create_snapshot({
 							commit: commit,
-							mst_df: mst_df1,
+							aspect: aspect,
 							trs_df_baseline: trs_df1_baseline
 						}).map(d => create_trace({
 							id: d.id,
@@ -102,20 +101,20 @@ class sheet extends HTMLElement {
 		});
 	}
 
-	modify({parent, alter, merge} = {}) {
+	modify({parent, alter, merge, aspect} = {}) {
 		if (!this.state)
-			this.state = sheet.state_modify();
+			this.state = sheet.state_modify({aspect: aspect});
 		if (this.state.mode == 'view')
-			this.state = sheet.state_modify();
+			this.state = sheet.state_modify({aspect: aspect});
 		replace_row({
 			element: this,
-			sub_row: 1 + mst_df1.length,
+			sub_row: 1 + aspect.length,
 			children: [
 				create_column({
 					sub_col: 1,
 					children: [
 						create_p({text: 'Enterprise Strategy'}),
-						...mst_df1.map(d => create_details({summary: d.dimension, detail: d.explanation}))
+						...aspect.map(d => create_details({summary: d.dimension, detail: d.explanation}))
 					]
 				}),
 				...merge.map(s => create_column({
@@ -124,7 +123,7 @@ class sheet extends HTMLElement {
 						create_p({text: `Merging commit ${s.id}`}),
 						...create_snapshot({
 							commit: s,
-							mst_df: mst_df1,
+							aspect: aspect,
 							trs_df_baseline: trs_df1_baseline
 						}).map(d => create_trace({
 							d: d,
@@ -136,7 +135,7 @@ class sheet extends HTMLElement {
 					sub_col: create_change_sub_col({lo: trs_df1_lo, hi: trs_df1_hi}),
 					children: [
 						create_p({text: 'Change'}),
-						...mst_df1.map(d => create_change({
+						...aspect.map(d => create_change({
 							d: d,
 							lo: trs_df1_lo,
 							hi: trs_df1_hi,
@@ -151,7 +150,7 @@ class sheet extends HTMLElement {
 						create_p({text: `Parent commit ${parent.id}`}),
 						...create_snapshot({
 							commit: parent,
-							mst_df: mst_df1,
+							aspect: aspect,
 							trs_df_baseline: trs_df1_baseline
 						}).map(d => create_trace({
 							d: d,
@@ -171,8 +170,8 @@ class sheet extends HTMLElement {
 	}
 }
 
-function create_snapshot({commit, mst_df, trs_df_baseline} = {}) {
-	return mst_df.map(d => {
+function create_snapshot({commit, aspect, trs_df_baseline} = {}) {
+	return aspect.map(d => {
 		let p, c;
 		for (p = commit;;)
 			if (c = p.change.find(e => e.id == d.id))

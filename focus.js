@@ -19,57 +19,45 @@ class focus extends HTMLElement {
 				create_div({
 					children: [
 						bubble({
-							element: create_toggle_radio({text: 'DF1', name: 'focus', checked: focus == 'DF1'}),
-							listener: listener_change, event: 'focus-change', detail: 'DF1'
+							element: create_toggle_radio({text: 'DF1', name: 'focus', checked: focus == 'df1'}),
+							listener: listener_change, event: 'focus-change', detail: 'df1'
 						}),
 						bubble({
-							element: create_toggle_radio({text: 'DF2', name: 'focus', checked: focus == 'DF2'}),
-							listener: listener_change, event: 'focus-change', detail: 'DF2'
+							element: create_toggle_radio({text: 'DF2', name: 'focus', checked: focus == 'df2'}),
+							listener: listener_change, event: 'focus-change', detail: 'df2'
 						}),
 						bubble({
-							element: create_toggle_radio({text: 'DF3', name: 'focus', checked: focus == 'DF3'}),
-							listener: listener_change, event: 'focus-change', detail: 'DF3'
+							element: create_toggle_radio({text: 'DF3', name: 'focus', checked: focus == 'df3'}),
+							listener: listener_change, event: 'focus-change', detail: 'df3'
 						}),
 						bubble({
-							element: create_toggle_radio({text: 'DF4', name: 'focus', checked: focus == 'DF4'}),
-							listener: listener_change, event: 'focus-change', detail: 'DF4'
+							element: create_toggle_radio({text: 'DF4', name: 'focus', checked: focus == 'df4'}),
+							listener: listener_change, event: 'focus-change', detail: 'df4'
 						}),
 						bubble({
-							element: create_toggle_radio({text: 'S2', name: 'focus', checked: focus == 'S2'}),
-							listener: listener_change, event: 'focus-change', detail: 'S2'
+							element: create_toggle_radio({text: 'DF5', name: 'focus', checked: focus == 'df5'}),
+							listener: listener_change, event: 'focus-change', detail: 'df5'
 						}),
 						bubble({
-							element: create_toggle_radio({text: 'DF5', name: 'focus', checked: focus == 'DF5'}),
-							listener: listener_change, event: 'focus-change', detail: 'DF5'
+							element: create_toggle_radio({text: 'DF6', name: 'focus', checked: focus == 'df6'}),
+							listener: listener_change, event: 'focus-change', detail: 'df6'
 						}),
 						bubble({
-							element: create_toggle_radio({text: 'DF6', name: 'focus', checked: focus == 'DF6'}),
-							listener: listener_change, event: 'focus-change', detail: 'DF6'
+							element: create_toggle_radio({text: 'DF7', name: 'focus', checked: focus == 'df7'}),
+							listener: listener_change, event: 'focus-change', detail: 'df7'
 						}),
 						bubble({
-							element: create_toggle_radio({text: 'DF7', name: 'focus', checked: focus == 'DF7'}),
-							listener: listener_change, event: 'focus-change', detail: 'DF7'
+							element: create_toggle_radio({text: 'DF8', name: 'focus', checked: focus == 'df8'}),
+							listener: listener_change, event: 'focus-change', detail: 'df8'
 						}),
 						bubble({
-							element: create_toggle_radio({text: 'DF8', name: 'focus', checked: focus == 'DF8'}),
-							listener: listener_change, event: 'focus-change', detail: 'DF8'
+							element: create_toggle_radio({text: 'DF9', name: 'focus', checked: focus == 'df9'}),
+							listener: listener_change, event: 'focus-change', detail: 'df9'
 						}),
 						bubble({
-							element: create_toggle_radio({text: 'DF9', name: 'focus', checked: focus == 'DF9'}),
-							listener: listener_change, event: 'focus-change', detail: 'DF9'
+							element: create_toggle_radio({text: 'DF10', name: 'focus', checked: focus == 'df10'}),
+							listener: listener_change, event: 'focus-change', detail: 'df10'
 						}),
-						bubble({
-							element: create_toggle_radio({text: 'DF10', name: 'focus', checked: focus == 'DF10'}),
-							listener: listener_change, event: 'focus-change', detail: 'DF10'
-						}),
-						bubble({
-							element: create_toggle_radio({text: 'S3', name: 'focus', checked: focus == 'S3'}),
-							listener: listener_change, event: 'focus-change', detail: 'S3'
-						}),
-						bubble({
-							element: create_toggle_radio({text: 'S4', name: 'focus', checked: focus == 'S4'}),
-							listener: listener_change, event: 'focus-change', detail: 'S4'
-						})
 					],
 					classes: ['flex-start']
 				})

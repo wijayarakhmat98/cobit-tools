@@ -61,7 +61,7 @@ x-sheet {
 	gap: 1rem;
 }
 
-#view_gmo {
+x-gmo {
 	grid-area: o;
 	width: fit-content;
 	justify-self: center;
@@ -98,39 +98,48 @@ x-sheet .baseline {
 	text-align: center;
 }
 
-#view_gmo :has(> details) {
+x-sheet summary, x-sheet .summary {
+	max-width: 16rem;
+}
+
+x-gmo :has(> details) {
 	column-gap: 0.5rem;
 }
 
-#view_gmo .view_gmo_bar:empty {
+x-gmo .view_gmo_bar:empty {
 	border-right: 1px solid black;
 	border-left: 1px solid black;
 }
 
-#view_gmo .view_gmo_bar {
+x-gmo .view_gmo_bar {
 	width: 40rem;
 }
 
-#view_gmo .view_gmo_bar > * {
+x-gmo .view_gmo_bar > * {
 	height: fit-content;
 }
 
-#view_gmo .view_gmo_bar .neg {
+x-gmo .view_gmo_bar .neg {
 	background-color: orange;
 	text-align: right;
 }
 
-#view_gmo .view_gmo_bar .zer {
+x-gmo .view_gmo_bar .zer {
 	text-align: center;
 }
 
-#view_gmo .view_gmo_bar .pos {
+x-gmo .view_gmo_bar .pos {
 	background-color: cyan;
 	text-align: left;
 }
 
 button {
 	border: none;
+}
+
+summary {
+	list-style-position: outside;
+	margin-left: 1rem;
 }
 
 summary, .summary {
