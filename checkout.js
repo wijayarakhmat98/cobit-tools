@@ -21,6 +21,8 @@ import {
 }
 from 'component';
 
+import chart_visual from 'visual';
+
 class checkout {
 	static state_view({commit, focus, x} = {}) {
 		return {
@@ -194,6 +196,7 @@ class checkout {
 		const x_base = this.trs_df_baseline().map((d) => [d.value]);
 		const r_hat = calculate_gmo({x: x, x_base: x_base});
 		this.gmo.view({r_hat: r_hat});
+		chart_visual(this.visual, x);
 	}
 
 	save({} = {}) {
