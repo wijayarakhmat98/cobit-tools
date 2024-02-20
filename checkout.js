@@ -248,18 +248,18 @@ class checkout {
 			merge: this.state.merge,
 			change: this.mst_df().reduce((c, d) => {
 				const v = this.state.x[d.id - 1][0];
-				if (v.from !== null)
-					return c;
+				// if (v.from !== null)
+				// 	return c;
 				c.push({
 					id: d.id,
 					inherit: false,
 					value: v,
-					note: this.sheet.state.note[d.id - 1]
+					note: this.sheet.state.note[d.id - 1] ?? ''
 				});
 				return c;
 			}, []),
-			author: this.header.state.username,
-			description: this.control.state.description,
+			author: this.header.state.username ?? '',
+			description: this.control.state.description ?? '',
 			timestamp: Date.now()
 		};
 		this.history.push(new_commit);

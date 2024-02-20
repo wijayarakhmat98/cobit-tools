@@ -8,6 +8,7 @@ import {
 	notify,
 	listen,
 	bubble,
+	listener_click,
 	listener_change,
 	create_range,
 	create_grid,
@@ -18,7 +19,8 @@ import {
 	create_p,
 	create_details,
 	create_radio,
-	create_textarea
+	create_textarea,
+	create_button
 }
 from 'component';
 
@@ -66,25 +68,28 @@ class sheet extends HTMLElement {
 					else
 						v = this.state.value[j];
 				}
-				if (detail.from == 'parent' && i != -1)
+				if (detail.from == 'clear')
+					for (let r of document.getElementsByName(`${detail.id} value`))
+						r.checked = false;
+				if ((detail.from == 'parent' || detail.from == 'clear') && i != -1)
 					this.state.selection.splice(i, 1);
 				else {
 					const s = i != -1 ? this.state.selection[i] : {id: detail.id};
 					s.from = detail.from;
 					if (i == -1)
 						this.state.selection.push(s);
-					notify({
-						element: this,
-						event: 'sheet-select',
-						detail: {
-							id: detail.id,
-							value: detail.value
-						},
-						options: {
-							bubbles: true
-						}
-					});
 				}
+				notify({
+					element: this,
+					event: 'sheet-select',
+					detail: {
+						id: detail.id,
+						value: detail.value
+					},
+					options: {
+						bubbles: true
+					}
+				});
 			}
 		});
 	}
@@ -201,7 +206,7 @@ class sheet extends HTMLElement {
 							aspect: aspect,
 							baseline: baseline,
 						}).map(d => create_trace({
-							from: parent.id,
+							from: 'parent',
 							d: d,
 							checked: context[d.id - 1] == parent.id
 						}))
@@ -214,6 +219,28 @@ class sheet extends HTMLElement {
 						...baseline.map(d => create_p({text: d.value, classes: ['baseline']}))
 					]
 				}),
+				...(parent !== null || !alter && !merge.length ? [] : [create_column({
+					sub_col: 1,
+					children: [
+						create_p({text: ''}),
+						...aspect.map(d => bubble({
+							element: create_button({
+								text: 'Clear',
+								style: {
+									height: 'min-content',
+									padding: '0 0.25rem'
+								}
+							}),
+							listener: listener_click,
+							event: 'sheet-select-x',
+							detail: {
+								value: baseline[d.id - 1].value,
+								id: d.id,
+								from: 'clear'
+							}
+						}))
+					]
+				})])
 			]
 		});
 	}
