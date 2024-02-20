@@ -24,7 +24,7 @@ function prepare({graph} = {}) {
 		timestamp: g.timestamp,
 		i: undefined,
 		j: undefined,
-		parents: (g.parent == null ? [] : [g.parent]).concat(g.merge),
+		parents: (g.parent === null ? [] : [g.parent]).concat(g.merge),
 		merge_parent: [],
 		children: [],
 		merge_children: [],
@@ -207,7 +207,7 @@ function J({c, F} = {}) {
 	let di = Math.min.apply(Math, c.merge_children.map(m => m.i));
 	for (let j = 0; j < F[0].length; ++j)
 		for (let i = c.i - 1; i > di; --i)
-			if (F[i][j] != null) {
+			if (F[i][j] !== null) {
 				Jc.push(j);
 				break;
 			}
@@ -250,7 +250,7 @@ function place_j({C} = {}) {
 			B[d_.j] = null;
 		c.j = B.findIndex(d => d == c);
 
-		F.push(B.map(b => b == null ? null : b.name));
+		F.push(B.map(b => b === null ? null : b.name));
 		const F_col = Math.max.apply(Math, F.map(f => f.length));
 		for (let f of F) {
 			while (f.length < F_col)

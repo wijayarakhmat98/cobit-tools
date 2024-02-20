@@ -29,10 +29,12 @@ class sheet extends HTMLElement {
 		};
 	}
 
-	static state_modify({aspect, note} = {}) {
+	static state_modify({selection, value, note} = {}) {
 		return {
 			mode: 'modify',
-			note: note ?? aspect.map(() => undefined)
+			selection: selection ?? [],
+			value: value ?? [],
+			note: note ?? []
 		};
 	}
 
@@ -44,6 +46,45 @@ class sheet extends HTMLElement {
 			event: 'sheet-note',
 			callback: ({detail} = {}) => {
 				this.state.note[detail.id - 1] = detail.note;
+			}
+		});
+		listen({
+			element: this,
+			event: 'sheet-select-x',
+			callback: ({detail} = {}) => {
+				const i = this.state.selection.findIndex(s => s.id == detail.id);
+				if (detail.from == 'new') {
+					const j = this.state.value.findIndex(v => v.id == detail.id);
+					let v;
+					if (j == -1) {
+						v = {
+							id: detail.id,
+							value: detail.value
+						};
+						this.state.value.push(v);
+					}
+					else
+						v = this.state.value[j];
+				}
+				if (detail.from == 'parent' && i != -1)
+					this.state.selection.splice(i, 1);
+				else {
+					const s = i != -1 ? this.state.selection[i] : {id: detail.id};
+					s.from = detail.from;
+					if (i == -1)
+						this.state.selection.push(s);
+					notify({
+						element: this,
+						event: 'sheet-select',
+						detail: {
+							id: detail.id,
+							value: detail.value
+						},
+						options: {
+							bubbles: true
+						}
+					});
+				}
 			}
 		});
 	}
@@ -102,9 +143,16 @@ class sheet extends HTMLElement {
 
 	modify({parent, alter, merge, aspect, baseline} = {}) {
 		if (!this.state)
-			this.state = sheet.state_modify({aspect: aspect});
+			this.state = sheet.state_modify();
 		if (this.state.mode == 'view')
-			this.state = sheet.state_modify({aspect: aspect});
+			this.state = sheet.state_modify();
+		const context = create_context({
+			parent: parent,
+			alter: alter,
+			merge: merge,
+			aspect: aspect,
+			selection: this.state.selection
+		})
 		replace_row({
 			element: this,
 			sub_row: 1 + aspect.length,
@@ -125,8 +173,9 @@ class sheet extends HTMLElement {
 							aspect: aspect,
 							baseline: baseline,
 						}).map(d => create_trace({
+							from: s.id,
 							d: d,
-							checked: true
+							checked: context[d.id - 1] == s.id
 						}))
 					]
 				})),
@@ -138,7 +187,7 @@ class sheet extends HTMLElement {
 							d: d,
 							lo: trs_df1_lo,
 							hi: trs_df1_hi,
-							checked: undefined,
+							checked: context[d.id - 1] == 'new' ? this.state.value[this.state.value.findIndex(v => v.id == d.id)].value : undefined,
 							note_value: this.state.note[d.id - 1]
 						}))
 					]
@@ -152,8 +201,9 @@ class sheet extends HTMLElement {
 							aspect: aspect,
 							baseline: baseline,
 						}).map(d => create_trace({
+							from: parent.id,
 							d: d,
-							checked: true
+							checked: context[d.id - 1] == parent.id
 						}))
 					]
 				})]),
@@ -167,6 +217,22 @@ class sheet extends HTMLElement {
 			]
 		});
 	}
+}
+
+function create_context({parent, alter, merge, aspect, selection} = {}) {
+	return aspect.map(d => {
+		const i = selection.findIndex(s => s.id == d.id);
+		if (i != -1) {
+			const s = selection[i];
+			if (alter && s.from == 'new')
+				return s.from;
+			if (merge.findIndex(m => m.id == s.from) != -1)
+				return s.from;
+		}
+		if (parent !== null)
+			return parent.id;
+		return 'baseline';
+	});
 }
 
 function create_snapshot({commit, aspect, baseline} = {}) {
@@ -226,8 +292,9 @@ function create_change({d, lo, hi, checked, note_value, style = {}, ...args} = {
 						name: `${d.id} value`,
 					}),
 					listener: listener_change,
-					event: 'sheet-select',
+					event: 'sheet-select-x',
 					detail: {
+						from: 'new',
 						id: d.id,
 						value: i
 					}
@@ -247,7 +314,7 @@ function create_trace_sub_col({} = {}) {
 	return 6;
 }
 
-function create_trace({d, checked, style = {}, ...args} = {}) {
+function create_trace({from, d, checked, style = {}, ...args} = {}) {
 	return create_div({
 		children: [
 			bubble({
@@ -258,8 +325,9 @@ function create_trace({d, checked, style = {}, ...args} = {}) {
 					style: create_area({h: 2})
 				}),
 				listener: listener_change,
-				event: 'sheet-select',
+				event: 'sheet-select-x',
 				detail: {
+					from: from,
 					id: d.id,
 					value: d.value
 				}

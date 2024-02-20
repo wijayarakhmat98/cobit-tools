@@ -227,7 +227,7 @@ class checkout {
 		const x = this.state.x;
 		const x_base = this.trs_df_baseline().map((d) => [d.value]);
 		const r_hat = this.gmo_calculate({x: x, x_base: x_base});
-		this.visual.view({mst_df: this.mst_df(), x: x});
+		// this.visual.view({mst_df: this.mst_df(), x: x});
 		this.gmo.view({r_hat: r_hat});
 	}
 
@@ -248,7 +248,7 @@ class checkout {
 			merge: this.state.merge,
 			change: this.mst_df().reduce((c, d) => {
 				const v = this.state.x[d.id - 1][0];
-				if (v.from != null)
+				if (v.from !== null)
 					return c;
 				c.push({
 					id: d.id,
