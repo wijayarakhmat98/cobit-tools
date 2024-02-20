@@ -21,11 +21,11 @@ class focus extends HTMLElement {
 						element: create_toggle_radio({
 							text: f.text,
 							name: 'focus',
-							checked: focus == f.code
+							checked: focus == f.value
 						}),
 						listener: listener_change,
 						event: 'focus-change',
-						detail: f.code
+						detail: f.value
 					})),
 					classes: ['flex-start']
 				})

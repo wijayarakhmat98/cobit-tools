@@ -50,7 +50,7 @@ x-focus {
 	display: flex;
 }
 
-#view_visual {
+x-visual {
 	grid-area: v;
 }
 

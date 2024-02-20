@@ -1,12 +1,13 @@
 import {
-	trs_df1_map_matrix,
 	facet,
 	aspect,
+	map,
 	baseline
 }
 from 'master';
 
 import {
+	matrix_create,
 	matrix_sum_element,
 	matrix_reciprocal,
 	matrix_scalar_multiply,
@@ -21,14 +22,12 @@ import {
 }
 from 'component';
 
-import chart_visual from 'visual';
-
 class checkout {
 	static state_view({commit, focus, x} = {}) {
 		return {
 			mode: 'view',
 			commit: commit ?? null,
-			focus: focus ?? 'DF1',
+			focus: focus ?? 2,
 			x: x ?? [[3], [3], [3], [3]]
 		};
 	}
@@ -40,7 +39,7 @@ class checkout {
 			alter: alter ?? true,
 			merge: merge ?? [],
 			context: context ?? 'parent',
-			focus: focus ?? 'df1',
+			focus: focus ?? 2,
 			x: x ?? [[3], [3], [3], [3]]
 		};
 	}
@@ -96,6 +95,7 @@ class checkout {
 			event: 'focus-change',
 			callback: ({detail: focus} = {}) => {
 				this.state.focus = focus;
+				this.state.x = this.trs_df_baseline().map(b => [b.value]);
 				this.restore({state: this.state});
 			}
 		});
@@ -169,17 +169,16 @@ class checkout {
 		const list = facet
 			.filter(f => id.includes(f.id))
 			.map(f => ({
-				text: f.code.toUpperCase(),
-				code: f.code
+				text: f.code,
+				value: f.id
 			}))
 		;
 		this.focus.view({list: list, focus: this.state.focus});
 	}
 
 	mst_df({} = {}) {
-		const focus_ = facet.filter(f => f.code == this.state.focus)[0].id;
 		const mst_df = aspect.reduce((a, r) => {
-			if (r.fct_id == focus_)
+			if (r.fct_id == this.state.focus)
 				a.push({
 					id: r.id,
 					dimension: r.name,
@@ -191,9 +190,8 @@ class checkout {
 	}
 
 	trs_df_baseline({} = {}) {
-		const focus_ = facet.filter(f => f.code == this.state.focus)[0].id;
 		const trs_df_baseline = baseline.reduce((a, r) => {
-			if (r.fct_id == focus_)
+			if (r.fct_id == this.state.focus)
 				a.push({
 					id: r.asp_id,
 					value: r.baseline
@@ -203,12 +201,44 @@ class checkout {
 		return trs_df_baseline;
 	}
 
+	trs_df_map_matrix({} = {}) {
+		let ms = [];
+		let focus = this.state.focus;
+		for (;;) {
+			let m = map.filter(r => r.src_fct_id == focus);
+			if (m.length == 0)
+				break;
+			focus = m[0].dst_fct_id;
+			ms.push(m);
+		}
+		ms = ms.map(m => {
+			const row = Math.max.apply(Math, m.map(r => r.dst_asp_id));
+			const col = Math.max.apply(Math, m.map(r => r.src_asp_id));
+			let A = matrix_create({row: row, col: col});
+			for (const r of m)
+				A[r.dst_asp_id - 1][r.src_asp_id - 1] = r.relevance;
+			return A;
+		});
+		const M = ms.reverse().reduce((M, m) => matrix_multiply({A: M, B: m}));
+		return M;
+	}
+
 	gmo_view({} = {}) {
 		const x = this.state.x;
 		const x_base = this.trs_df_baseline().map((d) => [d.value]);
-		const r_hat = calculate_gmo({x: x, x_base: x_base});
+		const r_hat = this.gmo_calculate({x: x, x_base: x_base});
+		this.visual.view({mst_df: this.mst_df(), x: x});
 		this.gmo.view({r_hat: r_hat});
-		chart_visual(this.visual, x);
+	}
+
+	gmo_calculate({x, x_base} = {}) {
+		const M = this.trs_df_map_matrix();
+		const c = matrix_sum_element({A: x_base}) / matrix_sum_element({A: x});
+		const y = matrix_multiply({A: M, B: x});
+		const y_base = matrix_multiply({A: M, B: x_base});
+		const r = matrix_scalar_multiply({c: c, A: matrix_element_multiply({A: y, B: matrix_reciprocal({A: y_base})})});
+		const r_hat = matrix_element_map({A: r, callback: e => Math.round(20 * e) * 5 - 100});
+		return r_hat;
 	}
 
 	save({} = {}) {
@@ -235,15 +265,6 @@ class checkout {
 		this.history.push(new_commit);
 		this.view({commit: new_commit})
 	}
-}
-
-function calculate_gmo({x, x_base} = {}) {
-	const c = matrix_sum_element({A: x_base}) / matrix_sum_element({A: x});
-	const y = matrix_multiply({A: trs_df1_map_matrix, B: x});
-	const y_base = matrix_multiply({A: trs_df1_map_matrix, B: x_base});
-	const r = matrix_scalar_multiply({c: c, A: matrix_element_multiply({A: y, B: matrix_reciprocal({A: y_base})})});
-	const r_hat = matrix_element_map({A: r, callback: e => Math.round(20 * e) * 5 - 100});
-	return r_hat;
 }
 
 export default checkout;

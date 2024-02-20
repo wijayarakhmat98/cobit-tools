@@ -3,6 +3,7 @@ import header from 'header';
 import graph from 'graph';
 import control from 'control';
 import focus from 'focus';
+import visual from 'visual';
 import sheet from 'sheet';
 import gmo from 'gmo';
 
@@ -76,6 +77,7 @@ function main({
 	customElements.define('x-graph', graph);
 	customElements.define('x-control', control);
 	customElements.define('x-focus', focus);
+	customElements.define('x-visual', visual);
 	customElements.define('x-sheet', sheet);
 	customElements.define('x-gmo', gmo);
 
