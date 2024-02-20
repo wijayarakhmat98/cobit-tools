@@ -191,7 +191,7 @@ class checkout {
 
 	trs_df_baseline({} = {}) {
 		const trs_df_baseline = baseline.reduce((a, r) => {
-			if (r.fct_id == this.state.focus)
+			if (r.fct_id == this.state.focus && r.inp_id == 1)
 				a.push({
 					id: r.asp_id,
 					value: r.baseline
