@@ -27,8 +27,7 @@ class checkout {
 		return {
 			mode: 'view',
 			commit: commit ?? null,
-			focus: focus ?? 2,
-			x: x ?? [[3], [3], [3], [3]]
+			focus: focus ?? 2
 		};
 	}
 
@@ -39,8 +38,7 @@ class checkout {
 			alter: alter ?? true,
 			merge: merge ?? [],
 			context: context ?? 'parent',
-			focus: focus ?? 2,
-			x: x ?? [[3], [3], [3], [3]]
+			focus: focus ?? 2
 		};
 	}
 
@@ -95,17 +93,13 @@ class checkout {
 			event: 'focus-change',
 			callback: ({detail: focus} = {}) => {
 				this.state.focus = focus;
-				this.state.x = this.trs_df_baseline().map(b => [b.value]);
 				this.restore({state: this.state});
 			}
 		});
 		listen({
 			element: this.sheet,
 			event: 'sheet-select',
-			callback: ({detail} = {}) => {
-				this.state.x[detail.id - 1][0] = detail.value;
-				this.gmo_view();
-			}
+			callback: () => this.gmo_view()
 		});
 	}
 
@@ -224,7 +218,7 @@ class checkout {
 	}
 
 	gmo_view({} = {}) {
-		const x = this.state.x;
+		const x = this.sheet.x;
 		const x_base = this.trs_df_baseline().map((d) => [d.value]);
 		const r_hat = this.gmo_calculate({x: x, x_base: x_base});
 		// this.visual.view({mst_df: this.mst_df(), x: x});
@@ -247,7 +241,7 @@ class checkout {
 			parent: this.state.parent,
 			merge: this.state.merge,
 			change: this.mst_df().reduce((c, d) => {
-				const v = this.state.x[d.id - 1][0];
+				const v = this.sheet.x[d.id - 1][0];
 				// if (v.from !== null)
 				// 	return c;
 				c.push({

@@ -43,6 +43,8 @@ class sheet extends HTMLElement {
 	constructor({} = {}) {
 		super();
 		this.state = undefined;
+		this.prop = {};
+		this.cache = {};
 		listen({
 			element: this,
 			event: 'sheet-note',
@@ -59,14 +61,12 @@ class sheet extends HTMLElement {
 					const j = this.state.value.findIndex(v => v.id == detail.id);
 					let v;
 					if (j == -1) {
-						v = {
-							id: detail.id,
-							value: detail.value
-						};
+						v = {id: detail.id};
 						this.state.value.push(v);
 					}
 					else
 						v = this.state.value[j];
+					v.value = detail.value;
 				}
 				if (detail.from == 'clear')
 					for (let r of document.getElementsByName(`${detail.id} value`))
@@ -151,13 +151,19 @@ class sheet extends HTMLElement {
 			this.state = sheet.state_modify();
 		if (this.state.mode == 'view')
 			this.state = sheet.state_modify();
-		const context = create_context({
+		this.prop = {
 			parent: parent,
 			alter: alter,
 			merge: merge,
 			aspect: aspect,
+			baseline: baseline,
 			selection: this.state.selection
-		})
+		};
+		this.cache.snapshot = [...(parent === null ? [] : [parent]), ...merge].reduce((snapshot, s) => {
+			snapshot[s.id] = create_snapshot({commit: s, aspect: aspect, baseline: baseline});
+			return snapshot;
+		}, {});
+		const context = this.context();
 		replace_row({
 			element: this,
 			sub_row: 1 + aspect.length,
@@ -173,11 +179,7 @@ class sheet extends HTMLElement {
 					sub_col: create_trace_sub_col(),
 					children: [
 						create_p({text: `Merging commit ${s.id}`}),
-						...create_snapshot({
-							commit: s,
-							aspect: aspect,
-							baseline: baseline,
-						}).map(d => create_trace({
+						...this.cache.snapshot[s.id].map(d => create_trace({
 							from: s.id,
 							d: d,
 							checked: context[d.id - 1] == s.id
@@ -201,11 +203,7 @@ class sheet extends HTMLElement {
 					sub_col: create_trace_sub_col(),
 					children: [
 						create_p({text: `Parent commit ${parent.id}`}),
-						...create_snapshot({
-							commit: parent,
-							aspect: aspect,
-							baseline: baseline,
-						}).map(d => create_trace({
+						...this.cache.snapshot[parent.id].map(d => create_trace({
 							from: 'parent',
 							d: d,
 							checked: context[d.id - 1] == parent.id
@@ -244,22 +242,35 @@ class sheet extends HTMLElement {
 			]
 		});
 	}
-}
 
-function create_context({parent, alter, merge, aspect, selection} = {}) {
-	return aspect.map(d => {
-		const i = selection.findIndex(s => s.id == d.id);
-		if (i != -1) {
-			const s = selection[i];
-			if (alter && s.from == 'new')
-				return s.from;
-			if (merge.findIndex(m => m.id == s.from) != -1)
-				return s.from;
-		}
-		if (parent !== null)
-			return parent.id;
-		return 'baseline';
-	});
+	context({} = {}) {
+		return this.prop.aspect.map(d => {
+			const i = this.state.selection.findIndex(s => s.id == d.id);
+			if (i != -1) {
+				const s = this.state.selection[i];
+				if (this.prop.alter && s.from == 'new')
+					return s.from;
+				if (this.prop.merge.findIndex(m => m.id == s.from) != -1)
+					return s.from;
+			}
+			if (this.prop.parent !== null)
+				return this.prop.parent.id;
+			return 'baseline';
+		});
+	}
+
+	get x() {
+		const context = this.context();
+		return this.prop.aspect.map(d => {
+			if (context[d.id - 1] == 'new')
+				return [this.state.value[this.state.value.findIndex(v => v.id == d.id)].value];
+			if (context[d.id - 1] == 'baseline')
+				return [this.prop.baseline[d.id - 1].value];
+			if (this.cache.snapshot[context[d.id - 1]][d.id - 1].commit == 'baseline')
+				return [this.prop.baseline[d.id - 1].value];
+			return [this.cache.snapshot[context[d.id - 1]][d.id - 1].value];
+		});
+	}
 }
 
 function create_snapshot({commit, aspect, baseline} = {}) {
@@ -276,7 +287,7 @@ function create_snapshot({commit, aspect, baseline} = {}) {
 		if (p === null)
 			return {
 				id: d.id,
-				commit: 'baseline',
+				commit: 'baseline'
 			};
 		else
 			return {
