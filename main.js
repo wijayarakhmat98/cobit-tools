@@ -71,7 +71,18 @@ function main({
 		description: 'Document Q, T',
 		timestamp: 3
 	};
-	history.push(commit_1, commit_2, commit_3, commit_4);
+	const commit_5 = {
+		id: 5,
+		parent: null,
+		merge: [],
+		change: [
+			{id: 2, inherit: false, value: 3, note: 'Q-13, T-82'},
+		],
+		author: 'System',
+		description: 'Test',
+		timestamp: -1
+	};
+	history.push(commit_1, commit_2, commit_3, commit_4, commit_5);
 
 	customElements.define('x-header', header);
 	customElements.define('x-graph', graph);

@@ -265,25 +265,28 @@ function create_context({parent, alter, merge, aspect, selection} = {}) {
 function create_snapshot({commit, aspect, baseline} = {}) {
 	return aspect.map(d => {
 		let p, c;
-		for (p = commit;;)
+		for (p = commit; p !== null;)
 			if (c = p.change.find(e => e.id == d.id))
 				if (c.inherit)
 					p = c.from;
 				else
 					break;
 			else
-				if (p.parent)
-					p = p.parent;
-				else
-					break;
-		return {
-			id: d.id,
-			value: c ? c.value : baseline.find(e => e.id == d.id).value,
-			note: c ? c.note : 'Baseline',
-			author: p.author,
-			commit: p.id,
-			description: p.description
-		};
+				p = p.parent;
+		if (p === null)
+			return {
+				id: d.id,
+				commit: 'baseline',
+			};
+		else
+			return {
+				id: d.id,
+				value: c ? c.value : baseline.find(e => e.id == d.id).value,
+				note: c ? c.note : 'Baseline',
+				author: p.author,
+				commit: p.id,
+				description: p.description
+			};
 	});
 }
 
@@ -343,7 +346,7 @@ function create_trace_sub_col({} = {}) {
 
 function create_trace({from, d, checked, style = {}, ...args} = {}) {
 	return create_div({
-		children: [
+		children: d.commit == 'baseline' ? [] : [
 			bubble({
 				element: create_radio({
 					text: d.value,
