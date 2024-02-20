@@ -17,14 +17,12 @@ function main({
 	sheet_id,
 	gmo_id
 } = {}) {
-	const commit_0 = history[0];
 	const commit_1 = {
 		id: 1,
-		parent: commit_0,
+		parent: null,
 		merge: [],
 		change: [
 			{id: 1, inherit: false, value: 3, note: 'page 13'},
-			{id: 2, inherit: false, value: 5, note: 'page 14'},
 			{id: 3, inherit: false, value: 1, note: 'page 15'},
 			{id: 4, inherit: false, value: 2, note: 'page 16'}
 		],
@@ -34,7 +32,7 @@ function main({
 	};
 	const commit_2 = {
 		id: 2,
-		parent: commit_0,
+		parent: null,
 		merge: [],
 		change: [
 			{id: 1, inherit: false, value: 5, note: 'page 2'},
@@ -48,11 +46,11 @@ function main({
 	};
 	const commit_3 = {
 		id: 3,
-		parent: commit_0,
+		parent: null,
 		merge: [commit_1, commit_2],
 		change: [
-			{id: 1, inherit: true, from: commit_2},
-			{id: 2, inherit: false, value: 3, note: 'average\nQ-14, R-1'},
+			{id: 1, inherit: false, value: 4, note: 'average\nQ-13, R-1'},
+			{id: 2, inherit: true, from: commit_2},
 			{id: 3, inherit: true, from: commit_1},
 			{id: 4, inherit: false, value: 4, note: 'maximum\nQ-16, R-9'}
 		],
@@ -65,24 +63,13 @@ function main({
 		parent: commit_1,
 		merge: [],
 		change: [
-			{id: 1, inherit: false, value: 3, note: 'Q-13, T-82'},
+			{id: 2, inherit: false, value: 5, note: 'Q-14, T-82'},
 		],
 		author: 'Mr A',
 		description: 'Document Q, T',
 		timestamp: 3
 	};
-	const commit_5 = {
-		id: 5,
-		parent: null,
-		merge: [],
-		change: [
-			{id: 2, inherit: false, value: 3, note: 'Q-13, T-82'},
-		],
-		author: 'System',
-		description: 'Test',
-		timestamp: -1
-	};
-	history.push(commit_1, commit_2, commit_3, commit_4, commit_5);
+	history.push(commit_1, commit_2, commit_3, commit_4);
 
 	customElements.define('x-header', header);
 	customElements.define('x-graph', graph);
