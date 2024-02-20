@@ -132,7 +132,7 @@ class checkout {
 		this.header.view({view_graph: this.graph});
 		this.graph.view({graph: this.history});
 		this.control.view();
-		this.focus.view({focus: this.state.focus});
+		this.build_focus();
 		this.sheet.view({commit: this.state.commit, aspect: this.mst_df(), baseline: this.trs_df_baseline()});
 		this.gmo_view();
 	}
@@ -153,7 +153,7 @@ class checkout {
 		this.header.view({view_graph: this.graph});
 		this.graph.view({graph: this.history});
 		this.control.modify({parent: this.state.parent, alter: this.state.alter, merge: this.state.merge, context: this.state.context});
-		this.focus.view({focus: this.state.focus});
+		this.build_focus();
 		this.sheet.modify({
 			parent: this.state.parent,
 			alter: this.state.alter,
@@ -162,6 +162,18 @@ class checkout {
 			baseline: this.trs_df_baseline()
 		});
 		this.gmo_view();
+	}
+
+	build_focus({} = {}) {
+		const id = [2, 3, 5, 6, 7, 8, 9, 10, 11, 12];
+		const list = facet
+			.filter(f => id.includes(f.id))
+			.map(f => ({
+				text: f.code.toUpperCase(),
+				code: f.code
+			}))
+		;
+		this.focus.view({list: list, focus: this.state.focus});
 	}
 
 	mst_df({} = {}) {
