@@ -15,47 +15,48 @@ import {
 from 'component';
 
 class control extends HTMLElement {
-	static state_view({} = {}) {
-		return {
-			mode: 'view'
-		};
-	}
-
-	static state_modify({description} = {}) {
-		return {
-			mode: 'modify',
-			description: description ?? undefined
-		}
-	}
+	#state = {};
 
 	constructor({} = {}) {
 		super();
 	}
 
 	restore({state} = {}) {
-		this.state = state;
+		this.#state = state;
 	}
 
 	capture({} = {}) {
-		return this.state;
+		return this.#state;
 	}
 
 	mode({} = {}) {
-		return this.state.mode;
+		return this.#state.mode;
+	}
+
+	description({} = {}) {
+		return this.#state.description;
 	}
 
 	state_view({} = {}) {
-		if (!this.state)
-			this.state = control.state_view();
-		if (this.state.mode == 'modify')
-			this.state = control.state_view();
+		const _state = this.#state;
+		const state = _state.mode == 'view' ? _state : {
+			mode: 'view'
+		};
+		this.#state = state;
 	}
 
-	state_modify({} = {}) {
-		if (!this.state)
-			this.state = control.state_modify();
-		if (this.state.mode == 'view')
-			this.state = control.state_modify();
+	state_modify({description} = {}) {
+		const _state = this.#state;
+		const state = _state.mode == 'modify' ? _state : {
+			mode: 'modify',
+			description: undefined
+		}
+		for (const [k, v] of Object.entries({
+			description
+		}))
+			if (typeof v !== 'undefined')
+				state[k] = v;
+		this.#state = state;
 	}
 
 	view({} = {}) {
@@ -73,13 +74,13 @@ class control extends HTMLElement {
 		});
 	}
 
-	modify({parent, alter, merge, context} = {}) {
-		this.state_modify();
-		const description = create_textarea({name: 'description', row: 1, value: this.state.description});
+	modify({parent, alter, merge, context, ...args} = {}) {
+		this.state_modify({...args});
+		const description = create_textarea({name: 'description', row: 1, value: this.#state.description});
 		listener_change({
 			element: description,
 			callback: () => {
-				this.state.description = description.value;
+				this.#state.description = description.value;
 			}
 		});
 		replace_content({

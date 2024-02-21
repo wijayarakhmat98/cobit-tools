@@ -19,25 +19,26 @@ import {
 from 'component';
 
 class gmo extends HTMLElement {
-	static state_view({} = {}) {
-		return {};
-	}
+	#state = {};
 
 	constructor({} = {}) {
 		super();
 	}
 
 	restore({state} = {}) {
-		this.state = state;
+		this.#state = state;
 	}
 
 	capture({} = {}) {
-		return this.state;
+		return this.#state;
 	}
 
 	state_view({} = {}) {
-		if (!this.state)
-			this.state = gmo.state_view();
+		const _state = this.#state;
+		const state = _state.mode == 'view' ? _state : {
+			state: 'view'
+		};
+		this.#state = state;
 	}
 
 	view({r_hat} = {}) {

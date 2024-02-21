@@ -11,32 +11,37 @@ import {
 from 'component';
 
 class header extends HTMLElement {
-	static state_view({username, state_graph} = {}) {
-		return {
-			state_graph: state_graph ?? 'open',
-			username: username ?? undefined
-		};
-	}
+	#state = {};
 
 	constructor({} = {}) {
 		super();
 	}
 
 	restore({state} = {}) {
-		this.state = state;
+		this.#state = state;
 	}
 
 	capture({} = {}) {
-		return this.state;
+		return this.#state;
+	}
+
+	username({} = {}) {
+		return this.#state.username;
 	}
 
 	state_view({state_graph, username} = {}) {
-		if (!this.state)
-			this.state = header.state_view();
-		if (typeof state_graph !== 'undefined')
-			this.state.state_graph = state_graph;
-		if (typeof username !== 'undefined')
-			this.state.username = username;
+		const _state = this.#state;
+		const state = _state.mode == 'view' ? _state : {
+			mode: 'view',
+			state_graph: 'open',
+			username: undefined
+		};
+		for (const [k, v] of Object.entries({
+			state_graph, username
+		}))
+			if (typeof v !== 'undefined')
+				state[k] = v;
+		this.#state = state;
 	}
 
 	view({view_graph, ...args} = {}) {
@@ -44,20 +49,20 @@ class header extends HTMLElement {
 		const details = create_details_proxy({
 			summary: 'Tree',
 			surrogate_detail: [view_graph],
-			open: this.state.state_graph == 'open'
+			open: this.#state.state_graph == 'open'
 		});
 		const textarea = create_textarea({
 			name: 'username',
 			row: 1,
-			...(this.state.username && {value: this.state.username})
+			...(this.#state.username && {value: this.#state.username})
 		});
 		listener_toggle({
 			element: details,
-			callback: () => this.state.state_graph = details.hasAttribute('open') ? 'open' : 'closed'
+			callback: () => this.#state.state_graph = details.hasAttribute('open') ? 'open' : 'closed'
 		});
 		listener_change({
 			element: textarea,
-			callback: () => this.state.username = textarea.value
+			callback: () => this.#state.username = textarea.value
 		});
 		replace_content({
 			element: this,

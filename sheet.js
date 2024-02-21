@@ -25,20 +25,7 @@ import {
 from 'component';
 
 class sheet extends HTMLElement {
-	static state_view({} = {}) {
-		return {
-			mode: 'view'
-		};
-	}
-
-	static state_modify({selection, value, note} = {}) {
-		return {
-			mode: 'modify',
-			selection: selection ?? [],
-			value: value ?? [],
-			note: note ?? []
-		};
-	}
+	#state = {};
 
 	constructor({} = {}) {
 		super();
@@ -48,35 +35,35 @@ class sheet extends HTMLElement {
 			element: this,
 			event: 'sheet-note',
 			callback: ({detail} = {}) => {
-				this.state.note[detail.id - 1] = detail.note;
+				this.#state.note[detail.id - 1] = detail.note;
 			}
 		});
 		listen({
 			element: this,
 			event: 'sheet-select-x',
 			callback: ({detail} = {}) => {
-				const i = this.state.selection.findIndex(s => s.id == detail.id);
+				const i = this.#state.selection.findIndex(s => s.id == detail.id);
 				if (detail.from == 'new') {
-					const j = this.state.value.findIndex(v => v.id == detail.id);
+					const j = this.#state.value.findIndex(v => v.id == detail.id);
 					let v;
 					if (j == -1) {
 						v = {id: detail.id};
-						this.state.value.push(v);
+						this.#state.value.push(v);
 					}
 					else
-						v = this.state.value[j];
+						v = this.#state.value[j];
 					v.value = detail.value;
 				}
 				if (detail.from == 'clear')
 					for (const r of document.getElementsByName(`${detail.id} value`))
 						r.checked = false;
 				if ((detail.from == 'parent' || detail.from == 'clear') && i != -1)
-					this.state.selection.splice(i, 1);
+					this.#state.selection.splice(i, 1);
 				else {
-					const s = i != -1 ? this.state.selection[i] : {id: detail.id};
+					const s = i != -1 ? this.#state.selection[i] : {id: detail.id};
 					s.from = detail.from;
 					if (i == -1)
-						this.state.selection.push(s);
+						this.#state.selection.push(s);
 				}
 				notify({
 					element: this,
@@ -94,29 +81,40 @@ class sheet extends HTMLElement {
 	}
 
 	restore({state} = {}) {
-		this.state = state;
+		this.#state = state;
 	}
 
 	capture({} = {}) {
-		return this.state;
+		return this.#state;
 	}
 
 	mode({} = {}) {
-		return this.state.mode;
+		return this.#state.mode;
 	}
 
 	state_view({} = {}) {
-		if (!this.state)
-			this.state = sheet.state_view();
-		if (this.state.mode == 'modify')
-			this.state = sheet.state_view();
+		const _state = this.#state;
+		const state = _state.mode == 'view' ? _state : {
+			mode: 'view',
+			selection: []
+		};
+		this.#state = state;
 	}
 
-	state_modify({} = {}) {
-		if (!this.state)
-			this.state = sheet.state_modify();
-		if (this.state.mode == 'view')
-			this.state = sheet.state_modify();
+	state_modify({selection, value, note} = {}) {
+		const _state = this.#state;
+		const state = _state.mode == 'modify' ? _state : {
+			mode: 'modify',
+			selection: [],
+			value: [],
+			note: []
+		};
+		for (const [k, v] of Object.entries({
+			selection, value, note
+		}))
+			if (typeof v !== 'undefined')
+				state[k] = v;
+		this.#state = state;
 	}
 
 	view({commit, aspect, baseline} = {}) {
@@ -158,15 +156,14 @@ class sheet extends HTMLElement {
 		});
 	}
 
-	modify({parent, alter, merge, aspect, baseline} = {}) {
-		this.state_modify();
+	modify({parent, alter, merge, aspect, baseline, ...args} = {}) {
+		this.state_modify({...args});
 		this.prop = {
 			parent: parent,
 			alter: alter,
 			merge: merge,
 			aspect: aspect,
-			baseline: baseline,
-			selection: this.state.selection
+			baseline: baseline
 		};
 		this.cache.snapshot = [...(parent === null ? [] : [parent]), ...merge].reduce((snapshot, s) => {
 			snapshot[s.id] = create_snapshot({commit: s, aspect: aspect, baseline: baseline});
@@ -203,8 +200,8 @@ class sheet extends HTMLElement {
 							d: d,
 							lo: trs_df1_lo,
 							hi: trs_df1_hi,
-							checked: context[d.id - 1] == 'new' ? this.state.value[this.state.value.findIndex(v => v.id == d.id)].value : undefined,
-							note_value: this.state.note[d.id - 1]
+							checked: context[d.id - 1] == 'new' ? this.#state.value[this.#state.value.findIndex(v => v.id == d.id)].value : undefined,
+							note_value: this.#state.note[d.id - 1]
 						}))
 					]
 				})]),
@@ -254,9 +251,9 @@ class sheet extends HTMLElement {
 
 	context({} = {}) {
 		return this.prop.aspect.map(d => {
-			const i = this.state.selection.findIndex(s => s.id == d.id);
+			const i = this.#state.selection.findIndex(s => s.id == d.id);
 			if (i != -1) {
-				const s = this.state.selection[i];
+				const s = this.#state.selection[i];
 				if (this.prop.alter && s.from == 'new')
 					return s.from;
 				if (this.prop.merge.findIndex(m => m.id == s.from) != -1)
@@ -268,17 +265,21 @@ class sheet extends HTMLElement {
 		});
 	}
 
-	get x() {
+	x({} = {}) {
 		const context = this.context();
 		return this.prop.aspect.map(d => {
 			if (context[d.id - 1] == 'new')
-				return [this.state.value[this.state.value.findIndex(v => v.id == d.id)].value];
+				return [this.#state.value[this.#state.value.findIndex(v => v.id == d.id)].value];
 			if (context[d.id - 1] == 'baseline')
 				return [this.prop.baseline[d.id - 1].value];
 			if (this.cache.snapshot[context[d.id - 1]][d.id - 1].commit == 'baseline')
 				return [this.prop.baseline[d.id - 1].value];
 			return [this.cache.snapshot[context[d.id - 1]][d.id - 1].value];
 		});
+	}
+
+	note({} = {}) {
+		return this.#state.note;
 	}
 }
 
