@@ -69,7 +69,7 @@ class checkout {
 							this.modify({parent: commit});
 					}
 				if (this.state.context == 'merge') {
-					let merge = this.state.merge;
+					const merge = this.state.merge;
 					const i = merge.indexOf(commit);
 					if (i == -1) {
 						if (this.state.parent != commit)
@@ -206,23 +206,23 @@ class checkout {
 	}
 
 	trs_df_map_matrix({} = {}) {
-		let ms = [];
+		const ms = [];
 		let focus = this.state.focus;
 		for (;;) {
-			let m = map.filter(r => r.src_fct_id == focus);
+			const m = map.filter(r => r.src_fct_id == focus);
 			if (m.length == 0)
 				break;
 			focus = m[0].dst_fct_id;
 			ms.push(m);
 		}
-		ms = ms.map(m => {
+		for (const [i, m] of ms.entries()) {
 			const row = Math.max.apply(Math, m.map(r => r.dst_asp_id));
 			const col = Math.max.apply(Math, m.map(r => r.src_asp_id));
-			let A = matrix_create({row: row, col: col});
+			const A = matrix_create({row: row, col: col});
 			for (const r of m)
 				A[r.dst_asp_id - 1][r.src_asp_id - 1] = r.relevance;
-			return A;
-		});
+			ms[i] = A;
+		};
 		const M = ms.reverse().reduce((M, m) => matrix_multiply({A: M, B: m}));
 		return M;
 	}

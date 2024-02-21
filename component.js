@@ -160,7 +160,7 @@ function replace_content({element, children, ...args} = {}) {
 function replace_row({element, sub_row, col = undefined, children = [], span = true, unit = 'auto', style = {}, ...args} = {}) {
 	if (span) {
 		const col_style = create_area({y: 1, h: sub_row});
-		for (let c of children)
+		for (const c of children)
 			smear({element: c, style: col_style});
 	}
 	return replace_content({
@@ -177,7 +177,7 @@ function replace_row({element, sub_row, col = undefined, children = [], span = t
 function replace_column({element, row = undefined, sub_col, children = [], span = true, unit = 'auto', style = {}, ...args} = {}) {
 	if (span) {
 		const row_style = create_area({x: 1, w: sub_col});
-		for (let c of children)
+		for (const c of children)
 			smear({element: c, style: row_style});
 	}
 	return replace_content({
@@ -209,7 +209,7 @@ function create_div({...args} = {}) {
 function create_row({sub_row, col = 'subgrid', children = [], span = true, unit = 'auto', style = {}, ...args} = {}) {
 	if (span) {
 		const col_style = create_area({y: 1, h: sub_row});
-		for (let c of children)
+		for (const c of children)
 			smear({element: c, style: col_style});
 	}
 	return create_div({
@@ -225,7 +225,7 @@ function create_row({sub_row, col = 'subgrid', children = [], span = true, unit 
 function create_column({row = 'subgrid', sub_col, children = [], span = true, unit = 'auto', style = {}, ...args} = {}) {
 	if (span) {
 		const row_style = create_area({x: 1, w: sub_col});
-		for (let c of children)
+		for (const c of children)
 			smear({element: c, style: row_style});
 	}
 	return create_div({
@@ -262,7 +262,7 @@ function create_details({summary, detail, open = false, attribute = {}, ...args}
 }
 
 function create_details_proxy({summary, surrogate_summary = [], surrogate_detail = [], open = false, attribute = {}, ...args} = {}) {
-	let primary_summary = create_element({
+	const primary_summary = create_element({
 		tag: 'details',
 		children: [
 			create_element({tag: 'summary', children: [create_text({text: summary})]})
@@ -273,7 +273,7 @@ function create_details_proxy({summary, surrogate_summary = [], surrogate_detail
 		},
 		...args
 	});
-	for (let ss of surrogate_summary)
+	for (const ss of surrogate_summary)
 		listener_click({
 			element: ss,
 			callback: () => {
@@ -299,20 +299,20 @@ function create_details_proxy({summary, surrogate_summary = [], surrogate_detail
 		}
 	}
 	if (!open)
-		for (let sd of surrogate_detail)
+		for (const sd of surrogate_detail)
 			hide_detail({sd: sd});
 	listener_toggle({
 		element: primary_summary,
 		callback: () => {
 			if (primary_summary.hasAttribute('open'))
-				for (let sd of surrogate_detail)
+				for (const sd of surrogate_detail)
 					show_detail({sd: sd});
 			else
-				for (let sd of surrogate_detail)
+				for (const sd of surrogate_detail)
 					hide_detail({sd: sd});
 		}
 	});
-	for (let sd of surrogate_detail) {
+	for (const sd of surrogate_detail) {
 		listener_mutation({
 			element: sd.element,
 			options: {attributes: true},

@@ -1,8 +1,8 @@
 function matrix_create({row, col, fill = 0.0} = {}) {
-	let r = [];
+	const r = [];
 	for (let j = 0; j < col; ++j)
 		r.push(fill);
-	let A = [];
+	const A = [];
 	for (let i = 0; i < row; ++i)
 		A.push(structuredClone(r));
 	return A;
@@ -25,7 +25,7 @@ function matrix_sum_element({A} = {}) {
 }
 
 function matrix_flatten({A} = {}) {
-	let a = [];
+	const a = [];
 	for (let i = 0; i < matrix_row({A: A}); ++i)
 		for (let j = 0; j < matrix_col({A: A}); ++j)
 			a.push(A[i][j]);
@@ -35,7 +35,7 @@ function matrix_flatten({A} = {}) {
 function matrix_reciprocal({A} = {}) {
 	const row = matrix_row({A: A});
 	const col = matrix_col({A: A});
-	let B = matrix_create({row: row, col: col});
+	const B = matrix_create({row: row, col: col});
 	for (let i = 0; i < row; ++i)
 		for (let j = 0; j < col; ++j)
 			B[i][j] = 1.0 / A[i][j];
@@ -45,7 +45,7 @@ function matrix_reciprocal({A} = {}) {
 function matrix_transpose({A} = {}) {
 	const row = matrix_col({A: A});
 	const col = matrix_row({A: A});
-	let B = matrix_create({row: row, col: col});
+	const B = matrix_create({row: row, col: col});
 	for (let i = 0; i < row; ++i)
 		for (let j = 0; j < col; ++j)
 			B[i][j] = A[j][i];
@@ -55,7 +55,7 @@ function matrix_transpose({A} = {}) {
 function matrix_scalar_multiply({c, A} = {}) {
 	const row = matrix_row({A: A});
 	const col = matrix_col({A: A});
-	let B = matrix_create({row: row, col: col});
+	const B = matrix_create({row: row, col: col});
 	for (let i = 0; i < row; ++i)
 		for (let j = 0; j < col; ++j)
 			B[i][j] = c * A[i][j];
@@ -66,7 +66,7 @@ function matrix_multiply({A, B} = {}) {
 	const row = matrix_row({A: A});
 	const col = matrix_col({A: B});
 	const spr = matrix_row({A: B});
-	let C = matrix_create({row: row, col: col});
+	const C = matrix_create({row: row, col: col});
 	for (let i = 0; i < row; ++i)
 		for (let j = 0; j < col; ++j)
 			for (let k = 0; k < spr; ++k)
@@ -77,7 +77,7 @@ function matrix_multiply({A, B} = {}) {
 function matrix_element_multiply({A, B} = {}) {
 	const row = matrix_row({A: A});
 	const col = matrix_col({A: A});
-	let C = matrix_create({row: row, col: col});
+	const C = matrix_create({row: row, col: col});
 	for (let i = 0; i < row; ++i)
 		for (let j = 0; j < col; ++j)
 			C[i][j] = A[i][j] * B[i][j];
@@ -87,7 +87,7 @@ function matrix_element_multiply({A, B} = {}) {
 function matrix_element_map({A, callback} = {}) {
 	const row = matrix_row({A: A});
 	const col = matrix_col({A: A});
-	let B = matrix_create({row: row, col: col});
+	const B = matrix_create({row: row, col: col});
 	for (let i = 0; i < row; ++i)
 		for (let j = 0; j < col; ++j)
 			B[i][j] = callback(A[i][j], i, j);

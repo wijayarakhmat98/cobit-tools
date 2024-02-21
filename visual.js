@@ -29,7 +29,7 @@ class visual extends HTMLElement {
 		this.style['display'] = 'grid';
 		this.style['grid-template-columns'] = 'auto repeat(5, 8rem) auto';
 		for (let i = 0; i < mst_df.length; ++i) {
-			let name = document.createElement('div');
+			const name = document.createElement('div');
 			name.innerText = mst_df[i]['dimension'];
 			name.style['grid-column-start'] = 1;
 			name.style['grid-column-end'] = 2;
@@ -39,7 +39,7 @@ class visual extends HTMLElement {
 			name.style['padding-bottom'] = '0.5rem';
 			name.style['border-right'] = 'solid black 1px';
 			this.append(name);
-			let im = document.createElement('div');
+			const im = document.createElement('div');
 			im.innerText = x[i][0];
 			im.style['background-color'] = 'lightgray';
 			im.style['grid-column-start'] = 2;
@@ -47,7 +47,7 @@ class visual extends HTMLElement {
 			im.style['margin-bottom'] = '0.5rem';
 			im.style['padding-left'] = '0.5rem';
 			this.append(im);
-			let line = document.createElement('div');
+			const line = document.createElement('div');
 			line.style['grid-column-start'] = 8;
 			line.style['grid-column-end'] = 9;
 			line.style['border-left'] = 'solid black 1px';

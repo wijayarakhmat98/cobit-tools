@@ -17,7 +17,7 @@ import {
 from 'component';
 
 function prepare({graph} = {}) {
-	let C = graph.map(g => ({
+	const C = graph.map(g => ({
 		graph: g,
 		id: g.id,
 		description: g.description,
@@ -31,11 +31,11 @@ function prepare({graph} = {}) {
 		branch_children: [],
 		explored: false
 	}));
-	for (let c of C) {
+	for (const c of C) {
 		c.parents = c.parents.map(d => C[C.findIndex(e => e.id == d.id)]);
 		c.merge_parent = c.graph.merge.map(d => C[C.findIndex(e => e.id == d.id)]);
 	}
-	for (let c of C) {
+	for (const c of C) {
 		c.children = C.filter(d => d.parents.includes(c));
 		c.merge_children = c.children.filter(d => d.parents[0] != c);
 		c.branch_children = c.children.filter(d => d.parents[0] == c)
@@ -52,16 +52,16 @@ class graph extends HTMLElement {
 	}
 
 	view({graph} = {}) {
-		let C = prepare({graph: graph});
+		const C = prepare({graph: graph});
 		place_i({C: C});
 		place_j({C: C});
-		for (let c of C) {
+		for (const c of C) {
 			c.i += 1;
 			c.j += 1;
 		}
 		const row = Math.max.apply(Math, C.map(c => c.i));
 		const col = Math.max.apply(Math, C.map(c => c.j));
-		for (let c of C)
+		for (const c of C)
 			c.j = col - c.j + 1;
 		const node = C.map(c => bubble({
 			element: create_button({
@@ -72,10 +72,10 @@ class graph extends HTMLElement {
 			event: 'graph-select',
 			detail: c.graph
 		}));
-		let subgrid = {
+		const subgrid = {
 			...create_area({x: 1, y: 1, w: col, h: row}), ...create_grid({row: 'subgrid', col: 'subgrid'})
 		};
-		let view_link = create_div({style: subgrid});
+		const view_link = create_div({style: subgrid});
 		replace_row({
 			element: this,
 			sub_row: row,
@@ -203,8 +203,8 @@ function create_vertical_fit({x, y, w, h, rw, rh, nj, ni, width = 1.0, ...args} 
 function J({c, F} = {}) {
 	if (c.merge_children.length == 0)
 		return [];
-	let Jc = [];
-	let di = Math.min.apply(Math, c.merge_children.map(m => m.i));
+	const Jc = [];
+	const di = Math.min.apply(Math, c.merge_children.map(m => m.i));
 	for (let j = 0; j < F[0].length; ++j)
 		for (let i = c.i - 1; i > di; --i)
 			if (F[i][j] !== null) {
@@ -219,25 +219,25 @@ function place_i({C} = {}) {
 	function dfs({c} = {}) {
 		if (!c.explored) {
 			c.explored = true;
-			for (let d of c.children)
+			for (const d of c.children)
 				dfs({c: d});
 			c.i = i;
 			i += 1;
 		}
 	}
 	let i = 0;
-	for (let c of C)
+	for (const c of C)
 		dfs({c: c});
 }
 
 function place_j({C} = {}) {
 	C.sort((c, d) => c.i > d.i ? 1 : -1);
-	let F = [];
-	let B = [];
+	const F = [];
+	const B = [];
 	for (const c of C) {
-		let  Jc = J({c: c, F: F});
-		let nJc = c.merge_children.length ? [] : c.branch_children.filter(d => !Jc.includes(d.j));
-		let  D_ = [];
+		const  Jc = J({c: c, F: F});
+		const nJc = c.merge_children.length ? [] : c.branch_children.filter(d => !Jc.includes(d.j));
+		const  D_ = [];
 		if (nJc.length > 0) {
 			const d = nJc[0];
 			D_.push(d);
@@ -245,14 +245,14 @@ function place_j({C} = {}) {
 		} else {
 			B.push(c);
 		}
-		let nD_ = c.branch_children.filter(d => !D_.includes(d));
+		const nD_ = c.branch_children.filter(d => !D_.includes(d));
 		for (const d_ of nD_)
 			B[d_.j] = null;
 		c.j = B.findIndex(d => d == c);
 
 		F.push(B.map(b => b === null ? null : b.name));
 		const F_col = Math.max.apply(Math, F.map(f => f.length));
-		for (let f of F) {
+		for (const f of F) {
 			while (f.length < F_col)
 				f.push(null);
 		}

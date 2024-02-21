@@ -41,12 +41,12 @@ class header extends HTMLElement {
 
 	view({view_graph, ...args} = {}) {
 		this.state_view({...args});
-		let details = create_details_proxy({
+		const details = create_details_proxy({
 			summary: 'Tree',
 			surrogate_detail: [view_graph],
 			open: this.state.state_graph == 'open'
 		});
-		let textarea = create_textarea({
+		const textarea = create_textarea({
 			name: 'username',
 			row: 1,
 			...(this.state.username && {value: this.state.username})

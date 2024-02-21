@@ -68,7 +68,7 @@ class sheet extends HTMLElement {
 					v.value = detail.value;
 				}
 				if (detail.from == 'clear')
-					for (let r of document.getElementsByName(`${detail.id} value`))
+					for (const r of document.getElementsByName(`${detail.id} value`))
 						r.checked = false;
 				if ((detail.from == 'parent' || detail.from == 'clear') && i != -1)
 					this.state.selection.splice(i, 1);
