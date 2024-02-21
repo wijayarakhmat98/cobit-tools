@@ -299,7 +299,7 @@ class sheet extends HTMLElement {
 				const s = this.#state.selection[d.id - 1];
 				if (this.#prop.alter && s == 'new')
 					return s;
-				if (this.#prop.merge.findIndex(m => m.id == s) != -1)
+				if (this.#prop.merge.find(m => m.id == s))
 					return s;
 				return this.#prop.parent === null ? 'baseline' : this.#prop.parent.id;
 			});
@@ -328,12 +328,14 @@ class sheet extends HTMLElement {
 function create_snapshot({commit, aspect} = {}) {
 	return aspect.map(d => {
 		let p, c;
-		for (p = commit; p !== null; p = p.parent)
+		for (p = commit; p !== null;)
 			if (c = p.change.find(e => e.id == d.id))
 				if (c.inherit)
 					p = c.from;
 				else
 					break;
+			else
+				p = p.parent;
 		return (p === null)
 			? {
 				id: d.id,
