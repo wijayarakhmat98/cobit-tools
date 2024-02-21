@@ -77,7 +77,7 @@ class checkout {
 		});
 		listen({
 			element: this.sheet,
-			event: 'sheet-select',
+			event: 'sheet-update',
 			callback: () => this.gmo_view()
 		});
 	}

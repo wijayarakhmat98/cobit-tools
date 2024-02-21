@@ -40,38 +40,17 @@ class sheet extends HTMLElement {
 		});
 		listen({
 			element: this,
-			event: 'sheet-select-x',
+			event: 'sheet-select',
 			callback: ({detail} = {}) => {
-				const i = this.#state.selection.findIndex(s => s.id == detail.id);
-				if (detail.from == 'new') {
-					const j = this.#state.value.findIndex(v => v.id == detail.id);
-					let v;
-					if (j == -1) {
-						v = {id: detail.id};
-						this.#state.value.push(v);
-					}
-					else
-						v = this.#state.value[j];
-					v.value = detail.value;
-				}
-				if (detail.from == 'clear')
+				if (typeof detail.from === 'undefined' && this.#prop.parent === null)
 					for (const r of document.getElementsByName(`${detail.id} value`))
 						r.checked = false;
-				if ((detail.from == 'parent' || detail.from == 'clear') && i != -1)
-					this.#state.selection.splice(i, 1);
-				else {
-					const s = i != -1 ? this.#state.selection[i] : {id: detail.id};
-					s.from = detail.from;
-					if (i == -1)
-						this.#state.selection.push(s);
-				}
+				if (detail.from == 'new')
+					this.#state.value[detail.id - 1] = detail.value;
+				this.#state.selection[detail.id - 1] = detail.from;
 				notify({
 					element: this,
-					event: 'sheet-select',
-					detail: {
-						id: detail.id,
-						value: detail.value
-					},
+					event: 'sheet-update',
 					options: {
 						bubbles: true
 					}
@@ -161,8 +140,7 @@ class sheet extends HTMLElement {
 					c.id,
 					create_snapshot({
 						commit: c,
-						aspect: this.#prop.aspect,
-						baseline: this.#prop.baseline
+						aspect: this.#prop.aspect
 					})
 				])
 		);
@@ -180,8 +158,7 @@ class sheet extends HTMLElement {
 					c.id,
 					create_snapshot({
 						commit: c,
-						aspect: this.#prop.aspect,
-						baseline: this.#prop.baseline
+						aspect: this.#prop.aspect
 					})
 				])
 		);
@@ -264,7 +241,7 @@ class sheet extends HTMLElement {
 							d: d,
 							lo: trs_df1_lo,
 							hi: trs_df1_hi,
-							checked: context[d.id - 1] == 'new' ? this.#state.value[this.#state.value.findIndex(v => v.id == d.id)].value : undefined,
+							checked: context[d.id - 1] == 'new' ? this.#state.value[d.id - 1] : undefined,
 							note_value: this.#state.note[d.id - 1]
 						}))
 					]
@@ -274,7 +251,7 @@ class sheet extends HTMLElement {
 					children: [
 						create_p({text: `Parent commit ${this.#prop.parent.id}`}),
 						...this.#cache.snapshot[this.#prop.parent.id].map(d => create_trace({
-							from: 'this.#prop.parent',
+							from: undefined,
 							d: d,
 							checked: context[d.id - 1] == this.#prop.parent.id
 						}))
@@ -300,11 +277,10 @@ class sheet extends HTMLElement {
 								}
 							}),
 							listener: listener_click,
-							event: 'sheet-select-x',
+							event: 'sheet-select',
 							detail: {
-								value: this.#prop.baseline[d.id - 1].value,
-								id: d.id,
-								from: 'clear'
+								from: undefined,
+								id: d.id
 							}
 						}))
 					]
@@ -315,36 +291,33 @@ class sheet extends HTMLElement {
 
 	context({} = {}) {
 		if (this.#state.mode == 'view')
-			return this.#prop.aspect.map(d =>
+			return this.#prop.aspect.map(_ =>
 				this.#prop.commit === null ? 'baseline' : this.#prop.commit.id
 			);
 		if (this.#state.mode == 'modify')
 			return this.#prop.aspect.map(d => {
-				const i = this.#state.selection.findIndex(s => s.id == d.id);
-				if (i != -1) {
-					const s = this.#state.selection[i];
-					if (this.#prop.alter && s.from == 'new')
-						return s.from;
-					if (this.#prop.merge.findIndex(m => m.id == s.from) != -1)
-						return s.from;
-				}
-				if (this.#prop.parent !== null)
-					return this.#prop.parent.id;
-				return 'baseline';
+				const s = this.#state.selection[d.id - 1];
+				if (this.#prop.alter && s == 'new')
+					return s;
+				if (this.#prop.merge.findIndex(m => m.id == s) != -1)
+					return s;
+				return this.#prop.parent === null ? 'baseline' : this.#prop.parent.id;
 			});
 	}
 
 	x({} = {}) {
 		const context = this.context();
 		return this.#prop.aspect.map(d => {
-			if (context[d.id - 1] == 'new')
-				return [this.#state.value[this.#state.value.findIndex(v => v.id == d.id)].value];
-			if (context[d.id - 1] == 'baseline')
-				return [this.#prop.baseline[d.id - 1].value];
-			if (this.#cache.snapshot[context[d.id - 1]][d.id - 1].commit == 'baseline')
-				return [this.#prop.baseline[d.id - 1].value];
-			return [this.#cache.snapshot[context[d.id - 1]][d.id - 1].value];
-		});
+			const c = context[d.id - 1];
+			if (c == 'new')
+				return this.#state.value[d.id - 1];
+			if (c == 'baseline')
+				return this.#prop.baseline[d.id - 1].value;
+			const s = this.#cache.snapshot[c][d.id - 1];
+			if (s.commit == 'baseline')
+				return this.#prop.baseline[d.id - 1].value;
+			return s.value;
+		}).map(v => [v]);
 	}
 
 	note({} = {}) {
@@ -352,27 +325,24 @@ class sheet extends HTMLElement {
 	}
 }
 
-function create_snapshot({commit, aspect, baseline} = {}) {
+function create_snapshot({commit, aspect} = {}) {
 	return aspect.map(d => {
 		let p, c;
-		for (p = commit; p !== null;)
+		for (p = commit; p !== null; p = p.parent)
 			if (c = p.change.find(e => e.id == d.id))
 				if (c.inherit)
 					p = c.from;
 				else
 					break;
-			else
-				p = p.parent;
-		if (p === null)
-			return {
+		return (p === null)
+			? {
 				id: d.id,
 				commit: 'baseline'
-			};
-		else
-			return {
+			}
+			: {
 				id: d.id,
-				value: c ? c.value : baseline.find(e => e.id == d.id).value,
-				note: c ? c.note : 'Baseline',
+				value: c.value,
+				note: c.note,
 				author: p.author,
 				commit: p.id,
 				description: p.description
@@ -412,7 +382,7 @@ function create_change({d, lo, hi, checked, note_value, style = {}, ...args} = {
 						name: `${d.id} value`,
 					}),
 					listener: listener_change,
-					event: 'sheet-select-x',
+					event: 'sheet-select',
 					detail: {
 						from: 'new',
 						id: d.id,
@@ -445,11 +415,10 @@ function create_trace({from, d, checked, style = {}, ...args} = {}) {
 					style: create_area({h: 2})
 				}),
 				listener: listener_change,
-				event: 'sheet-select-x',
+				event: 'sheet-select',
 				detail: {
 					from: from,
-					id: d.id,
-					value: d.value
+					id: d.id
 				}
 			}),
 			create_p({text: d.note, classes: ['expand']}),
