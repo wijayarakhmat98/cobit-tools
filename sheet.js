@@ -26,11 +26,11 @@ from 'component';
 
 class sheet extends HTMLElement {
 	#state = {};
+	#prop = {};
+	#cache = {};
 
 	constructor({} = {}) {
 		super();
-		this.prop = {};
-		this.cache = {};
 		listen({
 			element: this,
 			event: 'sheet-note',
@@ -95,8 +95,7 @@ class sheet extends HTMLElement {
 	state_view({} = {}) {
 		const _state = this.#state;
 		const state = _state.mode == 'view' ? _state : {
-			mode: 'view',
-			selection: []
+			mode: 'view'
 		};
 		this.#state = state;
 	}
@@ -117,27 +116,101 @@ class sheet extends HTMLElement {
 		this.#state = state;
 	}
 
-	view({commit, aspect, baseline} = {}) {
+	prop_view({commit, aspect, baseline} = {}) {
+		const _prop = this.#prop;
+		const prop = _prop.mode == 'view' ? _prop : {
+			mode: 'view'
+		};
+		if (_prop.mode == 'modify') {
+			prop.commit = _prop.parent;
+			prop.aspect = _prop.aspect;
+			prop.baseline = _prop.baseline;
+		}
+		for (const [k, v] of Object.entries({
+			commit, aspect, baseline
+		}))
+			prop[k] = v;
+		this.#prop = prop;
+	}
+
+	prop_modify({parent, alter, merge, aspect, baseline} = {}) {
+		const _prop = this.#prop;
+		const prop = _prop.mode == 'modify' ? _prop : {
+			mode: 'modify'
+		};
+		if (_prop.mode == 'view') {
+			prop.parent = _prop.commit;
+			prop.aspect = _prop.aspect;
+			prop.baseline = _prop.baseline;
+		}
+		for (const [k, v] of Object.entries({
+			parent, alter, merge, aspect, baseline
+		}))
+			prop[k] = v;
+		this.#prop = prop;
+	}
+
+	cache_view({} = {}) {
+		const _cache = this.#cache;
+		const cache = _cache.mode == 'view' ? _cache : {
+			mode: 'view'
+		}
+		cache.snapshot = Object.fromEntries(
+			[this.#prop.commit ?? []]
+				.flat().map(c => [
+					c.id,
+					create_snapshot({
+						commit: c,
+						aspect: this.#prop.aspect,
+						baseline: this.#prop.baseline
+					})
+				])
+		);
+		this.#cache = cache;
+	}
+
+	cache_modify({} = {}) {
+		const _cache = this.#cache;
+		const cache = _cache.mode == 'modify' ? _cache : {
+			mode: 'modify'
+		}
+		cache.snapshot = Object.fromEntries(
+			[this.#prop.parent ?? [], this.#prop.merge]
+				.flat().map(c => [
+					c.id,
+					create_snapshot({
+						commit: c,
+						aspect: this.#prop.aspect,
+						baseline: this.#prop.baseline
+					})
+				])
+		);
+		this.#cache = cache;
+	}
+
+	view({...args} = {}) {
 		this.state_view();
+		this.prop_view({...args});
+		this.cache_view();
 		replace_row({
 			element: this,
-			sub_row: 1 + aspect.length,
+			sub_row: 1 + this.#prop.aspect.length,
 			children: [
 				create_column({
 					sub_col: 1,
 					children: [
 						create_p({text: 'Enterprise Strategy'}),
-						...aspect.map(d => create_details({summary: d.dimension, detail: d.explanation}))
+						...this.#prop.aspect.map(d => create_details({summary: d.dimension, detail: d.explanation}))
 					]
 				}),
-				...(commit === null ? [] : [create_column({
+				...(this.#prop.commit === null ? [] : [create_column({
 					sub_col: create_trace_sub_col(),
 					children: [
-						create_p({text: `Viewing commit ${commit.id}`}),
+						create_p({text: `Viewing commit ${this.#prop.commit.id}`}),
 						...create_snapshot({
-							commit: commit,
-							aspect: aspect,
-							baseline: baseline,
+							commit: this.#prop.commit,
+							aspect: this.#prop.aspect,
+							baseline: this.#prop.baseline,
 						}).map(d => create_trace({
 							id: d.id,
 							d: d,
@@ -149,54 +222,45 @@ class sheet extends HTMLElement {
 					sub_col: 1,
 					children: [
 						create_p({text: 'Baseline'}),
-						...baseline.map(d => create_p({text: d.value, classes: ['baseline']}))
+						...this.#prop.baseline.map(d => create_p({text: d.value, classes: ['baseline']}))
 					]
 				}),
 			]
 		});
 	}
 
-	modify({parent, alter, merge, aspect, baseline, ...args} = {}) {
+	modify({...args} = {}) {
 		this.state_modify({...args});
-		this.prop = {
-			parent: parent,
-			alter: alter,
-			merge: merge,
-			aspect: aspect,
-			baseline: baseline
-		};
-		this.cache.snapshot = [...(parent === null ? [] : [parent]), ...merge].reduce((snapshot, s) => {
-			snapshot[s.id] = create_snapshot({commit: s, aspect: aspect, baseline: baseline});
-			return snapshot;
-		}, {});
+		this.prop_modify({...args});
+		this.cache_modify();
 		const context = this.context();
 		replace_row({
 			element: this,
-			sub_row: 1 + aspect.length,
+			sub_row: 1 + this.#prop.aspect.length,
 			children: [
 				create_column({
 					sub_col: 1,
 					children: [
 						create_p({text: 'Enterprise Strategy'}),
-						...aspect.map(d => create_details({summary: d.dimension, detail: d.explanation}))
+						...this.#prop.aspect.map(d => create_details({summary: d.dimension, detail: d.explanation}))
 					]
 				}),
-				...merge.map(s => create_column({
+				...this.#prop.merge.map(s => create_column({
 					sub_col: create_trace_sub_col(),
 					children: [
 						create_p({text: `Merging commit ${s.id}`}),
-						...this.cache.snapshot[s.id].map(d => create_trace({
+						...this.#cache.snapshot[s.id].map(d => create_trace({
 							from: s.id,
 							d: d,
 							checked: context[d.id - 1] == s.id
 						}))
 					]
 				})),
-				...(!alter ? [] : [create_column({
+				...(!this.#prop.alter ? [] : [create_column({
 					sub_col: create_change_sub_col({lo: trs_df1_lo, hi: trs_df1_hi}),
 					children: [
 						create_p({text: 'Change'}),
-						...aspect.map(d => create_change({
+						...this.#prop.aspect.map(d => create_change({
 							d: d,
 							lo: trs_df1_lo,
 							hi: trs_df1_hi,
@@ -205,14 +269,14 @@ class sheet extends HTMLElement {
 						}))
 					]
 				})]),
-				...(parent === null ? [] : [create_column({
+				...(this.#prop.parent === null ? [] : [create_column({
 					sub_col: create_trace_sub_col(),
 					children: [
-						create_p({text: `Parent commit ${parent.id}`}),
-						...this.cache.snapshot[parent.id].map(d => create_trace({
-							from: 'parent',
+						create_p({text: `Parent commit ${this.#prop.parent.id}`}),
+						...this.#cache.snapshot[this.#prop.parent.id].map(d => create_trace({
+							from: 'this.#prop.parent',
 							d: d,
-							checked: context[d.id - 1] == parent.id
+							checked: context[d.id - 1] == this.#prop.parent.id
 						}))
 					]
 				})]),
@@ -220,14 +284,14 @@ class sheet extends HTMLElement {
 					sub_col: 1,
 					children: [
 						create_p({text: 'Baseline'}),
-						...baseline.map(d => create_p({text: d.value, classes: ['baseline']}))
+						...this.#prop.baseline.map(d => create_p({text: d.value, classes: ['baseline']}))
 					]
 				}),
-				...(parent !== null || !alter && !merge.length ? [] : [create_column({
+				...(this.#prop.parent !== null || !this.#prop.alter && !this.#prop.merge.length ? [] : [create_column({
 					sub_col: 1,
 					children: [
 						create_p({text: ''}),
-						...aspect.map(d => bubble({
+						...this.#prop.aspect.map(d => bubble({
 							element: create_button({
 								text: 'Clear',
 								style: {
@@ -238,7 +302,7 @@ class sheet extends HTMLElement {
 							listener: listener_click,
 							event: 'sheet-select-x',
 							detail: {
-								value: baseline[d.id - 1].value,
+								value: this.#prop.baseline[d.id - 1].value,
 								id: d.id,
 								from: 'clear'
 							}
@@ -250,31 +314,36 @@ class sheet extends HTMLElement {
 	}
 
 	context({} = {}) {
-		return this.prop.aspect.map(d => {
-			const i = this.#state.selection.findIndex(s => s.id == d.id);
-			if (i != -1) {
-				const s = this.#state.selection[i];
-				if (this.prop.alter && s.from == 'new')
-					return s.from;
-				if (this.prop.merge.findIndex(m => m.id == s.from) != -1)
-					return s.from;
-			}
-			if (this.prop.parent !== null)
-				return this.prop.parent.id;
-			return 'baseline';
-		});
+		if (this.#state.mode == 'view')
+			return this.#prop.aspect.map(d =>
+				this.#prop.commit === null ? 'baseline' : this.#prop.commit.id
+			);
+		if (this.#state.mode == 'modify')
+			return this.#prop.aspect.map(d => {
+				const i = this.#state.selection.findIndex(s => s.id == d.id);
+				if (i != -1) {
+					const s = this.#state.selection[i];
+					if (this.#prop.alter && s.from == 'new')
+						return s.from;
+					if (this.#prop.merge.findIndex(m => m.id == s.from) != -1)
+						return s.from;
+				}
+				if (this.#prop.parent !== null)
+					return this.#prop.parent.id;
+				return 'baseline';
+			});
 	}
 
 	x({} = {}) {
 		const context = this.context();
-		return this.prop.aspect.map(d => {
+		return this.#prop.aspect.map(d => {
 			if (context[d.id - 1] == 'new')
 				return [this.#state.value[this.#state.value.findIndex(v => v.id == d.id)].value];
 			if (context[d.id - 1] == 'baseline')
-				return [this.prop.baseline[d.id - 1].value];
-			if (this.cache.snapshot[context[d.id - 1]][d.id - 1].commit == 'baseline')
-				return [this.prop.baseline[d.id - 1].value];
-			return [this.cache.snapshot[context[d.id - 1]][d.id - 1].value];
+				return [this.#prop.baseline[d.id - 1].value];
+			if (this.#cache.snapshot[context[d.id - 1]][d.id - 1].commit == 'baseline')
+				return [this.#prop.baseline[d.id - 1].value];
+			return [this.#cache.snapshot[context[d.id - 1]][d.id - 1].value];
 		});
 	}
 
