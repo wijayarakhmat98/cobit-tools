@@ -1,9 +1,27 @@
 class visual extends HTMLElement {
+	static state_view({} = {}) {
+		return {};
+	}
+
 	constructor({} = {}) {
 		super();
 	}
 
+	restore({state} = {}) {
+		this.state = state;
+	}
+
+	capture({} = {}) {
+		return this.state;
+	}
+
+	state_view({} = {}) {
+		if (!this.state)
+			this.state = visual.state_view();
+	}
+
 	view({mst_df, x} = {}) {
+		this.state_view();
 		this.innerHTML = '';
 		this.style['width'] = 'fit-content';
 		this.style['margin-right'] = 'auto';

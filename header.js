@@ -20,22 +20,27 @@ class header extends HTMLElement {
 
 	constructor({} = {}) {
 		super();
-		this.state = undefined;
 	}
 
-	restore({state, load = true} = {}) {
+	restore({state} = {}) {
 		this.state = state;
-		if (load)
-			this.view();
 	}
 
-	view({view_graph, state_graph, username} = {}) {
+	capture({} = {}) {
+		return this.state;
+	}
+
+	state_view({state_graph, username} = {}) {
 		if (!this.state)
 			this.state = header.state_view();
 		if (typeof state_graph !== 'undefined')
 			this.state.state_graph = state_graph;
 		if (typeof username !== 'undefined')
 			this.state.username = username;
+	}
+
+	view({view_graph, ...args} = {}) {
+		this.state_view({...args});
 		let details = create_details_proxy({
 			summary: 'Tree',
 			surrogate_detail: [view_graph],

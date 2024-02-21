@@ -174,7 +174,7 @@ function replace_row({element, sub_row, col = undefined, children = [], span = t
 	});
 }
 
-function replace_col({element, row = undefined, sub_col, children = [], span = true, unit = 'auto', style = {}, ...args} = {}) {
+function replace_column({element, row = undefined, sub_col, children = [], span = true, unit = 'auto', style = {}, ...args} = {}) {
 	if (span) {
 		const row_style = create_area({x: 1, w: sub_col});
 		for (let c of children)
@@ -460,7 +460,7 @@ export {
 	create_area,
 	replace_content,
 	replace_row,
-	replace_col,
+	replace_column,
 	create_element,
 	create_text,
 	create_div,

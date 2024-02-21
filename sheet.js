@@ -42,7 +42,6 @@ class sheet extends HTMLElement {
 
 	constructor({} = {}) {
 		super();
-		this.state = undefined;
 		this.prop = {};
 		this.cache = {};
 		listen({
@@ -94,21 +93,34 @@ class sheet extends HTMLElement {
 		});
 	}
 
-	restore({state, load = true} = {}) {
+	restore({state} = {}) {
 		this.state = state;
-		if (load) {
-			if (this.state.mode == 'view')
-				this.view();
-			if (this.state.mode == 'modify')
-				this.modify();
-		}
 	}
 
-	view({commit, aspect, baseline} = {}) {
+	capture({} = {}) {
+		return this.state;
+	}
+
+	mode({} = {}) {
+		return this.state.mode;
+	}
+
+	state_view({} = {}) {
 		if (!this.state)
 			this.state = sheet.state_view();
 		if (this.state.mode == 'modify')
 			this.state = sheet.state_view();
+	}
+
+	state_modify({} = {}) {
+		if (!this.state)
+			this.state = sheet.state_modify();
+		if (this.state.mode == 'view')
+			this.state = sheet.state_modify();
+	}
+
+	view({commit, aspect, baseline} = {}) {
+		this.state_view();
 		replace_row({
 			element: this,
 			sub_row: 1 + aspect.length,
@@ -147,10 +159,7 @@ class sheet extends HTMLElement {
 	}
 
 	modify({parent, alter, merge, aspect, baseline} = {}) {
-		if (!this.state)
-			this.state = sheet.state_modify();
-		if (this.state.mode == 'view')
-			this.state = sheet.state_modify();
+		this.state_modify();
 		this.prop = {
 			parent: parent,
 			alter: alter,

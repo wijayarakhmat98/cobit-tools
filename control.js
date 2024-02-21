@@ -32,21 +32,34 @@ class control extends HTMLElement {
 		super();
 	}
 
-	restore({state, load = true} = {}) {
+	restore({state} = {}) {
 		this.state = state;
-		if (load) {
-			if (this.state.mode == 'view')
-				this.view();
-			if (this.state.mode == 'modify')
-				this.modify();
-		}
 	}
 
-	view({} = {}) {
+	capture({} = {}) {
+		return this.state;
+	}
+
+	mode({} = {}) {
+		return this.state.mode;
+	}
+
+	state_view({} = {}) {
 		if (!this.state)
 			this.state = control.state_view();
 		if (this.state.mode == 'modify')
 			this.state = control.state_view();
+	}
+
+	state_modify({} = {}) {
+		if (!this.state)
+			this.state = control.state_modify();
+		if (this.state.mode == 'view')
+			this.state = control.state_modify();
+	}
+
+	view({} = {}) {
+		this.state_view();
 		replace_content({
 			element: this,
 			children: [
@@ -61,10 +74,7 @@ class control extends HTMLElement {
 	}
 
 	modify({parent, alter, merge, context} = {}) {
-		if (!this.state)
-			this.state = control.state_modify();
-		if (this.state.mode == 'view')
-			this.state = control.state_modify();
+		this.state_modify();
 		const description = create_textarea({name: 'description', row: 1, value: this.state.description});
 		listener_change({
 			element: description,

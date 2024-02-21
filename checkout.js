@@ -23,7 +23,7 @@ import {
 from 'component';
 
 class checkout {
-	static state_view({commit, focus, x} = {}) {
+	static state_view({commit, focus} = {}) {
 		return {
 			mode: 'view',
 			commit: commit ?? null,
@@ -31,7 +31,7 @@ class checkout {
 		};
 	}
 
-	static state_modify({parent, merge, alter, context, focus, x} = {}) {
+	static state_modify({parent, merge, alter, context, focus} = {}) {
 		return {
 			mode: 'modify',
 			parent: parent ?? null,
@@ -53,7 +53,6 @@ class checkout {
 		this.visual = visual;
 		this.sheet = sheet;
 		this.gmo = gmo;
-		this.state = undefined;
 		listen({element: this.graph, event: 'graph-select', callback: ({detail: commit} = {}) => {
 			if (this.state.mode == 'view') {
 				if (this.state.commit === commit)
@@ -94,6 +93,7 @@ class checkout {
 			callback: ({detail: focus} = {}) => {
 				this.state.focus = focus;
 				this.restore({state: this.state});
+				this.modify();
 			}
 		});
 		listen({
@@ -103,17 +103,19 @@ class checkout {
 		});
 	}
 
-	restore({state, load = true} = {}) {
+	restore({state} = {}) {
 		this.state = state;
-		if (load) {
-			if (this.state.mode == 'view')
-				this.view();
-			if (this.state.mode == 'modify')
-				this.modify();
-		}
 	}
 
-	view({commit, focus} = {}) {
+	capture({} = {}) {
+		return this.state;
+	}
+
+	mode({} = {}) {
+		return this.state.mode;
+	}
+
+	state_view({commit, focus} = {}) {
 		if (!this.state)
 			this.state = checkout.state_view();
 		if (this.state.mode == 'modify')
@@ -123,15 +125,9 @@ class checkout {
 			});
 		if (typeof commit !== 'undefined') this.state.commit = commit;
 		if (typeof focus !== 'undefined') this.state.focus = focus;
-		this.header.view({view_graph: this.graph});
-		this.graph.view({graph: this.history});
-		this.control.view();
-		this.build_focus();
-		this.sheet.view({commit: this.state.commit, aspect: this.mst_df(), baseline: this.trs_df_baseline()});
-		this.gmo_view();
 	}
 
-	modify({parent, alter, merge, context, focus} = {}) {
+	state_modify({parent, alter, merge, context, focus} = {}) {
 		if (!this.state)
 			this.state = checkout.state_modify();
 		if (this.state.mode == 'view')
@@ -144,6 +140,20 @@ class checkout {
 		if (typeof merge !== 'undefined') this.state.merge = merge;
 		if (typeof context !== 'undefined') this.state.context = context;
 		if (typeof focus !== 'undefined') this.state.focus = focus;
+	}
+
+	view({...args} = {}) {
+		this.state_view({...args});
+		this.header.view({view_graph: this.graph});
+		this.graph.view({graph: this.history});
+		this.control.view();
+		this.build_focus();
+		this.sheet.view({commit: this.state.commit, aspect: this.mst_df(), baseline: this.trs_df_baseline()});
+		this.gmo_view();
+	}
+
+	modify({...args} = {}) {
+		this.state_modify({...args});
 		this.header.view({view_graph: this.graph});
 		this.graph.view({graph: this.history});
 		this.control.modify({parent: this.state.parent, alter: this.state.alter, merge: this.state.merge, context: this.state.context});
@@ -219,7 +229,7 @@ class checkout {
 
 	gmo_view({} = {}) {
 		const x = this.sheet.x;
-		const x_base = this.trs_df_baseline().map((d) => [d.value]);
+		const x_base = this.trs_df_baseline().map(d => [d.value]);
 		const r_hat = this.gmo_calculate({x: x, x_base: x_base});
 		// this.visual.view({mst_df: this.mst_df(), x: x});
 		this.gmo.view({r_hat: r_hat});

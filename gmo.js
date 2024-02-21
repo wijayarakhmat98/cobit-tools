@@ -19,11 +19,29 @@ import {
 from 'component';
 
 class gmo extends HTMLElement {
+	static state_view({} = {}) {
+		return {};
+	}
+
 	constructor({} = {}) {
 		super();
 	}
 
+	restore({state} = {}) {
+		this.state = state;
+	}
+
+	capture({} = {}) {
+		return this.state;
+	}
+
+	state_view({} = {}) {
+		if (!this.state)
+			this.state = gmo.state_view();
+	}
+
 	view({r_hat} = {}) {
+		this.state_view();
 		replace_content({
 			element: this,
 			children: [
