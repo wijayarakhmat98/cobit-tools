@@ -443,7 +443,7 @@ function create_polyline({points = [], color = 'black', width = 1.0, dasharray =
 	});
 }
 
-function create_legend({aspect, h} = {}) {
+function create_legend({aspect, h, ...args} = {}) {
 	const code = typeof aspect.find(d => d.code !== null) !== 'undefined';
 	const descs = aspect.map(r => [
 		r.class.map(c => ({
@@ -506,7 +506,8 @@ function create_legend({aspect, h} = {}) {
 						style: create_area({h: h})
 					});
 				}),
-				classes: ['legend']
+				classes: ['legend'],
+				...args
 			});
 		else
 			return create_column({
@@ -523,7 +524,8 @@ function create_legend({aspect, h} = {}) {
 						style: create_area({h: h})
 					});
 				}),
-				classes: ['legend']
+				classes: ['legend'],
+				...args
 			});
 	}
 	else
@@ -543,7 +545,8 @@ function create_legend({aspect, h} = {}) {
 						style: create_area({h: h})
 					})
 				]).flat(),
-				classes: ['legend']
+				classes: ['legend'],
+				...args
 			});
 		else
 			return create_column({
@@ -552,11 +555,12 @@ function create_legend({aspect, h} = {}) {
 					classes: ['summary'],
 					style: create_area({h: h})
 				})),
-				classes: ['legend']
+				classes: ['legend'],
+				...args
 			});
 }
 
-function create_scale({lo, hi, step, value} = {}) {
+function create_scale({lo, hi, step, value, ...args} = {}) {
 	const name = random_token();
 	return create_row({
 		children: create_range({start: lo, stop: hi, step: step})
@@ -564,11 +568,12 @@ function create_scale({lo, hi, step, value} = {}) {
 				text: i,
 				checked: i == value,
 				name: name
-			}))
+			})),
+		...args
 	});
 }
 
-function create_percentage({lo, hi, step, value} = {}) {
+function create_percentage({lo, hi, step, value, ...args} = {}) {
 	return create_element({
 		tag: 'input',
 		attribute: {
@@ -577,7 +582,8 @@ function create_percentage({lo, hi, step, value} = {}) {
 			max: hi,
 			step: step,
 			...(typeof value !== 'undefined' && {value: value})
-		}
+		},
+		...args
 	});
 }
 
