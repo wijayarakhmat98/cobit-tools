@@ -47,7 +47,7 @@ class sheet extends HTMLElement {
 				if (typeof detail.from === 'undefined' && this.#prop.parent === null)
 					for (const r of document.getElementsByName(`${detail.id} value`))
 						r.checked = false;
-				if (detail.from == 'new')
+				if (detail.from == 'alter')
 					this.#state.value[detail.id - 1] = detail.value;
 				this.#state.selection[detail.id - 1] = detail.from;
 				notify({
@@ -81,7 +81,7 @@ class sheet extends HTMLElement {
 		if (this.#state.mode == 'modify')
 			return this.#prop.aspect.map(d => {
 				const s = this.#state.selection[d.id - 1];
-				if (this.#prop.alter && s == 'new')
+				if (this.#prop.alter && s == 'alter')
 					return s;
 				if (this.#prop.merge.find(m => m.id == s))
 					return s;
@@ -93,7 +93,7 @@ class sheet extends HTMLElement {
 		const context = this.context();
 		return this.#prop.aspect.map(d => {
 			const c = context[d.id - 1];
-			if (c == 'new')
+			if (c == 'alter')
 				return this.#state.value[d.id - 1];
 			if (c == 'baseline')
 				return this.#prop.baseline[d.id - 1].value;
@@ -257,82 +257,104 @@ class sheet extends HTMLElement {
 					sub_row: 1,
 					children: [
 						create_p({text: 'Enterprise Strategy'}),
-						...this.#prop.merge.map(s => create_p({text: `Merging commit ${s.id}`})),
-						...(!this.#prop.alter ? [] : [create_p({text: 'Change'})]),
-						...(this.#prop.parent === null ? [] : [create_p({text: `Parent commit ${this.#prop.parent.id}`})]),
-						create_p({text: 'Baseline'}),
-						create_p({text: ''})
-					]
+						this.#prop.merge.map(s => create_p({text: `Merging commit ${s.id}`})),
+						!this.#prop.alter ? [] : create_p({text: 'Change'}),
+						this.#prop.parent === null ? [] : create_p({text: `Parent commit ${this.#prop.parent.id}`}),
+						create_p({text: 'Baseline'})
+					].flat()
 				}),
 				create_row({
 					sub_row: this.#prop.aspect.length,
 					children: [
-						create_column({
-							sub_col: 1,
-							children: [
-								...this.#prop.aspect.map(d => create_details({summary: d.dimension, detail: d.explanation}))
-							]
-						}),
-						...this.#prop.merge.map(s => create_column({
-							sub_col: create_trace_sub_col(),
-							children: [
-								...this.#cache.snapshot[s.id].map(d => create_trace({
-									from: s.id,
-									d: d,
-									checked: context[d.id - 1] == s.id
-								}))
-							]
-						})),
-						...(!this.#prop.alter ? [] : [create_column({
-							sub_col: create_change_sub_col({lo: trs_df1_lo, hi: trs_df1_hi}),
-							children: [
-								...this.#prop.aspect.map(d => create_change({
-									d: d,
-									lo: trs_df1_lo,
-									hi: trs_df1_hi,
-									checked: context[d.id - 1] == 'new' ? this.#state.value[d.id - 1] : undefined,
-									note_value: this.#state.note[d.id - 1]
-								}))
-							]
-						})]),
-						...(this.#prop.parent === null ? [] : [create_column({
-							sub_col: create_trace_sub_col(),
-							children: [
-								...this.#cache.snapshot[this.#prop.parent.id].map(d => create_trace({
-									from: undefined,
-									d: d,
-									checked: context[d.id - 1] == this.#prop.parent.id
-								}))
-							]
-						})]),
-						create_column({
-							sub_col: 1,
-							children: [
-								...this.#prop.baseline.map(d => create_p({text: d.value, classes: ['baseline']}))
-							]
-						}),
-						...(this.#prop.parent !== null || !this.#prop.alter && !this.#prop.merge.length ? [] : [create_column({
-							sub_col: 1,
-							children: [
-								...this.#prop.aspect.map(d => bubble({
-									element: create_button({
-										text: 'Clear',
-										style: {
-											height: 'min-content',
-											padding: '0 0.25rem'
-										}
-									}),
-									listener: listener_click,
-									event: 'sheet-select',
-									detail: {
-										from: undefined,
-										id: d.id
-									}
-								}))
-							]
-						})])
-					]
+						this.create_legend(),
+						this.create_merge({context: context}),
+						this.create_alter({context: context}),
+						this.create_parent({context: context}),
+						this.create_baseline(),
+						this.create_clear()
+					].flat()
 				})
+			]
+		});
+	}
+
+	create_legend({} = {}) {
+		return create_column({
+			sub_col: 1,
+			children: this.#prop.aspect.map(d => create_details({summary: d.dimension, detail: d.explanation}))
+		});
+	}
+
+	create_merge({context} = {}) {
+		return this.#prop.merge.map(s => create_column({
+			sub_col: create_trace_sub_col(),
+			children: this.#cache.snapshot[s.id]
+				.map(d => create_trace({
+					from: s.id,
+					d: d,
+					checked: context[d.id - 1] == s.id
+				}))
+		}));
+	}
+
+	create_alter({context} = {}) {
+		if (!this.#prop.alter)
+			return [];
+		return create_column({
+			sub_col: create_change_sub_col({lo: trs_df1_lo, hi: trs_df1_hi}),
+			children: this.#prop.aspect
+				.map(d => create_change({
+					d: d,
+					lo: trs_df1_lo,
+					hi: trs_df1_hi,
+					checked: context[d.id - 1] == 'alter' ? this.#state.value[d.id - 1] : undefined,
+					note_value: this.#state.note[d.id - 1]
+				}))
+		});
+	}
+
+	create_parent({context} = {}) {
+		if (this.#prop.parent === null)
+			return [];
+		return create_column({
+			sub_col: create_trace_sub_col(),
+			children: this.#cache.snapshot[this.#prop.parent.id]
+				.map(d => create_trace({
+					from: undefined,
+					d: d,
+					checked: context[d.id - 1] == this.#prop.parent.id
+				}))
+		});
+	}
+
+	create_baseline({} = {}) {
+		return create_column({
+			sub_col: 1,
+			children: this.#prop.baseline.map(d => create_p({text: d.value, classes: ['baseline']}))
+		});
+	}
+
+	create_clear({} = {}) {
+		if (this.#prop.parent !== null || !this.#prop.alter && !this.#prop.merge.length)
+			return [];
+		return create_column({
+			sub_col: 1,
+			children: [
+				...this.#prop.aspect.map(d => bubble({
+					element: create_button({
+						text: 'Clear',
+						style: {
+							height: 'min-content',
+							padding: '0 0.25rem'
+						}
+					}),
+					listener: listener_click,
+					event: 'sheet-select',
+					detail: {
+						from: undefined,
+						id: d.id
+					}
+				}))
 			]
 		});
 	}
@@ -399,7 +421,7 @@ function create_change({d, lo, hi, checked, note_value, style = {}, ...args} = {
 					listener: listener_change,
 					event: 'sheet-select',
 					detail: {
-						from: 'new',
+						from: 'alter',
 						id: d.id,
 						value: i
 					}
