@@ -1,12 +1,9 @@
 import {
-	facet
-}
-from 'master';
-
-import {
+	create_facet,
 	create_aspect,
 	create_map,
 	create_baseline,
+	create_input,
 	gmo_calculate
 }
 from 'cobit';
@@ -16,10 +13,8 @@ import {
 }
 from 'component';
 
-const mst_focus = facet
-	.filter(f => [2, 3, 5, 6, 7, 8, 9, 10, 11, 12].includes(f.id))
-	.map(f => ({text: f.code, value: f.id}))
-;
+const mst_focus = ['DF1', 'DF2', 'DF3', 'DF4', 'DF5', 'DF6', 'DF7', 'DF8', 'DF9', 'DF10']
+	.map(code => create_facet({code: code}));
 
 class checkout {
 	#state = {};
@@ -101,7 +96,7 @@ class checkout {
 		const state = _state.mode == 'view' ? _state : {
 			mode: 'view',
 			commit: null,
-			focus: 2
+			focus: create_facet({code: 'DF1'})
 		};
 		if (_state.mode == 'modify') {
 			state.commit = _state.parent,
@@ -123,7 +118,7 @@ class checkout {
 			alter: true,
 			merge: [],
 			context: 'parent',
-			focus: 2
+			focus: create_facet({code: 'DF1'})
 		};
 		if (_state.mode == 'view') {
 			state.parent = _state.commit,
@@ -144,7 +139,8 @@ class checkout {
 		this.control.view();
 		this.focus.view({list: mst_focus, focus: this.#state.focus});
 		this.sheet.view({
-			facet: facet.find(f => f.id == this.#state.focus).name,
+			facet: this.#state.focus,
+			input: create_input({facet: this.#state.focus}),
 			commit: this.#state.commit,
 			aspect: create_aspect({facet: this.#state.focus}),
 			baseline: create_baseline({facet: this.#state.focus})
@@ -159,7 +155,8 @@ class checkout {
 		this.control.modify({parent: this.#state.parent, alter: this.#state.alter, merge: this.#state.merge, context: this.#state.context});
 		this.focus.view({list: mst_focus, focus: this.#state.focus});
 		this.sheet.modify({
-			facet: facet.find(f => f.id == this.#state.focus).name,
+			facet: this.#state.focus,
+			input: create_input({facet: this.#state.focus}),
 			parent: this.#state.parent,
 			alter: this.#state.alter,
 			merge: this.#state.merge,

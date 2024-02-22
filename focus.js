@@ -19,13 +19,13 @@ class focus extends HTMLElement {
 				create_div({
 					children: list.map(f => bubble({
 						element: create_toggle_radio({
-							text: f.text,
+							text: f.code,
 							name: 'focus',
-							checked: focus == f.value
+							checked: focus.id == f.id
 						}),
 						listener: listener_change,
 						event: 'focus-change',
-						detail: f.value
+						detail: f
 					})),
 					classes: ['flex-start']
 				})

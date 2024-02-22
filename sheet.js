@@ -107,37 +107,37 @@ class sheet extends HTMLElement {
 		return this.#state.note;
 	}
 
-	prop_view({facet, commit, aspect, baseline} = {}) {
+	prop_view({facet, aspect, baseline, commit} = {}) {
 		const _prop = this.#prop;
 		const prop = _prop.mode == 'view' ? _prop : {
 			mode: 'view'
 		};
 		if (_prop.mode == 'modify') {
 			prop.facet = _prop.facet;
-			prop.commit = _prop.parent;
 			prop.aspect = _prop.aspect;
 			prop.baseline = _prop.baseline;
+			prop.commit = _prop.parent;
 		}
 		for (const [k, v] of Object.entries({
-			facet, commit, aspect, baseline
+			facet, aspect, baseline, commit
 		}))
 			prop[k] = v;
 		this.#prop = prop;
 	}
 
-	prop_modify({facet, parent, alter, merge, aspect, baseline} = {}) {
+	prop_modify({facet, aspect, baseline, parent, alter, merge} = {}) {
 		const _prop = this.#prop;
 		const prop = _prop.mode == 'modify' ? _prop : {
 			mode: 'modify'
 		};
 		if (_prop.mode == 'view') {
 			prop.facet = _prop.facet;
-			prop.parent = _prop.commit;
 			prop.aspect = _prop.aspect;
 			prop.baseline = _prop.baseline;
+			prop.parent = _prop.commit;
 		}
 		for (const [k, v] of Object.entries({
-			facet, parent, alter, merge, aspect, baseline
+			facet, aspect, baseline, parent, alter, merge
 		}))
 			prop[k] = v;
 		this.#prop = prop;
@@ -217,7 +217,7 @@ class sheet extends HTMLElement {
 			children: [
 				create_row({
 					children: [
-						create_p({text: this.#prop.facet}),
+						create_p({text: this.#prop.facet.name}),
 						this.#prop.commit === null ? [] : create_p({text: `Viewing commit ${this.#prop.commit.id}`}),
 						create_p({text: 'Baseline'})
 					].flat()
@@ -253,7 +253,7 @@ class sheet extends HTMLElement {
 			children: [
 				create_row({
 					children: [
-						create_p({text: this.#prop.facet}),
+						create_p({text: this.#prop.facet.name}),
 						this.#prop.merge.map(s => create_p({text: `Merging commit ${s.id}`})),
 						!this.#prop.alter ? [] : create_p({text: 'Change'}),
 						this.#prop.parent === null ? [] : create_p({text: `Parent commit ${this.#prop.parent.id}`}),

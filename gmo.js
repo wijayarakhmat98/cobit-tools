@@ -1,4 +1,5 @@
 import {
+	create_facet,
 	create_aspect
 }
 from 'cobit';
@@ -18,7 +19,7 @@ import {
 }
 from 'component';
 
-const mst_gmo = create_aspect({facet: 1});
+const mst_gmo = create_aspect({facet: create_facet({code: 'GMO'})});
 
 class gmo extends HTMLElement {
 	#state = {};

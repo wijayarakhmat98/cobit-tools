@@ -1,8 +1,10 @@
 import {
+	facet,
 	asp_class,
 	aspect,
 	asp_desc,
 	map,
+	input,
 	baseline
 }
 from 'master';
@@ -18,9 +20,16 @@ import {
 }
 from 'matrix';
 
+function create_facet({id, code}) {
+	if (typeof id !== 'undefined')
+		return facet.find(f => f.id == id);
+	if (typeof code !== 'undefined')
+		return facet.find(f => f.code == code);
+}
+
 function create_aspect({facet} = {}) {
 	return aspect
-		.filter(r => r.fct_id == facet)
+		.filter(r => r.fct_id == facet.id)
 		.map(r => ({
 			id: r.id,
 			code: r.code,
@@ -43,7 +52,7 @@ function create_aspect({facet} = {}) {
 
 function create_map({facet} = {}) {
 	const ms = [];
-	let focus = facet;
+	let focus = facet.id;
 	for (;;) {
 		const m = map.filter(r => r.src_fct_id == focus);
 		if (m.length == 0)
@@ -63,9 +72,23 @@ function create_map({facet} = {}) {
 	return M;
 }
 
+function create_input({facet} = {}) {
+	return input
+		.filter(i => i.fct_id == facet.id)
+		.map(i => ({
+			id: i.id,
+			type: i.type,
+			lo: i.lo,
+			hi: i.hi,
+			step: i.step,
+			name: i.name
+		}))
+	;
+}
+
 function create_baseline({facet} = {}) {
 	const fct_baseline = baseline.reduce((a, r) => {
-		if (r.fct_id == facet && r.inp_id == 1)
+		if (r.fct_id == facet.id && r.inp_id == 1)
 			a.push({
 				id: r.asp_id,
 				value: r.baseline
@@ -85,8 +108,10 @@ function gmo_calculate({x, x_base, M} = {}) {
 }
 
 export {
+	create_facet,
 	create_aspect,
 	create_map,
+	create_input,
 	create_baseline,
 	gmo_calculate
 };
