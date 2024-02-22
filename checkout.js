@@ -1,5 +1,6 @@
 import {
 	facet,
+	asp_class,
 	aspect,
 	asp_desc,
 	map,
@@ -195,6 +196,12 @@ class checkout {
 					.map(e => ({
 						bullet: e.bullet,
 						description: e.description
+					})),
+				class: asp_class
+					.filter(c => c.fct_id == r.fct_id && c.id == r.cls_id)
+					.map(c => ({
+						name: c.name,
+						description: c.description
 					}))
 			}))
 		;

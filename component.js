@@ -445,6 +445,18 @@ function create_polyline({points = [], color = 'black', width = 1.0, dasharray =
 
 function create_legend({aspect} = {}) {
 	const code = typeof aspect.find(d => d.code !== null) !== 'undefined';
+	for (const r of aspect)
+		r.desc = [
+			r.class.map(c => ({
+				bullet: false,
+				description: c.name
+			})),
+			r.class.map(c => c.description === null ? [] : {
+				bullet: false,
+				description: c.description
+			}),
+			r.desc
+		].flat(2);
 	const desc = typeof aspect.find(d => d.desc.length) !== 'undefined';
 	if (desc) {
 		let list = [];
