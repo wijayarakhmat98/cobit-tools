@@ -1,10 +1,4 @@
 import {
-	trs_df1_lo,
-	trs_df1_hi
-}
-from 'master';
-
-import {
 	notify,
 	listen,
 	bubble,
@@ -24,6 +18,9 @@ import {
 	create_legend
 }
 from 'component';
+
+const trs_df1_lo = 1;
+const trs_df1_hi = 5;
 
 class sheet extends HTMLElement {
 	#state = {};

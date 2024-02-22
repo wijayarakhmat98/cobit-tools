@@ -445,23 +445,22 @@ function create_polyline({points = [], color = 'black', width = 1.0, dasharray =
 
 function create_legend({aspect} = {}) {
 	const code = typeof aspect.find(d => d.code !== null) !== 'undefined';
-	for (const r of aspect)
-		r.desc = [
-			r.class.map(c => ({
-				bullet: false,
-				description: c.name
-			})),
-			r.class.map(c => c.description === null ? [] : {
-				bullet: false,
-				description: c.description
-			}),
-			r.desc
-		].flat(2);
+	const descs = aspect.map(r => [
+		r.class.map(c => ({
+			bullet: false,
+			description: c.name
+		})),
+		r.class.map(c => c.description === null ? [] : {
+			bullet: false,
+			description: c.description
+		}),
+		r.desc
+	].flat(2));
 	const desc = typeof aspect.find(d => d.desc.length) !== 'undefined';
 	if (desc) {
 		let list = [];
 		const details = aspect.map(r => create_div({
-			children: r.desc.map((e, i) => {
+			children: descs[r.id - 1].map((e, i) => {
 				const elements = [];
 				if (e.bullet)
 					list.push(create_element({
@@ -470,7 +469,7 @@ function create_legend({aspect} = {}) {
 							create_text({text: e.description})
 						]
 					}));
-				if (list.length && (!e.bullet || r.desc.length - 1 == i)) {
+				if (list.length && (!e.bullet || descs[r.id - 1].length - 1 == i)) {
 					elements.push(create_element({
 						tag: 'ul',
 						children: list

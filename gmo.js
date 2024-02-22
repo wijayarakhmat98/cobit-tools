@@ -1,7 +1,7 @@
 import {
-	mst_gmo
+	create_aspect
 }
-from 'master';
+from 'cobit';
 
 import {
 	matrix_flatten
@@ -11,12 +11,14 @@ from 'matrix';
 import {
 	create_grid,
 	create_area,
-	replace_content,
+	replace_row,
 	create_div,
 	create_p,
-	create_details_proxy
+	create_legend
 }
 from 'component';
+
+const mst_gmo = create_aspect({facet: 1});
 
 class gmo extends HTMLElement {
 	#state = {};
@@ -43,27 +45,12 @@ class gmo extends HTMLElement {
 
 	view({r_hat} = {}) {
 		this.state_view();
-		replace_content({
+		replace_row({
+			sub_row: mst_gmo.length,
+			col: 2,
 			element: this,
 			children: [
-				create_div({
-					children: mst_gmo.map(d => {
-						const x = create_p({text: d.explanation, classes: ['details'], style: create_area({x: 1, w: 2})});
-						const y = create_p({text: d.dimension, classes: ['summary']});
-						const z = create_details_proxy({summary: d.code, surrogate_summary: [y], surrogate_detail: [x]});
-						return create_div({
-							children: [z, y, x],
-							style: {
-								...create_area({x: 1, w: 2}),
-								...create_grid({row: 2, col: 'subgrid'})
-							}
-						});
-					}),
-					style: {
-						...create_area({x: 1, y: 1, w: 1, h: mst_gmo.length}),
-						...create_grid({row: 'subgrid', col: 2})
-					}
-				}),
+				create_legend({aspect: mst_gmo}),
 				create_div({classes: ['view_gmo_bar'], style: create_area({x: 2, y: 1, w: 1, h: mst_gmo.length})}),
 				create_div({
 					children: matrix_flatten({A: r_hat}).map(r => {
@@ -90,8 +77,7 @@ class gmo extends HTMLElement {
 						'grid-template-columns': 'repeat(200, 1fr)'
 					}
 				})
-			],
-			style: create_grid({row: mst_gmo.length, col: 2})
+			]
 		});
 	}
 }

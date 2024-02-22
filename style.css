@@ -139,6 +139,7 @@ summary {
 }
 
 li {
+	list-style-position: outside;
 	margin-left: 1rem;
 }
 
