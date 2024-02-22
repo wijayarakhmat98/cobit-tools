@@ -18,7 +18,6 @@ import {
 	create_row,
 	create_column,
 	create_p,
-	create_details,
 	create_radio,
 	create_textarea,
 	create_button,

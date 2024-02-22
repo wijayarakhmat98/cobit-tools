@@ -133,10 +133,14 @@ button {
 	border: none;
 }
 
-/* summary {
+summary {
 	list-style-position: outside;
 	margin-left: 1rem;
-} */
+}
+
+li {
+	margin-left: 1rem;
+}
 
 summary, .summary {
 	width: max-content;

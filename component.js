@@ -446,10 +446,31 @@ function create_polyline({points = [], color = 'black', width = 1.0, dasharray =
 function create_legend({aspect} = {}) {
 	const code = typeof aspect.find(d => d.code !== null) !== 'undefined';
 	const desc = typeof aspect.find(d => d.desc.length) !== 'undefined';
-	console.log(structuredClone(aspect));
-	console.log(structuredClone(code));
-	console.log(structuredClone(desc));
-	if (desc)
+	if (desc) {
+		let list = [];
+		const details = aspect.map(r => create_div({
+			children: r.desc.map((e, i) => {
+				const elements = [];
+				if (e.bullet)
+					list.push(create_element({
+						tag: 'li',
+						children: [
+							create_text({text: e.description})
+						]
+					}));
+				if (list.length && (!e.bullet || r.desc.length - 1 == i)) {
+					elements.push(create_element({
+						tag: 'ul',
+						children: list
+					}));
+					list = [];
+				}
+				if (!e.bullet)
+					elements.push(create_p({text: e.description}));
+				return elements;
+			}).flat(),
+			classes: ['details']
+		}));
 		if (code)
 			return create_column({
 				sub_col: 2,
@@ -458,10 +479,9 @@ function create_legend({aspect} = {}) {
 						text: r.name,
 						classes: ['summary']
 					});
-					const detail = create_p({
-						text: r.desc[0].description,
-						classes: ['details'],
-						style: create_area({x: 1, w: 2})
+					const detail = smear({
+						element: details[r.id - 1],
+						style: create_area({w: 2})
 					});
 					const code = create_details_proxy({
 						summary: r.code,
@@ -478,12 +498,21 @@ function create_legend({aspect} = {}) {
 			});
 		else
 			return create_column({
-				children: aspect.map(r => create_details({
-					summary: r.name,
-					detail: r.desc[0].description
-				})),
+				children: aspect.map(r => {
+					const detail = details[r.id - 1];
+					const name = create_details_proxy({
+						summary: r.name,
+						surrogate_detail: [detail]
+					});
+					return create_row({
+						sub_row: 2,
+						span: false,
+						children: [name, detail]
+					});
+				}),
 				classes: ['legend']
 			});
+	}
 	else
 		if (code)
 			return create_column({

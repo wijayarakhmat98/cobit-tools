@@ -2340,126 +2340,126 @@ const asp_desc = [
 		"fct_id": 7,
 		"asp_id": 1,
 		"id": 1,
-		"bullet": true,
+		"bullet": false,
 		"description": "The enterprise is operating under what are considered normal threat levels."
 	},
 	{
 		"fct_id": 7,
 		"asp_id": 2,
 		"id": 1,
-		"bullet": true,
+		"bullet": false,
 		"description": "Due to its geopolitical situation, industry sector or particular profile, the enterprise is operating in a high-threat environment."
 	},
 	{
 		"fct_id": 8,
 		"asp_id": 1,
 		"id": 1,
-		"bullet": true,
+		"bullet": false,
 		"description": "The enterprise is subject to a minimal set of regular compliance requirements that are lower than average."
 	},
 	{
 		"fct_id": 8,
 		"asp_id": 2,
 		"id": 1,
-		"bullet": true,
+		"bullet": false,
 		"description": "The enterprise is subject to a set of regular compliance requirements that are common across different industries."
 	},
 	{
 		"fct_id": 8,
 		"asp_id": 3,
 		"id": 1,
-		"bullet": true,
+		"bullet": false,
 		"description": "The enterprise is subject to higher-than-average compliance requirements, most often related to industry sector or geopolitical conditions."
 	},
 	{
 		"fct_id": 9,
 		"asp_id": 1,
 		"id": 1,
-		"bullet": true,
+		"bullet": false,
 		"description": "IT is not crucial for the running and continuity of the business process and services, nor for their innovation."
 	},
 	{
 		"fct_id": 9,
 		"asp_id": 2,
 		"id": 1,
-		"bullet": true,
+		"bullet": false,
 		"description": "When IT fails, there is an immediate impact on the running and continuity of the business processes and services. However, IT is not seen as a driver for innovating business processes and services."
 	},
 	{
 		"fct_id": 9,
 		"asp_id": 3,
 		"id": 1,
-		"bullet": true,
+		"bullet": false,
 		"description": "IT is seen as a driver for innovating business processes and services. At this moment, however, there is not a critical dependency on IT for the current running and continuity of the business processes and services."
 	},
 	{
 		"fct_id": 9,
 		"asp_id": 4,
 		"id": 1,
-		"bullet": true,
+		"bullet": false,
 		"description": "IT is critical for both running and innovating the organization’s business processes and services."
 	},
 	{
 		"fct_id": 10,
 		"asp_id": 1,
 		"id": 1,
-		"bullet": true,
+		"bullet": false,
 		"description": "The enterprise calls upon the services of a third party to provide IT services."
 	},
 	{
 		"fct_id": 10,
 		"asp_id": 2,
 		"id": 1,
-		"bullet": true,
+		"bullet": false,
 		"description": "The enterprise maximizes the use of the cloud for providing IT services to its users."
 	},
 	{
 		"fct_id": 10,
 		"asp_id": 3,
 		"id": 1,
-		"bullet": true,
+		"bullet": false,
 		"description": "The enterprise provides for its own IT staff and services."
 	},
 	{
 		"fct_id": 11,
 		"asp_id": 1,
 		"id": 1,
-		"bullet": true,
+		"bullet": false,
 		"description": "The enterprise uses Agile development working methods for its software development."
 	},
 	{
 		"fct_id": 11,
 		"asp_id": 2,
 		"id": 1,
-		"bullet": true,
+		"bullet": false,
 		"description": "The enterprise uses DevOps working methods for software building, deployment and operations."
 	},
 	{
 		"fct_id": 11,
 		"asp_id": 3,
 		"id": 1,
-		"bullet": true,
+		"bullet": false,
 		"description": "The enterprise uses a more classic approach to software development (waterfall) and separates software development from operations."
 	},
 	{
 		"fct_id": 12,
 		"asp_id": 1,
 		"id": 1,
-		"bullet": true,
+		"bullet": false,
 		"description": "The enterprise generally adopts new technologies as early as possible and tries to gain first-mover advantage."
 	},
 	{
 		"fct_id": 12,
 		"asp_id": 2,
 		"id": 1,
-		"bullet": true,
+		"bullet": false,
 		"description": "The enterprise typically waits for new technologies to become mainstream and proven before adopting them."
 	},
 	{
 		"fct_id": 12,
 		"asp_id": 3,
 		"id": 1,
-		"bullet": true,
+		"bullet": false,
 		"description": "The enterprise is very late with adoption of new technologies."
 	}
 ];
