@@ -2,9 +2,6 @@
 	margin: 0;
 	padding: 0;
 	box-sizing: border-box;
-}
-
-input, select, button {
 	font-family: inherit;
 	font-size: inherit;
 }
@@ -63,7 +60,7 @@ x-sheet {
 
 x-gmo {
 	grid-area: o;
-	width: fit-content;
+	width: max-content;
 	justify-self: center;
 	column-gap: 1rem;
 }
@@ -82,12 +79,20 @@ x-control > * {
 	gap: 1rem;
 }
 
-x-control button, .toggle {
+x-control button,
+x-control .toggle,
+x-focus .toggle,
+x-sheet button
+{
 	padding: 0 0.25rem;
 }
 
 x-focus > * {
 	gap: 1rem;
+}
+
+x-sheet * {
+	height: min-content;
 }
 
 x-sheet > div {
@@ -131,6 +136,10 @@ x-gmo .view_gmo_bar .pos {
 
 button {
 	border: none;
+}
+
+input, textarea {
+	border: 1px solid black;
 }
 
 summary {

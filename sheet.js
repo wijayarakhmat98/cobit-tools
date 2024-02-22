@@ -2,9 +2,7 @@ import {
 	notify,
 	listen,
 	bubble,
-	listener_click,
 	listener_change,
-	create_range,
 	create_grid,
 	create_area,
 	replace_column,
@@ -15,12 +13,11 @@ import {
 	create_radio,
 	create_textarea,
 	create_button,
-	create_legend
+	create_legend,
+	create_scale,
+	create_percentage
 }
 from 'component';
-
-const trs_df1_lo = 1;
-const trs_df1_hi = 5;
 
 class sheet extends HTMLElement {
 	#state = {};
@@ -29,13 +26,6 @@ class sheet extends HTMLElement {
 
 	constructor({} = {}) {
 		super();
-		listen({
-			element: this,
-			event: 'sheet-note',
-			callback: ({detail} = {}) => {
-				this.#state.note[detail.id - 1] = detail.note;
-			}
-		});
 		listen({
 			element: this,
 			event: 'sheet-select',
@@ -250,7 +240,7 @@ class sheet extends HTMLElement {
 				1 +
 				1 +
 				this.#prop.merge.length +
-				(this.#prop.alter ? 1 : 0) +
+				(this.#prop.alter ? 2 : 0) +
 				(this.#prop.parent === null ? 0 : 1) +
 				1 +
 				(this.#prop.parent === null || this.#cache.snapshot[this.#prop.parent.id].find(s => s.commit == 'baseline') ? 1 : 0)
@@ -262,19 +252,19 @@ class sheet extends HTMLElement {
 						create_p({text: this.#prop.facet.name}),
 						create_div(),
 						this.#prop.merge.map(s => create_p({text: `Merging commit ${s.id}`})),
-						!this.#prop.alter ? [] : create_p({text: 'Change'}),
+						this.#prop.alter ? [create_p({text: 'Change'}), create_p({text: 'Note'})] : [],
 						this.#prop.parent === null ? [] : create_p({text: `Parent commit ${this.#prop.parent.id}`}),
-						create_p({text: 'Baseline'}),
-						create_div()
+						create_p({text: 'Baseline'})
 					].flat()
 				}),
 				create_row({
 					sub_row: this.#prop.aspect.length * this.#prop.input.length,
 					children: [
-						create_legend({aspect: this.#prop.aspect}),
+						create_legend({aspect: this.#prop.aspect, h: this.#prop.input.length}),
 						this.create_input(),
 						this.create_merge({context: context}),
 						this.create_alter({context: context}),
+						this.create_note(),
 						this.create_parent({context: context}),
 						this.create_baseline(),
 						this.create_clear()
@@ -321,15 +311,28 @@ class sheet extends HTMLElement {
 		if (!this.#prop.alter)
 			return [];
 		return create_column({
-			sub_col: create_change_sub_col({lo: trs_df1_lo, hi: trs_df1_hi}),
-			children: this.#prop.aspect
-				.map(d => create_change({
-					d: d,
-					lo: trs_df1_lo,
-					hi: trs_df1_hi,
-					checked: context[d.id - 1] == 'alter' ? this.#state.value[d.id - 1] : undefined,
-					note_value: this.#state.note[d.id - 1]
-				}))
+			sub_col: Math.max.apply(Math, this.#prop.input.map(i => {
+				if (i.type == 'scale')
+					return i.hi - i.lo + 1;
+				if (i.type == 'percentage')
+					return 1;
+			})),
+			children: this.#prop.aspect.map(r => this.#prop.input.map(i => {
+				if (i.type == 'scale')
+					return create_scale({lo: i.lo, hi: i.hi, step: i.step});
+				if (i.type == 'percentage')
+					return create_percentage({lo: i.lo, hi: i.hi, step: i.step});
+			})).flat()
+		});
+	}
+
+	create_note() {
+		if (!this.#prop.alter)
+			return [];
+		return create_column({
+			children: this.#prop.aspect.map(r => this.#prop.input.map(i =>
+				create_textarea({row: 1})
+			)).flat()
 		});
 	}
 
@@ -356,29 +359,32 @@ class sheet extends HTMLElement {
 
 	create_clear({} = {}) {
 		return create_column({
-			children: this.#prop.aspect.map(d => {
-				if (
-					this.#prop.parent === null && !this.#prop.alter && !this.#prop.merge.length ||
-					this.#prop.parent !== null && this.#cache.snapshot[this.#prop.parent.id][d.id - 1].commit != 'baseline'
-				)
-					return [];
-				return bubble({
-					element: create_button({
-						text: 'Clear',
-						style: {
-							height: 'min-content',
-							padding: '0 0.25rem',
-							...create_area({y: d.id})
-						}
-					}),
-					listener: listener_click,
-					event: 'sheet-select',
-					detail: {
-						from: undefined,
-						id: d.id
-					}
-				});
-			}).flat()
+			children: this.#prop.aspect.map(r => this.#prop.input.map(i =>
+				create_button({text: 'Clear'})
+			)).flat()
+			// children: this.#prop.aspect.map(d => {
+			// 	if (
+			// 		this.#prop.parent === null && !this.#prop.alter && !this.#prop.merge.length ||
+			// 		this.#prop.parent !== null && this.#cache.snapshot[this.#prop.parent.id][d.id - 1].commit != 'baseline'
+			// 	)
+			// 		return [];
+			// 	return bubble({
+			// 		element: create_button({
+			// 			text: 'Clear',
+			// 			style: {
+			// 				height: 'min-content',
+			// 				padding: '0 0.25rem',
+			// 				...create_area({y: d.id})
+			// 			}
+			// 		}),
+			// 		listener: listener_click,
+			// 		event: 'sheet-select',
+			// 		detail: {
+			// 			from: undefined,
+			// 			id: d.id
+			// 		}
+			// 	});
+			// }).flat()
 		});
 	}
 }
@@ -407,56 +413,6 @@ function create_snapshot({facet, aspect, commit} = {}) {
 				commit: p.id,
 				description: p.description
 			};
-	});
-}
-
-function create_change_sub_col({lo, hi} = {}) {
-	return hi - lo + 2;
-}
-
-function create_change({d, lo, hi, checked, note_value, style = {}, ...args} = {}) {
-	const note = create_textarea({row: 1, value: note_value});
-	listener_change({
-		element: note,
-		callback: () => {
-			notify({
-				element: note,
-				event: 'sheet-note',
-				detail: {
-					id: d.id,
-					note: note.value
-				},
-				options: {
-					bubbles: true
-				}
-			});
-		}
-	});
-	return create_div({
-		children: [
-			...create_range({start: lo, stop: hi}).map(
-				i => bubble({
-					element: create_radio({
-						text: i,
-						checked: i == checked,
-						name: `${d.id} value`,
-					}),
-					listener: listener_change,
-					event: 'sheet-select',
-					detail: {
-						from: 'alter',
-						id: d.id,
-						value: i
-					}
-				})
-			),
-			note
-		],
-		style: {
-			...create_grid({col: 'subgrid'}),
-			...style
-		},
-		...args
 	});
 }
 

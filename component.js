@@ -556,6 +556,31 @@ function create_legend({aspect, h} = {}) {
 			});
 }
 
+function create_scale({lo, hi, step, value} = {}) {
+	const name = random_token();
+	return create_row({
+		children: create_range({start: lo, stop: hi, step: step})
+			.map(i => create_radio({
+				text: i,
+				checked: i == value,
+				name: name
+			}))
+	});
+}
+
+function create_percentage({lo, hi, step, value} = {}) {
+	return create_element({
+		tag: 'input',
+		attribute: {
+			type: 'number',
+			min: lo,
+			max: hi,
+			step: step,
+			...(typeof value !== 'undefined' && {value: value})
+		}
+	});
+}
+
 export {
 	random_token,
 	notify,
@@ -590,5 +615,7 @@ export {
 	create_button,
 	create_svg,
 	create_polyline,
-	create_legend
+	create_legend,
+	create_scale,
+	create_percentage
 };
