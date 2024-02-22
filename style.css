@@ -102,14 +102,6 @@ x-sheet .baseline {
 	text-align: center;
 }
 
-x-sheet summary, x-sheet .summary {
-	max-width: 16rem;
-}
-
-x-gmo :has(> details) {
-	column-gap: 0.5rem;
-}
-
 x-gmo .view_gmo_bar:empty {
 	border-right: 1px solid black;
 	border-left: 1px solid black;
@@ -141,13 +133,15 @@ button {
 	border: none;
 }
 
-summary {
+/* summary {
 	list-style-position: outside;
 	margin-left: 1rem;
-}
+} */
 
 summary, .summary {
 	width: max-content;
+	max-width: 24rem;
+	text-align: justify;
 }
 
 details p, .details {
@@ -223,4 +217,12 @@ details p, .details {
 
 .toggle_checkbox:has(:checked) {
 	background-color: gold;
+}
+
+.legend {
+	min-width: 12rem;
+}
+
+div :has(> details) {
+	column-gap: 0.5rem;
 }

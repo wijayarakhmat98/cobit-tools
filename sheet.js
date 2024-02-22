@@ -13,7 +13,6 @@ import {
 	create_range,
 	create_grid,
 	create_area,
-	replace_row,
 	replace_column,
 	create_div,
 	create_row,
@@ -22,7 +21,8 @@ import {
 	create_details,
 	create_radio,
 	create_textarea,
-	create_button
+	create_button,
+	create_legend
 }
 from 'component';
 
@@ -111,35 +111,37 @@ class sheet extends HTMLElement {
 		return this.#state.note;
 	}
 
-	prop_view({commit, aspect, baseline} = {}) {
+	prop_view({facet, commit, aspect, baseline} = {}) {
 		const _prop = this.#prop;
 		const prop = _prop.mode == 'view' ? _prop : {
 			mode: 'view'
 		};
 		if (_prop.mode == 'modify') {
+			prop.facet = _prop.facet;
 			prop.commit = _prop.parent;
 			prop.aspect = _prop.aspect;
 			prop.baseline = _prop.baseline;
 		}
 		for (const [k, v] of Object.entries({
-			commit, aspect, baseline
+			facet, commit, aspect, baseline
 		}))
 			prop[k] = v;
 		this.#prop = prop;
 	}
 
-	prop_modify({parent, alter, merge, aspect, baseline} = {}) {
+	prop_modify({facet, parent, alter, merge, aspect, baseline} = {}) {
 		const _prop = this.#prop;
 		const prop = _prop.mode == 'modify' ? _prop : {
 			mode: 'modify'
 		};
 		if (_prop.mode == 'view') {
+			prop.facet = _prop.facet;
 			prop.parent = _prop.commit;
 			prop.aspect = _prop.aspect;
 			prop.baseline = _prop.baseline;
 		}
 		for (const [k, v] of Object.entries({
-			parent, alter, merge, aspect, baseline
+			facet, parent, alter, merge, aspect, baseline
 		}))
 			prop[k] = v;
 		this.#prop = prop;
@@ -219,7 +221,7 @@ class sheet extends HTMLElement {
 			children: [
 				create_row({
 					children: [
-						create_p({text: 'Enterprise Strategy'}),
+						create_p({text: this.#prop.facet}),
 						this.#prop.commit === null ? [] : create_p({text: `Viewing commit ${this.#prop.commit.id}`}),
 						create_p({text: 'Baseline'})
 					].flat()
@@ -227,7 +229,7 @@ class sheet extends HTMLElement {
 				create_row({
 					sub_row: this.#prop.aspect.length,
 					children: [
-						this.create_legend(),
+						create_legend({aspect: this.#prop.aspect}),
 						this.create_commit(),
 						this.create_baseline()
 					].flat()
@@ -255,7 +257,7 @@ class sheet extends HTMLElement {
 			children: [
 				create_row({
 					children: [
-						create_p({text: 'Enterprise Strategy'}),
+						create_p({text: this.#prop.facet}),
 						this.#prop.merge.map(s => create_p({text: `Merging commit ${s.id}`})),
 						!this.#prop.alter ? [] : create_p({text: 'Change'}),
 						this.#prop.parent === null ? [] : create_p({text: `Parent commit ${this.#prop.parent.id}`}),
@@ -265,7 +267,7 @@ class sheet extends HTMLElement {
 				create_row({
 					sub_row: this.#prop.aspect.length,
 					children: [
-						this.create_legend(),
+						create_legend({aspect: this.#prop.aspect}),
 						this.create_merge({context: context}),
 						this.create_alter({context: context}),
 						this.create_parent({context: context}),
@@ -274,12 +276,6 @@ class sheet extends HTMLElement {
 					].flat()
 				})
 			]
-		});
-	}
-
-	create_legend({} = {}) {
-		return create_column({
-			children: this.#prop.aspect.map(d => create_details({summary: d.dimension, detail: d.explanation}))
 		});
 	}
 

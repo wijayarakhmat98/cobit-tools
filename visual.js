@@ -28,7 +28,7 @@ class visual extends HTMLElement {
 		const _state = this.#state;
 		const state = _state.mode == 'view' ? _state : {
 			mode: 'view',
-			open: true
+			open: false
 		};
 		for (const [k, v] of Object.entries({
 			open
@@ -38,7 +38,7 @@ class visual extends HTMLElement {
 		this.#state = state;
 	}
 
-	view({mst_df, x} = {}) {
+	view({aspect, x} = {}) {
 		this.state_view();
 		replace_content({
 			element: this,
@@ -54,9 +54,9 @@ class visual extends HTMLElement {
 							create_div({
 								children: [
 									create_div({
-										children: mst_df.map((d, i) => [
+										children: aspect.map((d, i) => [
 											create_p({
-												text: d.dimension,
+												text: d.name,
 												style: {
 													...create_area({x: 1}),
 													padding: '0 1rem 0.5rem 0.5rem',

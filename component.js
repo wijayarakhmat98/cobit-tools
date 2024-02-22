@@ -443,6 +443,74 @@ function create_polyline({points = [], color = 'black', width = 1.0, dasharray =
 	});
 }
 
+function create_legend({aspect} = {}) {
+	const code = typeof aspect.find(d => d.code !== null) !== 'undefined';
+	const desc = typeof aspect.find(d => d.desc.length) !== 'undefined';
+	console.log(structuredClone(aspect));
+	console.log(structuredClone(code));
+	console.log(structuredClone(desc));
+	if (desc)
+		if (code)
+			return create_column({
+				sub_col: 2,
+				children: aspect.map(r => {
+					const name = create_p({
+						text: r.name,
+						classes: ['summary']
+					});
+					const detail = create_p({
+						text: r.desc[0].description,
+						classes: ['details'],
+						style: create_area({x: 1, w: 2})
+					});
+					const code = create_details_proxy({
+						summary: r.code,
+						surrogate_summary: [name],
+						surrogate_detail: [detail]
+					});
+					return create_row({
+						sub_row: 2,
+						span: false,
+						children: [code, name, detail]
+					});
+				}),
+				classes: ['legend']
+			});
+		else
+			return create_column({
+				children: aspect.map(r => create_details({
+					summary: r.name,
+					detail: r.desc[0].description
+				})),
+				classes: ['legend']
+			});
+	else
+		if (code)
+			return create_column({
+				sub_col: 2,
+				span: false,
+				children: aspect.map(r => [
+					create_p({
+						text: r.code,
+						classes: ['summary']
+					}),
+					create_p({
+						text: r.name,
+						classes: ['summary']
+					})
+				]).flat(),
+				classes: ['legend']
+			});
+		else
+			return create_column({
+				children: aspect.map(r => create_p({
+					text: r.name,
+					classes: ['summary']
+				})),
+				classes: ['legend']
+			});
+}
+
 export {
 	random_token,
 	notify,
@@ -476,5 +544,6 @@ export {
 	create_textarea,
 	create_button,
 	create_svg,
-	create_polyline
+	create_polyline,
+	create_legend
 };

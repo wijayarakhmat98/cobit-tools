@@ -1,6 +1,7 @@
 import {
 	facet,
 	aspect,
+	asp_desc,
 	map,
 	baseline
 }
@@ -144,7 +145,12 @@ class checkout {
 		this.graph.view({graph: this.history});
 		this.control.view();
 		this.build_focus();
-		this.sheet.view({commit: this.#state.commit, aspect: this.mst_df(), baseline: this.trs_df_baseline()});
+		this.sheet.view({
+			facet: facet.find(f => f.id == this.#state.focus).name,
+			commit: this.#state.commit,
+			aspect: this.mst_df(),
+			baseline: this.trs_df_baseline()
+		});
 		this.gmo_view();
 	}
 
@@ -155,6 +161,7 @@ class checkout {
 		this.control.modify({parent: this.#state.parent, alter: this.#state.alter, merge: this.#state.merge, context: this.#state.context});
 		this.build_focus();
 		this.sheet.modify({
+			facet: facet.find(f => f.id == this.#state.focus).name,
 			parent: this.#state.parent,
 			alter: this.#state.alter,
 			merge: this.#state.merge,
@@ -177,16 +184,20 @@ class checkout {
 	}
 
 	mst_df({} = {}) {
-		const mst_df = aspect.reduce((a, r) => {
-			if (r.fct_id == this.#state.focus)
-				a.push({
-					id: r.id,
-					dimension: r.name,
-					explanation: 'place holder'
-				})
-			return a;
-		}, []);
-		return mst_df;
+		return aspect
+			.filter(r => r.fct_id == this.#state.focus)
+			.map(r => ({
+				id: r.id,
+				code: r.code,
+				name: r.name,
+				desc: asp_desc
+					.filter(e => e.fct_id == r.fct_id && e.asp_id == r.id)
+					.map(e => ({
+						bullet: e.bullet,
+						description: e.description
+					}))
+			}))
+		;
 	}
 
 	trs_df_baseline({} = {}) {
@@ -227,7 +238,7 @@ class checkout {
 		const x = this.sheet.x();
 		const x_base = this.trs_df_baseline().map(d => [d.value]);
 		const r_hat = this.gmo_calculate({x: x, x_base: x_base});
-		this.visual.view({mst_df: this.mst_df(), x: x});
+		this.visual.view({aspect: this.mst_df(), x: x});
 		this.gmo.view({r_hat: r_hat});
 	}
 
