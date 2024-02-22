@@ -315,13 +315,13 @@ class sheet extends HTMLElement {
 				if (i.type == 'scale')
 					return i.hi - i.lo + 1;
 				if (i.type == 'percentage')
-					return 1;
+					return 2;
 			})),
 			children: this.#prop.aspect.map(r => this.#prop.input.map(i => {
 				if (i.type == 'scale')
-					return create_scale({lo: i.lo, hi: i.hi, step: i.step});
+					return create_scale({lo: i.lo, hi: i.hi, step: i.step, name: `${r.id} value`});
 				if (i.type == 'percentage')
-					return create_percentage({lo: i.lo, hi: i.hi, step: i.step});
+					return create_percentage({lo: i.lo, hi: i.hi, step: i.step, name: `${r.id} value`});
 			})).flat()
 		});
 	}

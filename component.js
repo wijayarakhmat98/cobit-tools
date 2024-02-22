@@ -560,29 +560,45 @@ function create_legend({aspect, h, ...args} = {}) {
 			});
 }
 
-function create_scale({lo, hi, step, value, ...args} = {}) {
-	const name = random_token();
+function create_scale({lo, hi, step, checked, name, ...args} = {}) {
 	return create_row({
 		children: create_range({start: lo, stop: hi, step: step})
 			.map(i => create_radio({
 				text: i,
-				checked: i == value,
-				name: name
+				...(checked == i && {checked: ''}),
+				...(name && {name: name})
 			})),
 		...args
 	});
 }
 
-function create_percentage({lo, hi, step, value, ...args} = {}) {
-	return create_element({
+function create_percentage({lo, hi, step, value, checked = false, name, ...args} = {}) {
+	const radio = create_element({
 		tag: 'input',
 		attribute: {
-			type: 'number',
-			min: lo,
-			max: hi,
-			step: step,
-			...(typeof value !== 'undefined' && {value: value})
-		},
+			type: 'radio',
+			...(checked && {checked: ''}),
+			...(name && {name: name})
+		}
+	});
+	return create_row({
+		children: [
+			radio,
+			listener_change({
+				element: create_element({
+					tag: 'input',
+					attribute: {
+						type: 'number',
+						min: lo,
+						max: hi,
+						step: step,
+						...(typeof value !== 'undefined' && {value: value})
+					},
+					...args
+				}),
+				callback: () => radio.checked = true
+			})
+		],
 		...args
 	});
 }
