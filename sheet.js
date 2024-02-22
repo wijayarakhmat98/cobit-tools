@@ -89,6 +89,7 @@ class sheet extends HTMLElement {
 	}
 
 	x({} = {}) {
+		return this.#prop.baseline;
 		const context = this.context();
 		return this.#prop.aspect.map(d => {
 			const c = context[d.id - 1];
@@ -107,37 +108,39 @@ class sheet extends HTMLElement {
 		return this.#state.note;
 	}
 
-	prop_view({facet, aspect, baseline, commit} = {}) {
+	#prop_common({prop} = {}) {
+		const _prop = this.#prop;
+		prop.facet = _prop.facet;
+		prop.aspect = _prop.aspect;
+		prop.input = _prop.input;
+		prop.baseline = _prop.baseline;
+	}
+
+	#prop_view({facet, aspect, input, baseline, commit} = {}) {
 		const _prop = this.#prop;
 		const prop = _prop.mode == 'view' ? _prop : {
 			mode: 'view'
 		};
-		if (_prop.mode == 'modify') {
-			prop.facet = _prop.facet;
-			prop.aspect = _prop.aspect;
-			prop.baseline = _prop.baseline;
+		this.#prop_common({prop: prop});
+		if (_prop.mode == 'modify')
 			prop.commit = _prop.parent;
-		}
 		for (const [k, v] of Object.entries({
-			facet, aspect, baseline, commit
+			facet, aspect, input, baseline, commit
 		}))
 			prop[k] = v;
 		this.#prop = prop;
 	}
 
-	prop_modify({facet, aspect, baseline, parent, alter, merge} = {}) {
+	#prop_modify({facet, aspect, input, baseline, parent, alter, merge} = {}) {
 		const _prop = this.#prop;
 		const prop = _prop.mode == 'modify' ? _prop : {
 			mode: 'modify'
 		};
-		if (_prop.mode == 'view') {
-			prop.facet = _prop.facet;
-			prop.aspect = _prop.aspect;
-			prop.baseline = _prop.baseline;
+		this.#prop_common({prop: prop});
+		if (_prop.mode == 'view')
 			prop.parent = _prop.commit;
-		}
 		for (const [k, v] of Object.entries({
-			facet, aspect, baseline, parent, alter, merge
+			facet, aspect, input, baseline, parent, alter, merge
 		}))
 			prop[k] = v;
 		this.#prop = prop;
@@ -167,7 +170,7 @@ class sheet extends HTMLElement {
 		this.#state = state;
 	}
 
-	cache_view({} = {}) {
+	#cache_view({} = {}) {
 		const _cache = this.#cache;
 		const cache = _cache.mode == 'view' ? _cache : {
 			mode: 'view'
@@ -186,7 +189,7 @@ class sheet extends HTMLElement {
 		this.#cache = cache;
 	}
 
-	cache_modify({} = {}) {
+	#cache_modify({} = {}) {
 		const _cache = this.#cache;
 		const cache = _cache.mode == 'modify' ? _cache : {
 			mode: 'modify'
@@ -206,9 +209,9 @@ class sheet extends HTMLElement {
 	}
 
 	view({...args} = {}) {
-		this.prop_view({...args});
+		this.#prop_view({...args});
 		this.state_view();
-		this.cache_view();
+		this.#cache_view();
 		replace_column({
 			element: this,
 			sub_col:
@@ -237,13 +240,14 @@ class sheet extends HTMLElement {
 	}
 
 	modify({...args} = {}) {
-		this.prop_modify({...args});
+		this.#prop_modify({...args});
 		this.state_modify({...args});
-		this.cache_modify();
+		this.#cache_modify();
 		const context = this.context();
 		replace_column({
 			element: this,
 			sub_col:
+				1 +
 				1 +
 				this.#prop.merge.length +
 				(this.#prop.alter ? 1 : 0) +
@@ -256,16 +260,19 @@ class sheet extends HTMLElement {
 				create_row({
 					children: [
 						create_p({text: this.#prop.facet.name}),
+						create_div(),
 						this.#prop.merge.map(s => create_p({text: `Merging commit ${s.id}`})),
 						!this.#prop.alter ? [] : create_p({text: 'Change'}),
 						this.#prop.parent === null ? [] : create_p({text: `Parent commit ${this.#prop.parent.id}`}),
-						create_p({text: 'Baseline'})
+						create_p({text: 'Baseline'}),
+						create_div()
 					].flat()
 				}),
 				create_row({
-					sub_row: this.#prop.aspect.length,
+					sub_row: this.#prop.aspect.length * this.#prop.input.length,
 					children: [
 						create_legend({aspect: this.#prop.aspect}),
+						this.create_input(),
 						this.create_merge({context: context}),
 						this.create_alter({context: context}),
 						this.create_parent({context: context}),
@@ -274,6 +281,13 @@ class sheet extends HTMLElement {
 					].flat()
 				})
 			]
+		});
+	}
+
+	create_input({} = {}) {
+		return create_column({
+			children: this.#prop.aspect.map(_ => this.#prop.input.map(i => i.name)).flat()
+				.map(n => create_p({text: n}))
 		});
 	}
 
@@ -335,7 +349,8 @@ class sheet extends HTMLElement {
 
 	create_baseline({} = {}) {
 		return create_column({
-			children: this.#prop.baseline.map(d => create_p({text: d.value, classes: ['baseline']}))
+			children: this.#prop.aspect.map(r => this.#prop.baseline.map(b => b[r.id - 1])).flat()
+				.map(b => create_p({text: b, classes: ['baseline']}))
 		});
 	}
 

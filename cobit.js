@@ -5,7 +5,8 @@ import {
 	asp_desc,
 	map,
 	input,
-	baseline
+	baseline,
+	inp_collapse
 }
 from 'master';
 
@@ -13,6 +14,7 @@ import {
 	matrix_create,
 	matrix_sum_element,
 	matrix_reciprocal,
+	matrix_transpose,
 	matrix_scalar_multiply,
 	matrix_multiply,
 	matrix_element_multiply,
@@ -46,8 +48,7 @@ function create_aspect({facet} = {}) {
 					name: c.name,
 					description: c.description
 				}))
-		}))
-	;
+		}));
 }
 
 function create_map({facet} = {}) {
@@ -82,23 +83,29 @@ function create_input({facet} = {}) {
 			hi: i.hi,
 			step: i.step,
 			name: i.name
-		}))
-	;
+		}));
 }
 
 function create_baseline({facet} = {}) {
-	const fct_baseline = baseline.reduce((a, r) => {
-		if (r.fct_id == facet.id && r.inp_id == 1)
-			a.push({
-				id: r.asp_id,
-				value: r.baseline
-			})
-		return a;
-	}, []);
-	return fct_baseline;
+	return baseline
+		.filter(b => b.fct_id == facet.id)
+		.reduce((a, r) => {
+			if (typeof a[r.inp_id - 1] === 'undefined')
+				a[r.inp_id - 1] = [];
+			a[r.inp_id - 1][r.asp_id - 1] = r.baseline;
+			return a;
+		}, []);
 }
 
-function gmo_calculate({x, x_base, M} = {}) {
+function create_collapse({facet} = {}) {
+	const c = inp_collapse.find(c => c.fct_id == facet.id);
+	return {
+		strategy: c.strategy,
+		name: c.name
+	};
+}
+
+function map_calculate({x, x_base, M} = {}) {
 	const c = matrix_sum_element({A: x_base}) / matrix_sum_element({A: x});
 	const y = matrix_multiply({A: M, B: x});
 	const y_base = matrix_multiply({A: M, B: x_base});
@@ -107,11 +114,24 @@ function gmo_calculate({x, x_base, M} = {}) {
 	return r_hat;
 }
 
+function collapse_calculate({xs, collapse}) {
+	return matrix_transpose({A: xs})
+		.map(x => {
+			if (collapse.strategy == 'sum')
+				return x.reduce((a, v) => a += v);
+			if (collapse.strategy == 'product')
+				return x.reduce((a, v) => a *= v);
+		})
+		.map(x => [x]);
+}
+
 export {
 	create_facet,
 	create_aspect,
 	create_map,
 	create_input,
 	create_baseline,
-	gmo_calculate
+	create_collapse,
+	map_calculate,
+	collapse_calculate
 };

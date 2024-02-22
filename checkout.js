@@ -4,7 +4,9 @@ import {
 	create_map,
 	create_baseline,
 	create_input,
-	gmo_calculate
+	create_collapse,
+	map_calculate,
+	collapse_calculate
 }
 from 'cobit';
 
@@ -18,6 +20,7 @@ const mst_focus = ['DF1', 'DF2', 'DF3', 'DF4', 'DF5', 'DF6', 'DF7', 'DF8', 'DF9'
 
 class checkout {
 	#state = {};
+	#cache = {};
 
 	constructor({
 		history, header, graph, control, focus, visual, sheet, gmo
@@ -118,7 +121,7 @@ class checkout {
 			alter: true,
 			merge: [],
 			context: 'parent',
-			focus: create_facet({code: 'DF1'})
+			focus: create_facet({code: 'DF3'})
 		};
 		if (_state.mode == 'view') {
 			state.parent = _state.commit,
@@ -132,45 +135,73 @@ class checkout {
 		this.#state = state;
 	}
 
+	#cache_common({cache} = {}) {
+		cache.aspect = create_aspect({facet: this.#state.focus});
+		cache.map = create_map({facet: this.#state.focus});
+		cache.input = create_input({facet: this.#state.focus});
+		cache.baseline = create_baseline({facet: this.#state.focus});
+		cache.collapse = create_collapse({facet: this.#state.focus});
+	}
+
+	#cache_view({} = {}) {
+		const _cache = this.#cache;
+		const cache = _cache.mode == 'view' ? _cache : {
+			mode: 'view'
+		};
+		this.#cache_common({cache: cache});
+		this.#cache = cache;
+	}
+
+	#cache_modify({} = {}) {
+		const _cache = this.#cache;
+		const cache = _cache.mode == 'modify' ? _cache : {
+			mode: 'modify'
+		};
+		this.#cache_common({cache: cache});
+		this.#cache = cache;
+	}
+
 	view({...args} = {}) {
 		this.state_view({...args});
+		this.#cache_view();
 		this.header.view({view_graph: this.graph});
 		this.graph.view({graph: this.history});
 		this.control.view();
 		this.focus.view({list: mst_focus, focus: this.#state.focus});
 		this.sheet.view({
 			facet: this.#state.focus,
-			input: create_input({facet: this.#state.focus}),
-			commit: this.#state.commit,
-			aspect: create_aspect({facet: this.#state.focus}),
-			baseline: create_baseline({facet: this.#state.focus})
+			aspect: this.#cache.aspect,
+			input: this.#cache.input,
+			baseline: this.#cache.baseline,
+			commit: this.#state.commit
 		});
 		this.gmo_view();
 	}
 
 	modify({...args} = {}) {
 		this.state_modify({...args});
+		this.#cache_modify();
 		this.header.view({view_graph: this.graph});
 		this.graph.view({graph: this.history});
 		this.control.modify({parent: this.#state.parent, alter: this.#state.alter, merge: this.#state.merge, context: this.#state.context});
 		this.focus.view({list: mst_focus, focus: this.#state.focus});
 		this.sheet.modify({
 			facet: this.#state.focus,
-			input: create_input({facet: this.#state.focus}),
+			aspect: this.#cache.aspect,
+			input: this.#cache.input,
+			baseline: this.#cache.baseline,
 			parent: this.#state.parent,
 			alter: this.#state.alter,
-			merge: this.#state.merge,
-			aspect: create_aspect({facet: this.#state.focus}),
-			baseline: create_baseline({facet: this.#state.focus})
+			merge: this.#state.merge
 		});
 		this.gmo_view();
 	}
 
 	gmo_view({} = {}) {
-		const x = this.sheet.x();
-		const x_base = create_baseline({facet: this.#state.focus}).map(d => [d.value]);
-		const M = create_map({facet: this.#state.focus});
-		const r_hat = gmo_calculate({x: x, x_base: x_base, M: M});
+		const x = collapse_calculate({xs: this.sheet.x(), collapse: this.#cache.collapse});
+		const x_base = collapse_calculate({xs: this.#cache.baseline, collapse: this.#cache.collapse});
+		const M = this.#cache.map;
+		const r_hat = map_calculate({x: x, x_base: x_base, M: M});
 		this.visual.view({aspect: create_aspect({facet: this.#state.focus}), x: x});
 		this.gmo.view({r_hat: r_hat});
 	}

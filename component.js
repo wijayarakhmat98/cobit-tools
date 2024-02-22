@@ -443,7 +443,7 @@ function create_polyline({points = [], color = 'black', width = 1.0, dasharray =
 	});
 }
 
-function create_legend({aspect} = {}) {
+function create_legend({aspect, h} = {}) {
 	const code = typeof aspect.find(d => d.code !== null) !== 'undefined';
 	const descs = aspect.map(r => [
 		r.class.map(c => ({
@@ -502,7 +502,8 @@ function create_legend({aspect} = {}) {
 					return create_row({
 						sub_row: 2,
 						span: false,
-						children: [code, name, detail]
+						children: [code, name, detail],
+						style: create_area({h: h})
 					});
 				}),
 				classes: ['legend']
@@ -518,7 +519,8 @@ function create_legend({aspect} = {}) {
 					return create_row({
 						sub_row: 2,
 						span: false,
-						children: [name, detail]
+						children: [name, detail],
+						style: create_area({h: h})
 					});
 				}),
 				classes: ['legend']
@@ -532,11 +534,13 @@ function create_legend({aspect} = {}) {
 				children: aspect.map(r => [
 					create_p({
 						text: r.code,
-						classes: ['summary']
+						classes: ['summary'],
+						style: create_area({h: h})
 					}),
 					create_p({
 						text: r.name,
-						classes: ['summary']
+						classes: ['summary'],
+						style: create_area({h: h})
 					})
 				]).flat(),
 				classes: ['legend']
@@ -545,7 +549,8 @@ function create_legend({aspect} = {}) {
 			return create_column({
 				children: aspect.map(r => create_p({
 					text: r.name,
-					classes: ['summary']
+					classes: ['summary'],
+					style: create_area({h: h})
 				})),
 				classes: ['legend']
 			});

@@ -24159,7 +24159,7 @@ const input = [
 		"lo": 1,
 		"hi": 5,
 		"step": 1,
-		"name": "likelihood"
+		"name": "Likelihood"
 	},
 	{
 		"fct_id": 6,
