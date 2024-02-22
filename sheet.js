@@ -71,28 +71,39 @@ class sheet extends HTMLElement {
 		return this.#state.mode;
 	}
 
-	state_view({} = {}) {
-		const _state = this.#state;
-		const state = _state.mode == 'view' ? _state : {
-			mode: 'view'
-		};
-		this.#state = state;
+	context({} = {}) {
+		if (this.#state.mode == 'view')
+			return this.#prop.aspect.map(_ =>
+				this.#prop.commit === null ? 'baseline' : this.#prop.commit.id
+			);
+		if (this.#state.mode == 'modify')
+			return this.#prop.aspect.map(d => {
+				const s = this.#state.selection[d.id - 1];
+				if (this.#prop.alter && s == 'new')
+					return s;
+				if (this.#prop.merge.find(m => m.id == s))
+					return s;
+				return this.#prop.parent === null ? 'baseline' : this.#prop.parent.id;
+			});
 	}
 
-	state_modify({selection, value, note} = {}) {
-		const _state = this.#state;
-		const state = _state.mode == 'modify' ? _state : {
-			mode: 'modify',
-			selection: [],
-			value: [],
-			note: []
-		};
-		for (const [k, v] of Object.entries({
-			selection, value, note
-		}))
-			if (typeof v !== 'undefined')
-				state[k] = v;
-		this.#state = state;
+	x({} = {}) {
+		const context = this.context();
+		return this.#prop.aspect.map(d => {
+			const c = context[d.id - 1];
+			if (c == 'new')
+				return this.#state.value[d.id - 1];
+			if (c == 'baseline')
+				return this.#prop.baseline[d.id - 1].value;
+			const s = this.#cache.snapshot[c][d.id - 1];
+			if (s.commit == 'baseline')
+				return this.#prop.baseline[d.id - 1].value;
+			return s.value;
+		}).map(v => [v]);
+	}
+
+	note({} = {}) {
+		return this.#state.note;
 	}
 
 	prop_view({commit, aspect, baseline} = {}) {
@@ -127,6 +138,30 @@ class sheet extends HTMLElement {
 		}))
 			prop[k] = v;
 		this.#prop = prop;
+	}
+
+	state_view({} = {}) {
+		const _state = this.#state;
+		const state = _state.mode == 'view' ? _state : {
+			mode: 'view'
+		};
+		this.#state = state;
+	}
+
+	state_modify({selection, value, note} = {}) {
+		const _state = this.#state;
+		const state = _state.mode == 'modify' ? _state : {
+			mode: 'modify',
+			selection: [],
+			value: [],
+			note: []
+		};
+		for (const [k, v] of Object.entries({
+			selection, value, note
+		}))
+			if (typeof v !== 'undefined')
+				state[k] = v;
+		this.#state = state;
 	}
 
 	cache_view({} = {}) {
@@ -166,8 +201,8 @@ class sheet extends HTMLElement {
 	}
 
 	view({...args} = {}) {
-		this.state_view();
 		this.prop_view({...args});
+		this.state_view();
 		this.cache_view();
 		replace_row({
 			element: this,
@@ -207,8 +242,8 @@ class sheet extends HTMLElement {
 	}
 
 	modify({...args} = {}) {
-		this.state_modify({...args});
 		this.prop_modify({...args});
+		this.state_modify({...args});
 		this.cache_modify();
 		const context = this.context();
 		replace_row({
@@ -287,41 +322,6 @@ class sheet extends HTMLElement {
 				})])
 			]
 		});
-	}
-
-	context({} = {}) {
-		if (this.#state.mode == 'view')
-			return this.#prop.aspect.map(_ =>
-				this.#prop.commit === null ? 'baseline' : this.#prop.commit.id
-			);
-		if (this.#state.mode == 'modify')
-			return this.#prop.aspect.map(d => {
-				const s = this.#state.selection[d.id - 1];
-				if (this.#prop.alter && s == 'new')
-					return s;
-				if (this.#prop.merge.find(m => m.id == s))
-					return s;
-				return this.#prop.parent === null ? 'baseline' : this.#prop.parent.id;
-			});
-	}
-
-	x({} = {}) {
-		const context = this.context();
-		return this.#prop.aspect.map(d => {
-			const c = context[d.id - 1];
-			if (c == 'new')
-				return this.#state.value[d.id - 1];
-			if (c == 'baseline')
-				return this.#prop.baseline[d.id - 1].value;
-			const s = this.#cache.snapshot[c][d.id - 1];
-			if (s.commit == 'baseline')
-				return this.#prop.baseline[d.id - 1].value;
-			return s.value;
-		}).map(v => [v]);
-	}
-
-	note({} = {}) {
-		return this.#state.note;
 	}
 }
 
