@@ -231,3 +231,7 @@ details p, .details {
 div :has(> details) {
 	column-gap: 0.5rem;
 }
+
+.details * {
+	margin-block: 0.5rem;
+}
