@@ -44,7 +44,10 @@ class sheet extends HTMLElement {
 			element: this,
 			event: 'sheet-select',
 			callback: ({detail} = {}) => {
-				if (typeof detail.from === 'undefined' && this.#prop.parent === null)
+				if (typeof detail.from === 'undefined' && (
+						this.#prop.parent === null ||
+						this.#cache.snapshot[this.#prop.parent.id][detail.id - 1].commit == 'baseline'
+				))
 					for (const r of document.getElementsByName(`${detail.id} value`))
 						r.checked = false;
 				if (detail.from == 'alter')
@@ -250,7 +253,14 @@ class sheet extends HTMLElement {
 		const context = this.context();
 		replace_column({
 			element: this,
-			sub_col: 1 + this.#prop.merge.length + (this.#prop.alter ? 1 : 0) + (this.#prop.parent === null ? 1 : 0) + 1 + 1,
+			sub_col:
+				1 +
+				this.#prop.merge.length +
+				(this.#prop.alter ? 1 : 0) +
+				(this.#prop.parent === null ? 0 : 1) +
+				1 +
+				(this.#prop.parent === null || this.#cache.snapshot[this.#prop.parent.id].find(s => s.commit == 'baseline') ? 1 : 0)
+			,
 			row: 2,
 			children: [
 				create_row({
@@ -280,7 +290,6 @@ class sheet extends HTMLElement {
 
 	create_legend({} = {}) {
 		return create_column({
-			sub_col: 1,
 			children: this.#prop.aspect.map(d => create_details({summary: d.dimension, detail: d.explanation}))
 		});
 	}
@@ -329,23 +338,25 @@ class sheet extends HTMLElement {
 
 	create_baseline({} = {}) {
 		return create_column({
-			sub_col: 1,
 			children: this.#prop.baseline.map(d => create_p({text: d.value, classes: ['baseline']}))
 		});
 	}
 
 	create_clear({} = {}) {
-		if (this.#prop.parent !== null || !this.#prop.alter && !this.#prop.merge.length)
-			return [];
 		return create_column({
-			sub_col: 1,
-			children: [
-				...this.#prop.aspect.map(d => bubble({
+			children: this.#prop.aspect.map(d => {
+				if (
+					this.#prop.parent === null && !this.#prop.alter && !this.#prop.merge.length ||
+					this.#prop.parent !== null && this.#cache.snapshot[this.#prop.parent.id][d.id - 1].commit != 'baseline'
+				)
+					return [];
+				return bubble({
 					element: create_button({
 						text: 'Clear',
 						style: {
 							height: 'min-content',
-							padding: '0 0.25rem'
+							padding: '0 0.25rem',
+							...create_area({y: d.id})
 						}
 					}),
 					listener: listener_click,
@@ -354,8 +365,8 @@ class sheet extends HTMLElement {
 						from: undefined,
 						id: d.id
 					}
-				}))
-			]
+				});
+			}).flat()
 		});
 	}
 }
