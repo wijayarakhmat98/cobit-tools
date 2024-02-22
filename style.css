@@ -91,6 +91,10 @@ x-focus > * {
 }
 
 x-sheet > div {
+	gap: 1rem;
+}
+
+x-sheet > div > div {
 	column-gap: 0.5rem;
 }
 

@@ -14,7 +14,9 @@ import {
 	create_grid,
 	create_area,
 	replace_row,
+	replace_column,
 	create_div,
+	create_row,
 	create_column,
 	create_p,
 	create_details,
@@ -246,80 +248,91 @@ class sheet extends HTMLElement {
 		this.state_modify({...args});
 		this.cache_modify();
 		const context = this.context();
-		replace_row({
+		replace_column({
 			element: this,
-			sub_row: 1 + this.#prop.aspect.length,
+			sub_col: 1 + this.#prop.merge.length + (this.#prop.alter ? 1 : 0) + (this.#prop.parent === null ? 1 : 0) + 1 + 1,
+			row: 2,
 			children: [
-				create_column({
-					sub_col: 1,
+				create_row({
+					sub_row: 1,
 					children: [
 						create_p({text: 'Enterprise Strategy'}),
-						...this.#prop.aspect.map(d => create_details({summary: d.dimension, detail: d.explanation}))
-					]
-				}),
-				...this.#prop.merge.map(s => create_column({
-					sub_col: create_trace_sub_col(),
-					children: [
-						create_p({text: `Merging commit ${s.id}`}),
-						...this.#cache.snapshot[s.id].map(d => create_trace({
-							from: s.id,
-							d: d,
-							checked: context[d.id - 1] == s.id
-						}))
-					]
-				})),
-				...(!this.#prop.alter ? [] : [create_column({
-					sub_col: create_change_sub_col({lo: trs_df1_lo, hi: trs_df1_hi}),
-					children: [
-						create_p({text: 'Change'}),
-						...this.#prop.aspect.map(d => create_change({
-							d: d,
-							lo: trs_df1_lo,
-							hi: trs_df1_hi,
-							checked: context[d.id - 1] == 'new' ? this.#state.value[d.id - 1] : undefined,
-							note_value: this.#state.note[d.id - 1]
-						}))
-					]
-				})]),
-				...(this.#prop.parent === null ? [] : [create_column({
-					sub_col: create_trace_sub_col(),
-					children: [
-						create_p({text: `Parent commit ${this.#prop.parent.id}`}),
-						...this.#cache.snapshot[this.#prop.parent.id].map(d => create_trace({
-							from: undefined,
-							d: d,
-							checked: context[d.id - 1] == this.#prop.parent.id
-						}))
-					]
-				})]),
-				create_column({
-					sub_col: 1,
-					children: [
+						...this.#prop.merge.map(s => create_p({text: `Merging commit ${s.id}`})),
+						...(!this.#prop.alter ? [] : [create_p({text: 'Change'})]),
+						...(this.#prop.parent === null ? [] : [create_p({text: `Parent commit ${this.#prop.parent.id}`})]),
 						create_p({text: 'Baseline'}),
-						...this.#prop.baseline.map(d => create_p({text: d.value, classes: ['baseline']}))
+						create_p({text: ''})
 					]
 				}),
-				...(this.#prop.parent !== null || !this.#prop.alter && !this.#prop.merge.length ? [] : [create_column({
-					sub_col: 1,
+				create_row({
+					sub_row: this.#prop.aspect.length,
 					children: [
-						create_p({text: ''}),
-						...this.#prop.aspect.map(d => bubble({
-							element: create_button({
-								text: 'Clear',
-								style: {
-									height: 'min-content',
-									padding: '0 0.25rem'
-								}
-							}),
-							listener: listener_click,
-							event: 'sheet-select',
-							detail: {
-								from: undefined,
-								id: d.id
-							}
-						}))
+						create_column({
+							sub_col: 1,
+							children: [
+								...this.#prop.aspect.map(d => create_details({summary: d.dimension, detail: d.explanation}))
+							]
+						}),
+						...this.#prop.merge.map(s => create_column({
+							sub_col: create_trace_sub_col(),
+							children: [
+								...this.#cache.snapshot[s.id].map(d => create_trace({
+									from: s.id,
+									d: d,
+									checked: context[d.id - 1] == s.id
+								}))
+							]
+						})),
+						...(!this.#prop.alter ? [] : [create_column({
+							sub_col: create_change_sub_col({lo: trs_df1_lo, hi: trs_df1_hi}),
+							children: [
+								...this.#prop.aspect.map(d => create_change({
+									d: d,
+									lo: trs_df1_lo,
+									hi: trs_df1_hi,
+									checked: context[d.id - 1] == 'new' ? this.#state.value[d.id - 1] : undefined,
+									note_value: this.#state.note[d.id - 1]
+								}))
+							]
+						})]),
+						...(this.#prop.parent === null ? [] : [create_column({
+							sub_col: create_trace_sub_col(),
+							children: [
+								...this.#cache.snapshot[this.#prop.parent.id].map(d => create_trace({
+									from: undefined,
+									d: d,
+									checked: context[d.id - 1] == this.#prop.parent.id
+								}))
+							]
+						})]),
+						create_column({
+							sub_col: 1,
+							children: [
+								...this.#prop.baseline.map(d => create_p({text: d.value, classes: ['baseline']}))
+							]
+						}),
+						...(this.#prop.parent !== null || !this.#prop.alter && !this.#prop.merge.length ? [] : [create_column({
+							sub_col: 1,
+							children: [
+								...this.#prop.aspect.map(d => bubble({
+									element: create_button({
+										text: 'Clear',
+										style: {
+											height: 'min-content',
+											padding: '0 0.25rem'
+										}
+									}),
+									listener: listener_click,
+									event: 'sheet-select',
+									detail: {
+										from: undefined,
+										id: d.id
+									}
+								}))
+							]
+						})])
 					]
-				})])
+				})
 			]
 		});
 	}
