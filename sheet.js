@@ -11,6 +11,7 @@ import {
 	create_column,
 	create_p,
 	create_radio,
+	create_toggle_radio_clear,
 	create_textarea,
 	create_button,
 	create_legend,
@@ -360,31 +361,8 @@ class sheet extends HTMLElement {
 	create_clear({} = {}) {
 		return create_column({
 			children: this.#prop.aspect.map(r => this.#prop.input.map(i =>
-				create_button({text: 'Clear'})
+				create_toggle_radio_clear({text: 'Clear', name: `${r.id} value`})
 			)).flat()
-			// children: this.#prop.aspect.map(d => {
-			// 	if (
-			// 		this.#prop.parent === null && !this.#prop.alter && !this.#prop.merge.length ||
-			// 		this.#prop.parent !== null && this.#cache.snapshot[this.#prop.parent.id][d.id - 1].commit != 'baseline'
-			// 	)
-			// 		return [];
-			// 	return bubble({
-			// 		element: create_button({
-			// 			text: 'Clear',
-			// 			style: {
-			// 				height: 'min-content',
-			// 				padding: '0 0.25rem',
-			// 				...create_area({y: d.id})
-			// 			}
-			// 		}),
-			// 		listener: listener_click,
-			// 		event: 'sheet-select',
-			// 		detail: {
-			// 			from: undefined,
-			// 			id: d.id
-			// 		}
-			// 	});
-			// }).flat()
 		});
 	}
 }

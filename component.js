@@ -344,7 +344,7 @@ function create_radio({text, checked = false, name, value, classes = [], ...args
 	});
 }
 
-function create_toggle_radio({text, checked = false, name, value, classes = [], ...args} = {}) {
+function create_toggle_radio_clear({text, checked = false, name, value, classes = [], ...args}) {
 	return create_element({
 		tag: 'label',
 		children: [
@@ -362,7 +362,14 @@ function create_toggle_radio({text, checked = false, name, value, classes = [], 
 			}),
 			create_text({text: text})
 		],
-		classes: ['toggle', 'toggle_radio', ...classes],
+		classes: ['toggle', ...classes],
+		...args
+	});
+}
+
+function create_toggle_radio({classes = [], ...args} = {}) {
+	return create_toggle_radio_clear({
+		classes: ['toggle_radio', ...classes],
 		...args
 	});
 }
@@ -631,6 +638,7 @@ export {
 	create_details,
 	create_details_proxy,
 	create_radio,
+	create_toggle_radio_clear,
 	create_toggle_radio,
 	create_toggle_checkbox,
 	create_textarea,

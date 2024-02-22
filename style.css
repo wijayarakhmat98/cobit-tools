@@ -79,14 +79,6 @@ x-control > * {
 	gap: 1rem;
 }
 
-x-control button,
-x-control .toggle,
-x-focus .toggle,
-x-sheet button
-{
-	padding: 0 0.25rem;
-}
-
 x-focus > * {
 	gap: 1rem;
 }
@@ -105,6 +97,16 @@ x-sheet > div > div {
 
 x-sheet .baseline {
 	text-align: center;
+}
+
+x-control button,
+x-control .toggle,
+x-focus button,
+x-focus .toggle,
+x-sheet button,
+x-sheet .toggle
+{
+	padding: 0 0.25rem;
 }
 
 x-gmo .view_gmo_bar:empty {
