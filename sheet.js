@@ -209,39 +209,29 @@ class sheet extends HTMLElement {
 		this.prop_view({...args});
 		this.state_view();
 		this.cache_view();
-		replace_row({
+		replace_column({
 			element: this,
-			sub_row: 1 + this.#prop.aspect.length,
+			sub_col:
+				1 +
+				(this.#prop.commit === null ? 0 : 1) +
+				1
+			,
 			children: [
-				create_column({
-					sub_col: 1,
+				create_row({
 					children: [
 						create_p({text: 'Enterprise Strategy'}),
-						...this.#prop.aspect.map(d => create_details({summary: d.dimension, detail: d.explanation}))
-					]
+						this.#prop.commit === null ? [] : create_p({text: `Viewing commit ${this.#prop.commit.id}`}),
+						create_p({text: 'Baseline'})
+					].flat()
 				}),
-				...(this.#prop.commit === null ? [] : [create_column({
-					sub_col: create_trace_sub_col(),
+				create_row({
+					sub_row: this.#prop.aspect.length,
 					children: [
-						create_p({text: `Viewing commit ${this.#prop.commit.id}`}),
-						...create_snapshot({
-							commit: this.#prop.commit,
-							aspect: this.#prop.aspect,
-							baseline: this.#prop.baseline,
-						}).map(d => create_trace({
-							id: d.id,
-							d: d,
-							checked: true
-						}))
-					]
-				})]),
-				create_column({
-					sub_col: 1,
-					children: [
-						create_p({text: 'Baseline'}),
-						...this.#prop.baseline.map(d => create_p({text: d.value, classes: ['baseline']}))
-					]
-				}),
+						this.create_legend(),
+						this.create_commit(),
+						this.create_baseline()
+					].flat()
+				})
 			]
 		});
 	}
@@ -264,7 +254,6 @@ class sheet extends HTMLElement {
 			row: 2,
 			children: [
 				create_row({
-					sub_row: 1,
 					children: [
 						create_p({text: 'Enterprise Strategy'}),
 						this.#prop.merge.map(s => create_p({text: `Merging commit ${s.id}`})),
@@ -291,6 +280,20 @@ class sheet extends HTMLElement {
 	create_legend({} = {}) {
 		return create_column({
 			children: this.#prop.aspect.map(d => create_details({summary: d.dimension, detail: d.explanation}))
+		});
+	}
+
+	create_commit({} = {}) {
+		if (this.#prop.commit === null)
+			return [];
+		return create_column({
+			sub_col: create_trace_sub_col(),
+			children: this.#cache.snapshot[this.#prop.commit.id]
+				.map(d => create_trace({
+					id: d.id,
+					d: d,
+					checked: true
+				}))
 		});
 	}
 
