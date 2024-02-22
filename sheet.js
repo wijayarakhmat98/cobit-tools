@@ -1,22 +1,15 @@
 import {
-	notify,
-	listen,
-	bubble,
-	listener_change,
-	create_grid,
-	create_area,
 	replace_column,
 	create_div,
 	create_row,
 	create_column,
 	create_p,
-	create_radio,
 	create_toggle_radio_clear,
 	create_textarea,
-	create_button,
 	create_legend,
 	create_scale,
-	create_percentage
+	create_percentage,
+	create_trace
 }
 from 'component';
 
@@ -27,28 +20,6 @@ class sheet extends HTMLElement {
 
 	constructor({} = {}) {
 		super();
-		listen({
-			element: this,
-			event: 'sheet-select',
-			callback: ({detail} = {}) => {
-				if (typeof detail.from === 'undefined' && (
-						this.#prop.parent === null ||
-						this.#cache.snapshot[this.#prop.parent.id][detail.id - 1].commit == 'baseline'
-				))
-					for (const r of document.getElementsByName(`${detail.id} value`))
-						r.checked = false;
-				if (detail.from == 'alter')
-					this.#state.value[detail.id - 1] = detail.value;
-				this.#state.selection[detail.id - 1] = detail.from;
-				notify({
-					element: this,
-					event: 'sheet-update',
-					options: {
-						bubbles: true
-					}
-				});
-			}
-		});
 	}
 
 	restore({state} = {}) {
@@ -286,25 +257,27 @@ class sheet extends HTMLElement {
 		if (this.#prop.commit === null)
 			return [];
 		return create_column({
-			sub_col: create_trace_sub_col(),
+			sub_col: 6,
 			children: this.#cache.snapshot[this.#prop.commit.id]
-				.map(d => create_trace({
-					id: d.id,
-					d: d,
-					checked: true
+				.map(d => d.commit == 'baseline' ? create_div() : create_trace({
+					r: d,
+					checked: true,
+					name: `${d.id} value`
 				}))
+				.flat()
 		});
 	}
 
 	create_merge({context} = {}) {
 		return this.#prop.merge.map(s => create_column({
-			sub_col: create_trace_sub_col(),
+			sub_col: 6,
 			children: this.#cache.snapshot[s.id]
-				.map(d => create_trace({
-					from: s.id,
-					d: d,
-					checked: context[d.id - 1] == s.id
+				.map(d => d.commit == 'baseline' ? create_div() : create_trace({
+					r: d,
+					checked: context[d.id - 1] == s.id,
+					name: `${d.id} value`
 				}))
+				.flat()
 		}));
 	}
 
@@ -341,13 +314,14 @@ class sheet extends HTMLElement {
 		if (this.#prop.parent === null)
 			return [];
 		return create_column({
-			sub_col: create_trace_sub_col(),
+			sub_col: 6,
 			children: this.#cache.snapshot[this.#prop.parent.id]
-				.map(d => create_trace({
-					from: undefined,
-					d: d,
-					checked: context[d.id - 1] == this.#prop.parent.id
+				.map(d => d.commit == 'baseline' ? create_div() : create_trace({
+					r: d,
+					checked: context[d.id - 1] == this.#prop.parent.id,
+					name: `${d.id} value`
 				}))
+				.flat()
 		});
 	}
 
@@ -391,42 +365,6 @@ function create_snapshot({facet, aspect, commit} = {}) {
 				commit: p.id,
 				description: p.description
 			};
-	});
-}
-
-function create_trace_sub_col({} = {}) {
-	return 6;
-}
-
-function create_trace({from, d, checked, style = {}, ...args} = {}) {
-	return create_div({
-		children: d.commit == 'baseline' ? [] : [
-			bubble({
-				element: create_radio({
-					text: d.value,
-					checked: checked,
-					name: `${d.id} value`,
-					style: create_area({h: 2})
-				}),
-				listener: listener_change,
-				event: 'sheet-select',
-				detail: {
-					from: from,
-					id: d.id
-				}
-			}),
-			create_p({text: d.note, classes: ['expand']}),
-			create_p({text: 'by'}),
-			create_p({text: d.author, classes: ['expand']}),
-			create_p({text: 'from'}),
-			create_p({text: d.commit, classes: ['expand']}),
-			create_p({text: d.description, classes: ['expand', 'description'], style: create_area({w: 5})})
-		],
-		style: {
-			...create_grid({row: 2, col: 'subgrid'}),
-			...style
-		},
-		...args
 	});
 }
 

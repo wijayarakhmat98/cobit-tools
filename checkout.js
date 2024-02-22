@@ -121,7 +121,7 @@ class checkout {
 			alter: true,
 			merge: [],
 			context: 'parent',
-			focus: create_facet({code: 'DF5'})
+			focus: create_facet({code: 'DF1'})
 		};
 		if (_state.mode == 'view') {
 			state.parent = _state.commit,

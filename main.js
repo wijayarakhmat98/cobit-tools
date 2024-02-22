@@ -88,7 +88,7 @@ function main({
 		visual: document.getElementById(visual_id),
 		sheet: document.getElementById(sheet_id),
 		gmo: document.getElementById(gmo_id),
-	}).modify();
+	}).modify({parent: commit_1});
 };
 
 export default main;

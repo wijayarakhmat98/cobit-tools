@@ -610,6 +610,33 @@ function create_percentage({lo, hi, step, value, checked = false, name, ...args}
 	});
 }
 
+function create_trace({r, checked, name, ...args}) {
+	console.log(r);
+	return create_row({
+		sub_row: 2,
+		span: false,
+		children: [
+			create_radio({
+				text: r.value,
+				checked: checked,
+				name: name,
+				style: create_area({h: 2})
+			}),
+			create_p({text: r.note, classes: ['expand']}),
+			create_p({text: 'by'}),
+			create_p({text: r.author, classes: ['expand']}),
+			create_p({text: 'from'}),
+			create_p({text: r.commit, classes: ['expand']}),
+			create_p({
+				text: r.description,
+				classes: ['expand'],
+				style: create_area({w: 5})
+			})
+		],
+		...args
+	});
+}
+
 export {
 	random_token,
 	notify,
@@ -647,5 +674,6 @@ export {
 	create_polyline,
 	create_legend,
 	create_scale,
-	create_percentage
+	create_percentage,
+	create_trace
 };
