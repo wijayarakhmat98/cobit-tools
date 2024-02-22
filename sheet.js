@@ -177,8 +177,9 @@ class sheet extends HTMLElement {
 				.flat().map(c => [
 					c.id,
 					create_snapshot({
-						commit: c,
-						aspect: this.#prop.aspect
+						facet: this.#prop.facet,
+						aspect: this.#prop.aspect,
+						commit: c
 					})
 				])
 		);
@@ -195,8 +196,9 @@ class sheet extends HTMLElement {
 				.flat().map(c => [
 					c.id,
 					create_snapshot({
-						commit: c,
-						aspect: this.#prop.aspect
+						facet: this.#prop.facet,
+						aspect: this.#prop.aspect,
+						commit: c
 					})
 				])
 		);
@@ -366,11 +368,11 @@ class sheet extends HTMLElement {
 	}
 }
 
-function create_snapshot({commit, aspect} = {}) {
-	return aspect.map(d => {
+function create_snapshot({facet, aspect, commit} = {}) {
+	return aspect.map(r => {
 		let p, c;
 		for (p = commit; p !== null;)
-			if (c = p.change.find(e => e.id == d.id))
+			if (c = p.change.find(s => s.fct_id == facet.id && s.asp_id == r.id))
 				if (c.inherit)
 					p = c.from;
 				else
@@ -379,11 +381,11 @@ function create_snapshot({commit, aspect} = {}) {
 				p = p.parent;
 		return (p === null)
 			? {
-				id: d.id,
+				id: r.id,
 				commit: 'baseline'
 			}
 			: {
-				id: d.id,
+				id: r.id,
 				value: c.value,
 				note: c.note,
 				author: p.author,
