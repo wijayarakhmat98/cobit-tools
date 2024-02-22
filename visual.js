@@ -1,3 +1,14 @@
+import {
+	listener_toggle,
+	create_area,
+	replace_content,
+	create_element,
+	create_text,
+	create_div,
+	create_p
+}
+from 'component';
+
 class visual extends HTMLElement {
 	#state = {};
 
@@ -13,47 +24,84 @@ class visual extends HTMLElement {
 		return this.#state;
 	}
 
-	state_view({} = {}) {
+	state_view({open} = {}) {
 		const _state = this.#state;
 		const state = _state.mode == 'view' ? _state : {
-			mode: 'view'
+			mode: 'view',
+			open: true
 		};
+		for (const [k, v] of Object.entries({
+			open
+		}))
+			if (typeof v !== 'undefined')
+				state[k] = v;
 		this.#state = state;
 	}
 
 	view({mst_df, x} = {}) {
 		this.state_view();
-		this.innerHTML = '';
-		this.style['width'] = 'fit-content';
-		this.style['margin-right'] = 'auto';
-		this.style['margin-left'] = 'auto';
-		this.style['display'] = 'grid';
-		this.style['grid-template-columns'] = 'auto repeat(5, 8rem) auto';
-		for (let i = 0; i < mst_df.length; ++i) {
-			const name = document.createElement('div');
-			name.innerText = mst_df[i]['dimension'];
-			name.style['grid-column-start'] = 1;
-			name.style['grid-column-end'] = 2;
-			name.style['white-space'] = 'nowrap';
-			name.style['padding-right'] = '1rem';
-			name.style['padding-left'] = '0.5rem';
-			name.style['padding-bottom'] = '0.5rem';
-			name.style['border-right'] = 'solid black 1px';
-			this.append(name);
-			const im = document.createElement('div');
-			im.innerText = x[i][0];
-			im.style['background-color'] = 'lightgray';
-			im.style['grid-column-start'] = 2;
-			im.style['grid-column-end'] = 2 + 1.0 * x[i][0];
-			im.style['margin-bottom'] = '0.5rem';
-			im.style['padding-left'] = '0.5rem';
-			this.append(im);
-			const line = document.createElement('div');
-			line.style['grid-column-start'] = 8;
-			line.style['grid-column-end'] = 9;
-			line.style['border-left'] = 'solid black 1px';
-			this.append(line);
-		}
+		replace_content({
+			element: this,
+			children: [
+				listener_toggle({
+					element: create_element({
+						tag: 'details',
+						children: [
+							create_element({
+								tag: 'summary',
+								children: [create_text({text: 'Visual'})]
+							}),
+							create_div({
+								children: [
+									create_div({
+										children: mst_df.map((d, i) => [
+											create_p({
+												text: d.dimension,
+												style: {
+													...create_area({x: 1}),
+													padding: '0 1rem 0.5rem 0.5rem',
+													'border-right': 'solid black 1px',
+													'width': 'max-content',
+													'max-width': '16rem'
+												}
+											}),
+											create_p({
+												text: x[i][0],
+												style: {
+													...create_area({x: 2, w: x[i][0]}),
+													'background-color': 'lightgray',
+													'margin-bottom': '0.5rem',
+													'padding-left': '0.5rem',
+													'height': 'min-content'
+												}
+											}),
+											create_div({
+												style: {
+													...create_area({x: 7, w: 1}),
+													'border-left': 'solid black 1px'
+												}
+											})
+										]).flat(),
+										style: {
+											display: 'grid',
+											'grid-template-columns': 'auto repeat(5, 8rem) auto'
+										},
+									})
+								],
+								style: {
+									display: 'flex',
+									'justify-content': 'center'
+								}
+							})
+						],
+						attribute: {
+							...(this.#state.open && {open: ''})
+						}
+					}),
+					callback: e => this.#state.open = e.target.hasAttribute('open') ? true : false
+				})
+			]
+		})
 	}
 }
 

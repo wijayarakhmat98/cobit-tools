@@ -72,7 +72,10 @@ class checkout {
 			callback: ({detail: focus} = {}) => {
 				this.#state.focus = focus;
 				this.restore({state: this.#state});
-				this.modify();
+				if (this.#state.mode == 'view')
+					this.view();
+				if (this.#state.mode == 'modify')
+					this.modify();
 			}
 		});
 		listen({
@@ -224,7 +227,7 @@ class checkout {
 		const x = this.sheet.x();
 		const x_base = this.trs_df_baseline().map(d => [d.value]);
 		const r_hat = this.gmo_calculate({x: x, x_base: x_base});
-		// this.visual.view({mst_df: this.mst_df(), x: x});
+		this.visual.view({mst_df: this.mst_df(), x: x});
 		this.gmo.view({r_hat: r_hat});
 	}
 
