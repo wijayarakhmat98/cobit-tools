@@ -570,10 +570,15 @@ function create_legend({aspect, h, ...args} = {}) {
 function create_scale({lo, hi, step, checked, name, ...args} = {}) {
 	return create_row({
 		children: create_range({start: lo, stop: hi, step: step})
-			.map(i => create_radio({
-				text: i,
-				...(checked == i && {checked: ''}),
-				...(name && {name: name})
+			.map(i => bubble({
+				element: create_radio({
+					text: i,
+					...(checked == i && {checked: ''}),
+					...(name && {name: name})
+				}),
+				listener: listener_change,
+				event: 'x-change',
+				detail: i
 			})),
 		...args
 	});
@@ -588,26 +593,31 @@ function create_percentage({lo, hi, step, value, checked = false, name, ...args}
 			...(name && {name: name})
 		}
 	});
-	return create_row({
-		children: [
-			radio,
-			listener_change({
-				element: create_element({
-					tag: 'input',
-					attribute: {
-						type: 'number',
-						min: lo,
-						max: hi,
-						step: step,
-						...(typeof value !== 'undefined' && {value: value})
-					},
-					...args
-				}),
-				callback: () => radio.checked = true
-			})
-		],
-		...args
+	const percentage = create_element({
+		tag: 'input',
+		attribute: {
+			type: 'number',
+			min: lo,
+			max: hi,
+			step: step,
+			...(typeof value !== 'undefined' && {value: value})
+		},
 	});
+	listener_change({
+		element: percentage,
+		callback: () => {
+			radio.checked = true;
+			notify({
+				element: percentage,
+				event: 'x-change',
+				detail: percentage.value,
+				options: {
+					bubbles: true
+				}
+			});
+		}
+	});
+	return create_row({children: [radio, percentage], ...args});
 }
 
 function create_trace({r, checked, name, ...args}) {
@@ -615,11 +625,15 @@ function create_trace({r, checked, name, ...args}) {
 		sub_row: 2,
 		span: false,
 		children: [
-			create_radio({
-				text: r.value,
-				checked: checked,
-				name: name,
-				style: create_area({h: 2})
+			bubble({
+				element: create_radio({
+					text: r.value,
+					checked: checked,
+					name: name,
+					style: create_area({h: 2})
+				}),
+				listener: listener_change,
+				event: 'x-change'
 			}),
 			create_p({text: r.note, classes: ['expand']}),
 			create_p({text: 'by'}),

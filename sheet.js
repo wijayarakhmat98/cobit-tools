@@ -1,4 +1,7 @@
 import {
+	listen,
+	notify,
+	listener_change,
 	create_area,
 	replace_column,
 	create_row,
@@ -116,16 +119,16 @@ class sheet extends HTMLElement {
 		this.#state = state;
 	}
 
-	state_modify({selection, value, note} = {}) {
+	state_modify({value, note, selection} = {}) {
 		const _state = this.#state;
 		const state = _state.mode == 'modify' ? _state : {
 			mode: 'modify',
-			selection: [],
 			value: [],
-			note: []
+			note: [],
+			selection: []
 		};
 		for (const [k, v] of Object.entries({
-			selection, value, note
+			value, note, selection
 		}))
 			if (typeof v !== 'undefined')
 				state[k] = v;
@@ -179,7 +182,7 @@ class sheet extends HTMLElement {
 					sub_row: this.#prop.aspect.length,
 					children: [
 						create_legend({aspect: this.#prop.aspect}),
-						this.create_commit(),
+						this.create_trace({commit: this.#prop.commit}),
 						this.create_baseline()
 					].flat()
 				})
@@ -219,10 +222,10 @@ class sheet extends HTMLElement {
 					children: [
 						create_legend({aspect: this.#prop.aspect, h: this.#prop.input.length}),
 						this.create_input(),
-						this.create_merge({context: context}),
+						this.#prop.merge.map(m => this.create_trace({commit: m, context: context})),
 						this.create_alter({context: context}),
 						this.create_note(),
-						this.create_parent({context: context}),
+						this.create_trace({commit: this.#prop.parent, context: context}),
 						this.create_baseline(),
 						this.create_clear()
 					].flat()
@@ -238,40 +241,6 @@ class sheet extends HTMLElement {
 		});
 	}
 
-	create_commit({} = {}) {
-		if (this.#prop.commit === null)
-			return [];
-		return create_column({
-			sub_col: 6,
-			children: this.#prop.aspect.map(r => this.#prop.input.map(i => {
-				const c = this.#cache.snapshot[this.#prop.commit.id][i.id - 1][r.id - 1];
-				if (c.commit == 'baseline')
-					return [];
-				return create_trace({
-					r: c,
-					style: create_area({y: (r.id - 1) * this.#prop.input.length + i.id})
-				});
-			})).flat(2)
-		});
-	}
-
-	create_merge({context} = {}) {
-		return this.#prop.merge.map(m => create_column({
-			sub_col: 6,
-			children: this.#prop.aspect.map(r => this.#prop.input.map(i => {
-				const c = this.#cache.snapshot[m.id][i.id - 1][r.id - 1];
-				console.log(c);
-				if (c.commit == 'baseline')
-					return [];
-				return create_trace({
-					r: c,
-					name: `facet ${this.#prop.facet.id} aspect ${r.id} input ${i.id} value`,
-					style: create_area({y: (r.id - 1) * this.#prop.input.length + i.id})
-				});
-			})).flat(2)
-		}));
-	}
-
 	create_alter({context} = {}) {
 		if (!this.#prop.alter)
 			return [];
@@ -283,10 +252,21 @@ class sheet extends HTMLElement {
 					return 2;
 			})),
 			children: this.#prop.aspect.map(r => this.#prop.input.map(i => {
+				let input;
 				if (i.type == 'scale')
-					return create_scale({lo: i.lo, hi: i.hi, step: i.step, name: `facet ${this.#prop.facet.id} aspect ${r.id} input ${i.id} value`});
+					input = create_scale({lo: i.lo, hi: i.hi, step: i.step, name: `facet ${this.#prop.facet.id} aspect ${r.id} input ${i.id} value`});
 				if (i.type == 'percentage')
-					return create_percentage({lo: i.lo, hi: i.hi, step: i.step, name: `facet ${this.#prop.facet.id} aspect ${r.id} input ${i.id} value`});
+					input = create_percentage({lo: i.lo, hi: i.hi, step: i.step, name: `facet ${this.#prop.facet.id} aspect ${r.id} input ${i.id} value`});
+				listen({
+					element: input,
+					event: 'x-change',
+					callback: ({detail}) => this.change_value({i: i, r: r, v: detail})
+				});
+				listener_change({
+					element: input,
+					callback: () => this.change_selection({i: i, r: r, v: 'new'})
+				});
+				return input;
 			})).flat()
 		});
 	}
@@ -295,26 +275,34 @@ class sheet extends HTMLElement {
 		if (!this.#prop.alter)
 			return [];
 		return create_column({
-			children: this.#prop.aspect.map(r => this.#prop.input.map(i =>
-				create_textarea({row: 1})
-			)).flat()
+			children: this.#prop.aspect.map(r => this.#prop.input.map(i => {
+				const note = create_textarea({row: 1});
+				return listener_change({
+					element: note,
+					callback: () => this.change_note({i: i, r: r, v: note.value})
+				})
+			})).flat()
 		});
 	}
 
-	create_parent({context} = {}) {
-		if (this.#prop.parent === null)
+	create_trace({commit, context} = {}) {
+		if (commit === null)
 			return [];
 		return create_column({
 			sub_col: 6,
 			children: this.#prop.aspect.map(r => this.#prop.input.map(i => {
-				const c = this.#cache.snapshot[this.#prop.parent.id][i.id - 1][r.id - 1];
+				const c = this.#cache.snapshot[commit.id][i.id - 1][r.id - 1];
 				if (c.commit == 'baseline')
 					return [];
-				return create_trace({
-					r: c,
-					name: `facet ${this.#prop.facet.id} aspect ${r.id} input ${i.id} value`,
-					style: create_area({y: (r.id - 1) * this.#prop.input.length + i.id})
-				});
+				return listen({
+					element: create_trace({
+						r: c,
+						name: `facet ${this.#prop.facet.id} aspect ${r.id} input ${i.id} value`,
+						style: create_area({y: (r.id - 1) * this.#prop.input.length + i.id})
+					}),
+					event: 'x-change',
+					callback: () => this.change_selection({i: i, r: r, v: commit.id})
+				})
 			})).flat(2)
 		});
 	}
@@ -369,6 +357,40 @@ class sheet extends HTMLElement {
 					description: p.description
 				};
 		}));
+	}
+
+	change_value({i, r, v} = {}) {
+		console.log(`facet ${this.#prop.facet.id} aspect ${r.id} input ${i.id} value ${v}`);
+		if (typeof this.#state.value[i.id - 1] === 'undefined')
+			this.#state.value[i.id - 1] = [];
+		this.#state.value[i.id - 1][r.id - 1] = v;
+		console.log(structuredClone(this.#state.value));
+	}
+
+	change_note({i, r, v} = {}) {
+		console.log(`facet ${this.#prop.facet.id} aspect ${r.id} input ${i.id} note ${v}`);
+		if (typeof this.#state.note[i.id - 1] === 'undefined')
+			this.#state.note[i.id - 1] = [];
+		this.#state.note[i.id - 1][r.id - 1] = v;
+		console.log(structuredClone(this.#state.note));
+	}
+
+	change_selection({i, r, v} = {}) {
+		console.log(`facet ${this.#prop.facet.id} aspect ${r.id} input ${i.id} selection ${v}`);
+		if (typeof this.#state.selection[i.id - 1] === 'undefined')
+			this.#state.selection[i.id - 1] = [];
+		if (v == this.#prop.parent.id)
+			this.#state.selection[i.id - 1][r.id - 1] = undefined;
+		else
+			this.#state.selection[i.id - 1][r.id - 1] = v;
+		notify({
+			element: this,
+			event: 'sheet-update',
+			options: {
+				bubbles: true
+			}
+		});
+		console.log(structuredClone(this.#state.selection));
 	}
 }
 
