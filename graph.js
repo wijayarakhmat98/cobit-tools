@@ -37,8 +37,8 @@ function prepare({graph} = {}) {
 	}
 	for (const c of C) {
 		c.children = C.filter(d => d.parents.includes(c));
-		c.merge_children = c.children.filter(d => d.parents[0] != c);
-		c.branch_children = c.children.filter(d => d.parents[0] == c)
+		c.merge_children = c.children.filter(d => d.merge_parent.includes(c));
+		c.branch_children = c.children.filter(d => !d.merge_parent.includes(c))
 			.sort((a, b) =>
 				a.graph.merge.length < b.graph.merge.length ? 1 : a.graph.merge.length > b.graph.merge.length ? -1 : 0
 			);

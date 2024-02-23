@@ -213,7 +213,7 @@ class checkout {
 	save({} = {}) {
 		this.state_modify();
 		const new_commit = {
-			id: this.history.length,
+			id: this.history.length + 1,
 			parent: this.#state.parent,
 			merge: this.#state.merge,
 			change: mst_focus.map(f => {
