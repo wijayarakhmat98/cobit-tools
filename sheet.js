@@ -39,34 +39,37 @@ class sheet extends HTMLElement {
 
 	context({} = {}) {
 		if (this.#state.mode == 'view')
-			return this.#prop.aspect.map(_ =>
-				this.#prop.commit === null ? 'baseline' : this.#prop.commit.id
-			);
+			return this.#prop.input.map(_ => this.#prop.aspect.map(_ => {
+				if (this.#prop.commit === null)
+					return 'baseline';
+				return this.#prop.commit.id;
+			}));
 		if (this.#state.mode == 'modify')
-			return this.#prop.aspect.map(d => {
-				const s = this.#state.selection[d.id - 1];
+			return this.#prop.input.map(i => this.#prop.aspect.map(r => {
+				const s = (this.#state.selection[i.id - 1] ?? [])[r.id - 1];
 				if (this.#prop.alter && s == 'alter')
 					return s;
 				if (this.#prop.merge.find(m => m.id == s))
 					return s;
-				return this.#prop.parent === null ? 'baseline' : this.#prop.parent.id;
-			});
+				if (this.#prop.parent === null)
+					return 'baseline';
+				return this.#prop.parent.id;
+			}));
 	}
 
 	x({} = {}) {
-		return this.#prop.baseline;
 		const context = this.context();
-		return this.#prop.aspect.map(d => {
-			const c = context[d.id - 1];
+		return this.#prop.input.map(i => this.#prop.aspect.map(r => {
+			const c = context[i.id - 1][r.id - 1];
 			if (c == 'alter')
-				return this.#state.value[d.id - 1];
+				return this.#state.value[i.id - 1][r.id - 1];
 			if (c == 'baseline')
-				return this.#prop.baseline[d.id - 1].value;
-			const s = this.#cache.snapshot[c][d.id - 1];
+				return this.#prop.baseline[i.id - 1][r.id - 1];
+			const s = this.#cache.snapshot[c][i.id - 1][r.id - 1];
 			if (s.commit == 'baseline')
-				return this.#prop.baseline[d.id - 1].value;
+				return this.#prop.baseline[i.id - 1][r.id - 1];
 			return s.value;
-		}).map(v => [v]);
+		}));
 	}
 
 	note({} = {}) {
@@ -163,6 +166,7 @@ class sheet extends HTMLElement {
 		this.#prop_view({...args});
 		this.state_view();
 		this.#cache_view();
+		const context = this.context();
 		replace_column({
 			element: this,
 			sub_col:
@@ -182,7 +186,7 @@ class sheet extends HTMLElement {
 					sub_row: this.#prop.aspect.length,
 					children: [
 						create_legend({aspect: this.#prop.aspect}),
-						this.create_trace({commit: this.#prop.commit}),
+						this.create_trace({commit: this.#prop.commit, context: context}),
 						this.create_baseline()
 					].flat()
 				})
@@ -264,7 +268,7 @@ class sheet extends HTMLElement {
 				});
 				listener_change({
 					element: input,
-					callback: () => this.change_selection({i: i, r: r, v: 'new'})
+					callback: () => this.change_selection({i: i, r: r, v: 'alter'})
 				});
 				return input;
 			})).flat()
@@ -360,23 +364,18 @@ class sheet extends HTMLElement {
 	}
 
 	change_value({i, r, v} = {}) {
-		console.log(`facet ${this.#prop.facet.id} aspect ${r.id} input ${i.id} value ${v}`);
 		if (typeof this.#state.value[i.id - 1] === 'undefined')
 			this.#state.value[i.id - 1] = [];
 		this.#state.value[i.id - 1][r.id - 1] = v;
-		console.log(structuredClone(this.#state.value));
 	}
 
 	change_note({i, r, v} = {}) {
-		console.log(`facet ${this.#prop.facet.id} aspect ${r.id} input ${i.id} note ${v}`);
 		if (typeof this.#state.note[i.id - 1] === 'undefined')
 			this.#state.note[i.id - 1] = [];
 		this.#state.note[i.id - 1][r.id - 1] = v;
-		console.log(structuredClone(this.#state.note));
 	}
 
 	change_selection({i, r, v} = {}) {
-		console.log(`facet ${this.#prop.facet.id} aspect ${r.id} input ${i.id} selection ${v}`);
 		if (typeof this.#state.selection[i.id - 1] === 'undefined')
 			this.#state.selection[i.id - 1] = [];
 		if (v == this.#prop.parent.id)
@@ -390,7 +389,6 @@ class sheet extends HTMLElement {
 				bubbles: true
 			}
 		});
-		console.log(structuredClone(this.#state.selection));
 	}
 }
 
