@@ -247,9 +247,10 @@ class checkout {
 						s.value = x[i.id - 1][r.id - 1];
 						s.note = (note[i.id - 1] ?? [])[r.id - 1] ?? '';
 					}
-					if (this.#state.merge.includes(c)) {
+					const from = this.#state.merge.find(m => m.id == c);
+					if (from) {
 						s.inherit = true;
-						s.from = c;
+						s.from = from;
 					}
 					return s;
 				}))
