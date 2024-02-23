@@ -224,7 +224,6 @@ class checkout {
 		+
 			(this.#cache.input[0].type == 'percentage' ? 0 : 1)
 		;
-		console.log(w);
 		this.visual.view({
 			aspect: this.#cache.aspect,
 			x: x,

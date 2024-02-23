@@ -193,7 +193,7 @@ class sheet extends HTMLElement {
 				create_row({
 					sub_row: this.#prop.aspect.length * this.#prop.input.length,
 					children: [
-						create_legend({aspect: this.#prop.aspect}),
+						create_legend({aspect: this.#prop.aspect, h: this.#prop.input.length}),
 						this.create_input(),
 						this.create_trace({commit: this.#prop.commit, context: context}),
 						this.create_baseline()

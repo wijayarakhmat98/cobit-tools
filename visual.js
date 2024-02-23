@@ -5,7 +5,10 @@ import {
 	create_element,
 	create_text,
 	create_div,
-	create_p
+	create_row,
+	create_column,
+	create_p,
+	create_legend
 }
 from 'component';
 
@@ -28,7 +31,7 @@ class visual extends HTMLElement {
 		const _state = this.#state;
 		const state = _state.mode == 'view' ? _state : {
 			mode: 'view',
-			open: false
+			open: true
 		};
 		for (const [k, v] of Object.entries({
 			open
@@ -39,7 +42,6 @@ class visual extends HTMLElement {
 	}
 
 	view({aspect, x, w} = {}) {
-		console.log(w);
 		this.state_view();
 		replace_content({
 			element: this,
@@ -53,42 +55,46 @@ class visual extends HTMLElement {
 								children: [create_text({text: 'Visual'})]
 							}),
 							create_div({
-								children: [
-									create_div({
-										children: aspect.map((d, i) => [
-											create_p({
-												text: d.name,
-												style: {
-													...create_area({x: 1}),
-													padding: '0 1rem 0.5rem 0.5rem',
-													'border-right': 'solid black 1px',
-													'width': 'max-content',
-													'max-width': '16rem'
-												}
-											}),
-											create_p({
+								children: [create_row({
+									sub_row: aspect.length,
+									col: 2,
+									children: [
+										create_legend({
+											aspect: aspect,
+											style: create_area({x: 1})
+										}),
+										create_column({
+											sub_col: w,
+											span: false,
+											children: aspect.map((d, i) => create_p({
 												text: x[i][0],
 												style: {
-													...(x[i][0] == 0 ? create_area({x: 2, w: w}) : create_area({x: 2, w: x[i][0]})),
+													...create_area({y: d.id}),
+													...(x[i][0] == 0 ? create_area({x: 1, w: w}) : create_area({x: 1, w: x[i][0]})),
 													'background-color': x[i][0] == 0 ? 'rgb(0, 0, 0, 0)' : 'lightgray',
-													'margin-bottom': '0.5rem',
 													'padding-left': '0.5rem',
 													'height': 'min-content'
 												}
-											}),
-											create_div({
-												style: {
-													...create_area({x: 2 + w, w: 1}),
-													'border-left': 'solid black 1px'
-												}
-											})
-										]).flat(),
-										style: {
-											display: 'grid',
-											'grid-template-columns': `auto repeat(${w}, ${40 / w}rem) auto`
-										},
-									})
-								],
+											})),
+											style: {
+												width: '40rem',
+												...create_area({x: 2})
+											}
+										}),
+										create_div({
+											style: {
+												width: '40rem',
+												'border-right': '1px solid black',
+												'border-left': '1px solid black',
+												...create_area({x: 2, h: aspect.length})
+											}
+										})
+									],
+									style: {
+										gap: '0.5rem',
+										width: 'fit-content'
+									}
+								})],
 								style: {
 									display: 'flex',
 									'justify-content': 'center'

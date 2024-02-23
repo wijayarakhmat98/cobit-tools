@@ -191,6 +191,7 @@ details p, .details {
 .expand {
 	resize: both;
 	overflow: hidden;
+	min-width: 100%;
 	width: max-content;
 	padding-right: 1rem;
 }
