@@ -206,8 +206,30 @@ class checkout {
 		const x_base = collapse_calculate({xs: this.#cache.baseline, collapse: this.#cache.collapse});
 		const M = this.#cache.map;
 		const r_hat = map_calculate({x: x, x_base: x_base, M: M});
-		this.visual.view({aspect: create_aspect({facet: this.#state.focus}), x: x});
+		this.visual_view({x: x});
 		this.gmo.view({r_hat: r_hat});
+	}
+
+	visual_view({x} = {}) {
+		const w =
+			collapse_calculate({
+				xs: this.#cache.input.map(i => [i.hi]),
+				collapse: this.#cache.collapse
+			})[0]
+		-
+			collapse_calculate({
+				xs: this.#cache.input.map(i => [i.lo]),
+				collapse: this.#cache.collapse
+			})[0]
+		+
+			(this.#cache.input[0].type == 'percentage' ? 0 : 1)
+		;
+		console.log(w);
+		this.visual.view({
+			aspect: this.#cache.aspect,
+			x: x,
+			w: w
+		});
 	}
 
 	save({} = {}) {

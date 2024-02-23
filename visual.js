@@ -38,7 +38,8 @@ class visual extends HTMLElement {
 		this.#state = state;
 	}
 
-	view({aspect, x} = {}) {
+	view({aspect, x, w} = {}) {
+		console.log(w);
 		this.state_view();
 		replace_content({
 			element: this,
@@ -68,8 +69,8 @@ class visual extends HTMLElement {
 											create_p({
 												text: x[i][0],
 												style: {
-													...create_area({x: 2, w: x[i][0]}),
-													'background-color': 'lightgray',
+													...(x[i][0] == 0 ? create_area({x: 2, w: w}) : create_area({x: 2, w: x[i][0]})),
+													'background-color': x[i][0] == 0 ? 'rgb(0, 0, 0, 0)' : 'lightgray',
 													'margin-bottom': '0.5rem',
 													'padding-left': '0.5rem',
 													'height': 'min-content'
@@ -77,14 +78,14 @@ class visual extends HTMLElement {
 											}),
 											create_div({
 												style: {
-													...create_area({x: 7, w: 1}),
+													...create_area({x: 2 + w, w: 1}),
 													'border-left': 'solid black 1px'
 												}
 											})
 										]).flat(),
 										style: {
 											display: 'grid',
-											'grid-template-columns': 'auto repeat(5, 8rem) auto'
+											'grid-template-columns': `auto repeat(${w}, ${40 / w}rem) auto`
 										},
 									})
 								],
