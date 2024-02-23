@@ -26,7 +26,10 @@ class sheet extends HTMLElement {
 	}
 
 	restore({state} = {}) {
-		this.#state = state;
+		if (typeof state === 'object')
+			this.#state = state;
+		else
+			this.#state = {};
 	}
 
 	capture({} = {}) {

@@ -66,13 +66,11 @@ class checkout {
 		listen({
 			element: this.focus,
 			event: 'focus-change',
-			callback: ({detail: focus} = {}) => {
-				this.#state.focus = focus;
-				this.restore({state: this.#state});
+			callback: ({detail} = {}) => {
 				if (this.#state.mode == 'view')
-					this.view();
+					this.view({focus: detail});
 				if (this.#state.mode == 'modify')
-					this.modify();
+					this.modify({focus: detail});
 			}
 		});
 		listen({
@@ -113,22 +111,25 @@ class checkout {
 		this.#state = state;
 	}
 
-	state_modify({parent, alter, merge, context, focus} = {}) {
+	state_modify({parent, alter, merge, context, focus, sheet} = {}) {
 		const _state = this.#state;
+		if (_state.mode == 'modify')
+			_state.sheet[_state.focus.code] = this.sheet.capture();
 		const state = _state.mode == 'modify' ? _state : {
 			mode: 'modify',
 			parent: null,
 			alter: true,
 			merge: [],
 			context: 'parent',
-			focus: create_facet({code: 'DF1'})
+			focus: create_facet({code: 'DF1'}),
+			sheet: {}
 		};
 		if (_state.mode == 'view') {
 			state.parent = _state.commit,
 			state.focus = _state.focus
 		}
 		for (const [k, v] of Object.entries({
-			parent, alter, merge, context, focus
+			parent, alter, merge, context, focus, sheet
 		}))
 			if (typeof v !== 'undefined')
 				state[k] = v;
@@ -180,11 +181,15 @@ class checkout {
 
 	modify({...args} = {}) {
 		this.state_modify({...args});
+		console.log(this.#state.sheet);
 		this.#cache_modify();
 		this.header.view({view_graph: this.graph});
 		this.graph.view({graph: this.history});
 		this.control.modify({parent: this.#state.parent, alter: this.#state.alter, merge: this.#state.merge, context: this.#state.context});
 		this.focus.view({list: mst_focus, focus: this.#state.focus});
+		this.sheet.restore({
+			state: this.#state.sheet[this.#state.focus.code]
+		});
 		this.sheet.modify({
 			facet: this.#state.focus,
 			aspect: this.#cache.aspect,
