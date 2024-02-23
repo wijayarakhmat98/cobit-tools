@@ -260,11 +260,24 @@ class sheet extends HTMLElement {
 					return 2;
 			})),
 			children: this.#prop.aspect.map(r => this.#prop.input.map(i => {
+				const checked = context[i.id - 1][r.id - 1] == 'alter';
 				let input;
 				if (i.type == 'scale')
-					input = create_scale({lo: i.lo, hi: i.hi, step: i.step, name: `facet ${this.#prop.facet.id} aspect ${r.id} input ${i.id} value`});
+					input = create_scale({
+						lo: i.lo,
+						hi: i.hi,
+						step: i.step,
+						name: `facet ${this.#prop.facet.id} aspect ${r.id} input ${i.id} value`,
+						checked: checked ? this.#state.value[i.id - 1][r.id - 1] : undefined
+					});
 				if (i.type == 'percentage')
-					input = create_percentage({lo: i.lo, hi: i.hi, step: i.step, name: `facet ${this.#prop.facet.id} aspect ${r.id} input ${i.id} value`});
+					input = create_percentage({
+						lo: i.lo,
+						hi: i.hi,
+						step: i.step,
+						name: `facet ${this.#prop.facet.id} aspect ${r.id} input ${i.id} value`,
+						checked: checked
+					});
 				listen({
 					element: input,
 					event: 'x-change',
@@ -284,7 +297,10 @@ class sheet extends HTMLElement {
 			return [];
 		return create_column({
 			children: this.#prop.aspect.map(r => this.#prop.input.map(i => {
-				const note = create_textarea({row: 1});
+				const note = create_textarea({
+					row: 1,
+					value: (this.#state.note[i.id - 1] ?? [])[r.id - 1]
+				});
 				return listener_change({
 					element: note,
 					callback: () => this.change_note({i: i, r: r, v: note.value})
@@ -300,13 +316,15 @@ class sheet extends HTMLElement {
 			sub_col: 6,
 			children: this.#prop.aspect.map(r => this.#prop.input.map(i => {
 				const c = this.#cache.snapshot[commit.id][i.id - 1][r.id - 1];
+				const checked = typeof context[i.id - 1][r.id - 1] === 'undefined' || context[i.id - 1][r.id - 1] == commit.id;
 				if (c.commit == 'baseline')
 					return [];
 				return listen({
 					element: create_trace({
 						r: c,
 						name: `facet ${this.#prop.facet.id} aspect ${r.id} input ${i.id} value`,
-						style: create_area({y: (r.id - 1) * this.#prop.input.length + i.id})
+						style: create_area({y: (r.id - 1) * this.#prop.input.length + i.id}),
+						checked: checked
 					}),
 					event: 'x-change',
 					callback: () => this.change_selection({i: i, r: r, v: commit.id})

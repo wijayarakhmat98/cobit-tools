@@ -573,8 +573,8 @@ function create_scale({lo, hi, step, checked, name, ...args} = {}) {
 			.map(i => bubble({
 				element: create_radio({
 					text: i,
-					...(checked == i && {checked: ''}),
-					...(name && {name: name})
+					checked: checked == i,
+					name: name
 				}),
 				listener: listener_change,
 				event: 'x-change',
