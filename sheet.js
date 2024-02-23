@@ -61,8 +61,12 @@ class sheet extends HTMLElement {
 		const context = this.context();
 		return this.#prop.input.map(i => this.#prop.aspect.map(r => {
 			const c = context[i.id - 1][r.id - 1];
-			if (c == 'alter')
-				return this.#state.value[i.id - 1][r.id - 1];
+			if (c == 'alter') {
+				if (typeof this.#state.value[i.id - 1] === 'undefined')
+					return this.#prop.baseline[i.id - 1][r.id - 1];
+				else
+					return this.#state.value[i.id - 1][r.id - 1];
+			}
 			if (c == 'baseline')
 				return this.#prop.baseline[i.id - 1][r.id - 1];
 			const s = this.#cache.snapshot[c][i.id - 1][r.id - 1];
@@ -264,7 +268,7 @@ class sheet extends HTMLElement {
 				listen({
 					element: input,
 					event: 'x-change',
-					callback: ({detail}) => this.change_value({i: i, r: r, v: detail})
+					callback: ({detail}) => this.change_value({i: i, r: r, v: Number(detail)})
 				});
 				listener_change({
 					element: input,
@@ -323,11 +327,14 @@ class sheet extends HTMLElement {
 			children: this.#prop.aspect.map(r => this.#prop.input.map(i => {
 				if (this.#prop.parent !== null && this.#cache.snapshot[this.#prop.parent.id][i.id - 1][r.id - 1].commit !== 'baseline')
 					return [];
-				return create_toggle_radio_clear({
-					text: 'Clear',
-					name: `facet ${this.#prop.facet.id} aspect ${r.id} input ${i.id} value`,
-					style: create_area({y: (r.id - 1) * this.#prop.input.length + i.id})
-				})
+				return listener_change({
+					element: create_toggle_radio_clear({
+						text: 'Clear',
+						name: `facet ${this.#prop.facet.id} aspect ${r.id} input ${i.id} value`,
+						style: create_area({y: (r.id - 1) * this.#prop.input.length + i.id})
+					}),
+					callback: () => this.change_selection({i: i, r: r, v: undefined})
+				});
 			})).flat(2)
 		});
 	}
@@ -378,7 +385,7 @@ class sheet extends HTMLElement {
 	change_selection({i, r, v} = {}) {
 		if (typeof this.#state.selection[i.id - 1] === 'undefined')
 			this.#state.selection[i.id - 1] = [];
-		if (v == this.#prop.parent.id)
+		if (this.#prop.parent !== null && v == this.#prop.parent.id)
 			this.#state.selection[i.id - 1][r.id - 1] = undefined;
 		else
 			this.#state.selection[i.id - 1][r.id - 1] = v;
