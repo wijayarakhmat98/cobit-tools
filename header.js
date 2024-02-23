@@ -33,7 +33,7 @@ class header extends HTMLElement {
 		const _state = this.#state;
 		const state = _state.mode == 'view' ? _state : {
 			mode: 'view',
-			state_graph: 'open',
+			state_graph: 'closed',
 			username: undefined
 		};
 		for (const [k, v] of Object.entries({

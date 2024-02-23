@@ -17,60 +17,6 @@ function main({
 	sheet_id,
 	gmo_id
 } = {}) {
-	const commit_1 = {
-		id: 1,
-		parent: null,
-		merge: [],
-		change: [
-			{fct_id: 2, inp_id: 1, asp_id: 1, inherit: false, value: 3, note: 'page 13'},
-			{fct_id: 2, inp_id: 1, asp_id: 3, inherit: false, value: 1, note: 'page 15'},
-			{fct_id: 2, inp_id: 1, asp_id: 4, inherit: false, value: 2, note: 'page 16'}
-		],
-		author: 'Mr A',
-		description: 'Document Q',
-		timestamp: 1
-	};
-	const commit_2 = {
-		id: 2,
-		parent: null,
-		merge: [],
-		change: [
-			{fct_id: 2, inp_id: 1, asp_id: 1, inherit: false, value: 5, note: 'page 2'},
-			{fct_id: 2, inp_id: 1, asp_id: 2, inherit: false, value: 1, note: 'page 1'},
-			{fct_id: 2, inp_id: 1, asp_id: 3, inherit: false, value: 2, note: 'page 4'},
-			{fct_id: 2, inp_id: 1, asp_id: 4, inherit: false, value: 4, note: 'page 9'}
-		],
-		author: 'Ms B',
-		description: 'Document R',
-		timestamp: 2
-	};
-	const commit_3 = {
-		id: 3,
-		parent: null,
-		merge: [commit_1, commit_2],
-		change: [
-			{fct_id: 2, inp_id: 1, asp_id: 1, inherit: false, value: 4, note: 'average\nQ-13, R-1'},
-			{fct_id: 2, inp_id: 1, asp_id: 2, inherit: true, from: commit_2},
-			{fct_id: 2, inp_id: 1, asp_id: 3, inherit: true, from: commit_1},
-			{fct_id: 2, inp_id: 1, asp_id: 4, inherit: false, value: 4, note: 'maximum\nQ-16, R-9'}
-		],
-		author: 'PIC',
-		description: 'Document Q, R',
-		timestamp: 4
-	};
-	const commit_4 = {
-		id: 4,
-		parent: commit_1,
-		merge: [],
-		change: [
-			{fct_id: 2, inp_id: 1, asp_id: 2, inherit: false, value: 5, note: 'Q-14, T-82'},
-		],
-		author: 'Mr A',
-		description: 'Document Q, T',
-		timestamp: 3
-	};
-	history.push(commit_1, commit_2, commit_3, commit_4);
-
 	customElements.define('x-header', header);
 	customElements.define('x-graph', graph);
 	customElements.define('x-control', control);
@@ -88,7 +34,7 @@ function main({
 		visual: document.getElementById(visual_id),
 		sheet: document.getElementById(sheet_id),
 		gmo: document.getElementById(gmo_id),
-	}).modify({parent: commit_1});
+	}).modify();
 };
 
 export default main;
