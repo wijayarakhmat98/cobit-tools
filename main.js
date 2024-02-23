@@ -22,9 +22,9 @@ function main({
 		parent: null,
 		merge: [],
 		change: [
-			{fct_id: 2, asp_id: 1, inherit: false, value: 3, note: 'page 13'},
-			{fct_id: 2, asp_id: 3, inherit: false, value: 1, note: 'page 15'},
-			{fct_id: 2, asp_id: 4, inherit: false, value: 2, note: 'page 16'}
+			{fct_id: 2, inp_id: 1, asp_id: 1, inherit: false, value: 3, note: 'page 13'},
+			{fct_id: 2, inp_id: 1, asp_id: 3, inherit: false, value: 1, note: 'page 15'},
+			{fct_id: 2, inp_id: 1, asp_id: 4, inherit: false, value: 2, note: 'page 16'}
 		],
 		author: 'Mr A',
 		description: 'Document Q',
@@ -35,10 +35,10 @@ function main({
 		parent: null,
 		merge: [],
 		change: [
-			{fct_id: 2, asp_id: 1, inherit: false, value: 5, note: 'page 2'},
-			{fct_id: 2, asp_id: 2, inherit: false, value: 1, note: 'page 1'},
-			{fct_id: 2, asp_id: 3, inherit: false, value: 2, note: 'page 4'},
-			{fct_id: 2, asp_id: 4, inherit: false, value: 4, note: 'page 9'}
+			{fct_id: 2, inp_id: 1, asp_id: 1, inherit: false, value: 5, note: 'page 2'},
+			{fct_id: 2, inp_id: 1, asp_id: 2, inherit: false, value: 1, note: 'page 1'},
+			{fct_id: 2, inp_id: 1, asp_id: 3, inherit: false, value: 2, note: 'page 4'},
+			{fct_id: 2, inp_id: 1, asp_id: 4, inherit: false, value: 4, note: 'page 9'}
 		],
 		author: 'Ms B',
 		description: 'Document R',
@@ -49,10 +49,10 @@ function main({
 		parent: null,
 		merge: [commit_1, commit_2],
 		change: [
-			{fct_id: 2, asp_id: 1, inherit: false, value: 4, note: 'average\nQ-13, R-1'},
-			{fct_id: 2, asp_id: 2, inherit: true, from: commit_2},
-			{fct_id: 2, asp_id: 3, inherit: true, from: commit_1},
-			{fct_id: 2, asp_id: 4, inherit: false, value: 4, note: 'maximum\nQ-16, R-9'}
+			{fct_id: 2, inp_id: 1, asp_id: 1, inherit: false, value: 4, note: 'average\nQ-13, R-1'},
+			{fct_id: 2, inp_id: 1, asp_id: 2, inherit: true, from: commit_2},
+			{fct_id: 2, inp_id: 1, asp_id: 3, inherit: true, from: commit_1},
+			{fct_id: 2, inp_id: 1, asp_id: 4, inherit: false, value: 4, note: 'maximum\nQ-16, R-9'}
 		],
 		author: 'PIC',
 		description: 'Document Q, R',
@@ -63,7 +63,7 @@ function main({
 		parent: commit_1,
 		merge: [],
 		change: [
-			{fct_id: 2, asp_id: 2, inherit: false, value: 5, note: 'Q-14, T-82'},
+			{fct_id: 2, inp_id: 1, asp_id: 2, inherit: false, value: 5, note: 'Q-14, T-82'},
 		],
 		author: 'Mr A',
 		description: 'Document Q, T',

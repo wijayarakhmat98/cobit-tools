@@ -611,7 +611,6 @@ function create_percentage({lo, hi, step, value, checked = false, name, ...args}
 }
 
 function create_trace({r, checked, name, ...args}) {
-	console.log(r);
 	return create_row({
 		sub_row: 2,
 		span: false,

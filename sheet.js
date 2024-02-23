@@ -1,6 +1,6 @@
 import {
+	create_area,
 	replace_column,
-	create_div,
 	create_row,
 	create_column,
 	create_p,
@@ -139,14 +139,7 @@ class sheet extends HTMLElement {
 		}
 		cache.snapshot = Object.fromEntries(
 			[this.#prop.commit ?? []]
-				.flat().map(c => [
-					c.id,
-					create_snapshot({
-						facet: this.#prop.facet,
-						aspect: this.#prop.aspect,
-						commit: c
-					})
-				])
+				.flat().map(c => [c.id, this.create_snapshot({commit: c})])
 		);
 		this.#cache = cache;
 	}
@@ -158,14 +151,7 @@ class sheet extends HTMLElement {
 		}
 		cache.snapshot = Object.fromEntries(
 			[this.#prop.parent ?? [], this.#prop.merge]
-				.flat().map(c => [
-					c.id,
-					create_snapshot({
-						facet: this.#prop.facet,
-						aspect: this.#prop.aspect,
-						commit: c
-					})
-				])
+				.flat().map(c => [c.id, this.create_snapshot({commit: c})])
 		);
 		this.#cache = cache;
 	}
@@ -215,14 +201,13 @@ class sheet extends HTMLElement {
 				(this.#prop.alter ? 2 : 0) +
 				(this.#prop.parent === null ? 0 : 1) +
 				1 +
-				(this.#prop.parent === null || this.#cache.snapshot[this.#prop.parent.id].find(s => s.commit == 'baseline') ? 1 : 0)
+				(this.#prop.parent === null || this.#cache.snapshot[this.#prop.parent.id].flat().find(s => s.commit == 'baseline') ? 1 : 0)
 			,
 			row: 2,
 			children: [
 				create_row({
 					children: [
-						create_p({text: this.#prop.facet.name}),
-						create_div(),
+						create_p({text: this.#prop.facet.name, style: create_area({w: 2})}),
 						this.#prop.merge.map(s => create_p({text: `Merging commit ${s.id}`})),
 						this.#prop.alter ? [create_p({text: 'Change'}), create_p({text: 'Note'})] : [],
 						this.#prop.parent === null ? [] : create_p({text: `Parent commit ${this.#prop.parent.id}`}),
@@ -258,26 +243,32 @@ class sheet extends HTMLElement {
 			return [];
 		return create_column({
 			sub_col: 6,
-			children: this.#cache.snapshot[this.#prop.commit.id]
-				.map(d => d.commit == 'baseline' ? create_div() : create_trace({
-					r: d,
-					checked: true,
-					name: `${d.id} value`
-				}))
-				.flat()
+			children: this.#prop.aspect.map(r => this.#prop.input.map(i => {
+				const c = this.#cache.snapshot[this.#prop.commit.id][i.id - 1][r.id - 1];
+				if (c.commit == 'baseline')
+					return [];
+				return create_trace({
+					r: c,
+					style: create_area({y: (r.id - 1) * this.#prop.input.length + i.id})
+				});
+			})).flat(2)
 		});
 	}
 
 	create_merge({context} = {}) {
-		return this.#prop.merge.map(s => create_column({
+		return this.#prop.merge.map(m => create_column({
 			sub_col: 6,
-			children: this.#cache.snapshot[s.id]
-				.map(d => d.commit == 'baseline' ? create_div() : create_trace({
-					r: d,
-					checked: context[d.id - 1] == s.id,
-					name: `${d.id} value`
-				}))
-				.flat()
+			children: this.#prop.aspect.map(r => this.#prop.input.map(i => {
+				const c = this.#cache.snapshot[m.id][i.id - 1][r.id - 1];
+				console.log(c);
+				if (c.commit == 'baseline')
+					return [];
+				return create_trace({
+					r: c,
+					name: `facet ${this.#prop.facet.id} aspect ${r.id} input ${i.id} value`,
+					style: create_area({y: (r.id - 1) * this.#prop.input.length + i.id})
+				});
+			})).flat(2)
 		}));
 	}
 
@@ -293,9 +284,9 @@ class sheet extends HTMLElement {
 			})),
 			children: this.#prop.aspect.map(r => this.#prop.input.map(i => {
 				if (i.type == 'scale')
-					return create_scale({lo: i.lo, hi: i.hi, step: i.step, name: `${r.id} value`});
+					return create_scale({lo: i.lo, hi: i.hi, step: i.step, name: `facet ${this.#prop.facet.id} aspect ${r.id} input ${i.id} value`});
 				if (i.type == 'percentage')
-					return create_percentage({lo: i.lo, hi: i.hi, step: i.step, name: `${r.id} value`});
+					return create_percentage({lo: i.lo, hi: i.hi, step: i.step, name: `facet ${this.#prop.facet.id} aspect ${r.id} input ${i.id} value`});
 			})).flat()
 		});
 	}
@@ -315,13 +306,16 @@ class sheet extends HTMLElement {
 			return [];
 		return create_column({
 			sub_col: 6,
-			children: this.#cache.snapshot[this.#prop.parent.id]
-				.map(d => d.commit == 'baseline' ? create_div() : create_trace({
-					r: d,
-					checked: context[d.id - 1] == this.#prop.parent.id,
-					name: `${d.id} value`
-				}))
-				.flat()
+			children: this.#prop.aspect.map(r => this.#prop.input.map(i => {
+				const c = this.#cache.snapshot[this.#prop.parent.id][i.id - 1][r.id - 1];
+				if (c.commit == 'baseline')
+					return [];
+				return create_trace({
+					r: c,
+					name: `facet ${this.#prop.facet.id} aspect ${r.id} input ${i.id} value`,
+					style: create_area({y: (r.id - 1) * this.#prop.input.length + i.id})
+				});
+			})).flat(2)
 		});
 	}
 
@@ -334,38 +328,48 @@ class sheet extends HTMLElement {
 
 	create_clear({} = {}) {
 		return create_column({
-			children: this.#prop.aspect.map(r => this.#prop.input.map(i =>
-				create_toggle_radio_clear({text: 'Clear', name: `${r.id} value`})
-			)).flat()
+			children: this.#prop.aspect.map(r => this.#prop.input.map(i => {
+				if (this.#prop.parent !== null && this.#cache.snapshot[this.#prop.parent.id][i.id - 1][r.id - 1].commit !== 'baseline')
+					return [];
+				return create_toggle_radio_clear({
+					text: 'Clear',
+					name: `facet ${this.#prop.facet.id} aspect ${r.id} input ${i.id} value`,
+					style: create_area({y: (r.id - 1) * this.#prop.input.length + i.id})
+				})
+			})).flat(2)
 		});
 	}
-}
 
-function create_snapshot({facet, aspect, commit} = {}) {
-	return aspect.map(r => {
-		let p, c;
-		for (p = commit; p !== null;)
-			if (c = p.change.find(s => s.fct_id == facet.id && s.asp_id == r.id))
-				if (c.inherit)
-					p = c.from;
+	create_snapshot({commit} = {}) {
+		return this.#prop.input.map(i => this.#prop.aspect.map(r => {
+			let p, c;
+			for (p = commit; p !== null;)
+				if (c = p.change.find(s =>
+					s.fct_id == this.#prop.facet.id
+					&& s.inp_id == i.id
+					&& s.asp_id == r.id
+				))
+					if (c.inherit)
+						p = c.from;
+					else
+						break;
 				else
-					break;
-			else
-				p = p.parent;
-		return (p === null)
-			? {
-				id: r.id,
-				commit: 'baseline'
-			}
-			: {
-				id: r.id,
-				value: c.value,
-				note: c.note,
-				author: p.author,
-				commit: p.id,
-				description: p.description
-			};
-	});
+					p = p.parent;
+			return (p === null)
+				? {
+					id: r.id,
+					commit: 'baseline'
+				}
+				: {
+					id: r.id,
+					value: c.value,
+					note: c.note,
+					author: p.author,
+					commit: p.id,
+					description: p.description
+				};
+		}));
+	}
 }
 
 export default sheet;
