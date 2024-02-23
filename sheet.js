@@ -178,21 +178,23 @@ class sheet extends HTMLElement {
 			element: this,
 			sub_col:
 				1 +
+				1 +
 				(this.#prop.commit === null ? 0 : 1) +
 				1
 			,
 			children: [
 				create_row({
 					children: [
-						create_p({text: this.#prop.facet.name}),
+						create_p({text: this.#prop.facet.name, style: create_area({w: 2})}),
 						this.#prop.commit === null ? [] : create_p({text: `Viewing commit ${this.#prop.commit.id}`}),
 						create_p({text: 'Baseline'})
 					].flat()
 				}),
 				create_row({
-					sub_row: this.#prop.aspect.length,
+					sub_row: this.#prop.aspect.length * this.#prop.input.length,
 					children: [
 						create_legend({aspect: this.#prop.aspect}),
+						this.create_input(),
 						this.create_trace({commit: this.#prop.commit, context: context}),
 						this.create_baseline()
 					].flat()

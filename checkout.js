@@ -181,7 +181,6 @@ class checkout {
 
 	modify({...args} = {}) {
 		this.state_modify({...args});
-		console.log(this.#state.sheet);
 		this.#cache_modify();
 		this.header.view({view_graph: this.graph});
 		this.graph.view({graph: this.history});
@@ -212,26 +211,51 @@ class checkout {
 	}
 
 	save({} = {}) {
-		const x = this.sheet.x();
-		const note = this.sheet.note();
+		this.state_modify();
 		const new_commit = {
 			id: this.history.length,
 			parent: this.#state.parent,
 			merge: this.#state.merge,
-			change: create_aspect({facet: this.#state.focus}).reduce((c, d) => {
-				const v = x[d.id - 1][0];
-				// if (v.from !== null)
-				// 	return c;
-				c.push({
-					id: d.id,
-					inherit: false,
-					value: v,
-					note: note[d.id - 1]
+			change: mst_focus.map(f => {
+				const aspect = create_aspect({facet: f});
+				const input = create_input({facet: f});
+				const baseline = create_baseline({facet: f});
+				this.sheet.restore({state: this.#state.sheet[f.code]});
+				this.sheet.modify({
+					facet: f,
+					aspect: aspect,
+					input: input,
+					baseline: baseline,
+					parent: this.#state.parent,
+					alter: this.#state.alter,
+					merge: this.#state.merge
 				});
-				return c;
-			}, []),
-			author: this.header.username(),
-			description: this.control.description(),
+				const context = this.sheet.context();
+				const x = this.sheet.x();
+				const note = this.sheet.note();
+				return input.map(i => aspect.map(r => {
+					const c = context[i.id - 1][r.id - 1];
+					if (c === 'baseline' || this.#state.parent !== null && c == this.#state.parent.id)
+						return [];
+					const s = {
+						fct_id: f.id,
+						inp_id: i.id,
+						asp_id: r.id
+					};
+					if (c == 'alter') {
+						s.inherit = false;
+						s.value = x[i.id - 1][r.id - 1];
+						s.note = (note[i.id - 1] ?? [])[r.id - 1] ?? '';
+					}
+					if (this.#state.merge.includes(c)) {
+						s.inherit = true;
+						s.from = c;
+					}
+					return s;
+				}))
+			}).flat(3),
+			author: this.header.username() ?? '',
+			description: this.control.description() ?? '',
 			timestamp: Date.now()
 		};
 		this.history.push(new_commit);
